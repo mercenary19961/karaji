@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نموذج أولي — تطبيق الكراج</title>
+</head>
+<body>
+<style>
+  html, body { margin: 0; padding: 0; background: #E7EDF3; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  input, select, button { font-family: inherit; }
+  @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid #F5A50A; outline-offset: 2px; }
+
+  .hidden { display: none !important; }
+
+  .tab { height: 48px; padding-inline: 16px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; background: #FFFFFF; color: #17456B; border: 2px solid #C3CFDA; }
+  .tab.active { background: #17456B; color: #FFFFFF; border-color: #17456B; }
+
+  .chip { min-height: 52px; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer; padding-inline: 8px; background: #FFFFFF; color: #142A3B; border: 2px solid #C3CFDA; }
+  .chip.on { background: #17456B; color: #FFFFFF; border-color: #17456B; }
+
+  .rem-card { background: #FFFFFF; border: 2px solid transparent; border-radius: 18px; padding: 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08); }
+  .rem-card.done { background: #E8F7EE; border-color: #1E9E52; opacity: 0.85; box-shadow: none; }
+  .rem-badge { background: #FDEBD2; color: #9A4B00; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+  .rem-card.done .rem-badge { background: #1E9E52; color: #FFFFFF; }
+  .rem-donebtn { width: 100%; height: 50px; margin-block-start: 10px; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; background: #FFFFFF; color: #14683A; border: 2px solid #1E9E52; }
+  .rem-card.done .rem-donebtn { background: #1E9E52; color: #FFFFFF; border: 2px solid #1E9E52; }
+
+  .shop-card { background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 18px; cursor: pointer; display: flex; flex-direction: column; gap: 10px; }
+  .shop-card:hover { border-color: #17456B; }
+</style>
+
+<div dir="rtl" style="min-height: 100vh; background: #E7EDF3; font-family: Tajawal, 'Segoe UI', 'Noto Naskh Arabic', 'Geeza Pro', Tahoma, Arial, sans-serif; color: #142A3B; padding: 20px 12px 48px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+
+  <!-- ======= SCREEN SWITCHER (mockup harness) ======= -->
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; max-width: 1080px;">
+    <span style="font-size: 14px; font-weight: 700; color: #5B7186; margin-inline-end: 4px;">بوابة المحل:</span>
+    <button class="tab active" data-screen="dash" onclick="go('dash')">الرئيسية</button>
+    <button class="tab" data-screen="visit" onclick="go('visit')">زيارة جديدة</button>
+    <button class="tab" data-screen="profile" onclick="go('profile')">ملف السيارة</button>
+    <button class="tab" data-screen="reminders" onclick="go('reminders')">التذكيرات</button>
+    <button class="tab" data-screen="analytics" onclick="go('analytics')">التقارير</button>
+    <span style="width: 1px; height: 28px; background: #C3CFDA; margin-inline: 8px;"></span>
+    <span style="font-size: 14px; font-weight: 700; color: #5B7186; margin-inline-end: 4px;">Admin:</span>
+    <button class="tab" data-screen="shops" onclick="go('shops')">Shops</button>
+    <button class="tab" data-screen="shopDetail" onclick="go('shopDetail')">Shop detail</button>
+  </div>
+
+  <!-- ======= PHONE FRAME (shop portal) ======= -->
+  <div id="phoneFrame" style="width: 414px; max-width: 100%; background: #1B2733; border-radius: 48px; padding: 12px; box-shadow: 0 24px 60px rgba(15,42,67,0.28);">
+    <div style="position: relative; background: #F5F8FB; border-radius: 38px; overflow: hidden; min-height: 780px; display: flex; flex-direction: column;">
+
+      <!-- App header — the ONLY place the app name appears -->
+      <div style="background: #17456B; color: #FFFFFF; padding: 18px 20px 16px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="font-size: 24px; font-weight: 800; letter-spacing: 0.5px;">كراجي</div>
+        <div style="font-size: 14px; color: #BFD4E6; font-weight: 500;">كراج أبو رامز — ماركا</div>
+      </div>
+
+      <!-- ======= 1. DASHBOARD ======= -->
+      <section id="scr-dash" style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 16px;">
+        <input inputmode="numeric" placeholder="🔍  رقم اللوحة أو الهاتف" style="width: 100%; height: 60px; border: 2px solid #C3CFDA; border-radius: 16px; padding-inline: 18px; font-size: 19px; background: #FFFFFF; color: #142A3B; outline: none;">
+        <button onclick="goVisitFresh()" style="width: 100%; height: 64px; background: #F5A50A; color: #3A2A05; border: none; border-radius: 16px; font-size: 22px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(245,165,10,0.35);">＋ زيارة جديدة</button>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+            <div style="font-size: 26px; font-weight: 800; color: #17456B;">7</div>
+            <div style="font-size: 14px; color: #5B7186; margin-block-start: 4px;">سيارات اليوم</div>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+            <div style="font-size: 26px; font-weight: 800; color: #C25E00;">12</div>
+            <div style="font-size: 14px; color: #5B7186; margin-block-start: 4px;">مستحق التذكير</div>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 10px; text-align: center; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+            <div style="font-size: 22px; font-weight: 800; color: #1E9E52;">1,840 <span style="font-size: 13px;">د.أ</span></div>
+            <div style="font-size: 14px; color: #5B7186; margin-block-start: 4px;">دخل الشهر</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-block-start: 6px;">
+          <div style="font-size: 18px; font-weight: 800;">مستحق التواصل اليوم</div>
+          <button onclick="go('reminders')" style="background: none; border: none; color: #17456B; font-size: 15px; font-weight: 700; cursor: pointer; min-height: 48px; padding-inline: 8px;">عرض الكل ←</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <div>
+              <div style="font-size: 17px; font-weight: 700;">تويوتا كامري — معاذ الخطيب</div>
+              <div style="font-size: 15px; color: #5B7186; margin-block-start: 2px;">تغيير زيت</div>
+            </div>
+            <span style="background: #FDEBD2; color: #9A4B00; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; white-space: nowrap;">متأخر 12 يوم</span>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <div>
+              <div style="font-size: 17px; font-weight: 700;">هيونداي إلنترا — أم علي</div>
+              <div style="font-size: 15px; color: #5B7186; margin-block-start: 2px;">تغيير زيت + فلتر هواء</div>
+            </div>
+            <span style="background: #FDEBD2; color: #9A4B00; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; white-space: nowrap;">متأخر 8 أيام</span>
+          </div>
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <div>
+              <div style="font-size: 17px; font-weight: 700;">مرسيدس E200 — أبو خالد</div>
+              <div style="font-size: 15px; color: #5B7186; margin-block-start: 2px;">تجديد ترخيص</div>
+            </div>
+            <span style="background: #FDEBD2; color: #9A4B00; font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 999px; white-space: nowrap;">متأخر 5 أيام</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======= 2. NEW VISIT ======= -->
+      <section id="scr-visit" class="hidden" style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 16px;">
+
+        <div id="visit-form" style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="font-size: 20px; font-weight: 800;">زيارة جديدة</div>
+
+          <!-- found car -->
+          <div style="background: #FFFFFF; border: 2px solid #17456B; border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-size: 19px; font-weight: 800;">كيا سبورتاج 2019</div>
+              <span style="background: #EAF1F7; color: #17456B; font-size: 15px; font-weight: 800; padding: 4px 12px; border-radius: 10px; letter-spacing: 1px;">22-14853</span>
+            </div>
+            <div style="font-size: 16px; color: #5B7186; margin-block-start: 6px;">أبو محمد — 0795XXXXXX</div>
+            <div style="font-size: 15px; color: #5B7186; margin-block-start: 4px;">آخر تغيير زيت: قبل 4 أشهر على عداد 82,500 كم</div>
+          </div>
+
+          <button onclick="toggleNewCust()" style="background: none; border: none; color: #17456B; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: underline; align-self: flex-start; min-height: 48px; padding-inline: 4px;">سيارة غير مسجلة؟</button>
+
+          <div id="newcust" class="hidden" style="background: #EAF1F7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 16px; font-weight: 800; color: #17456B;">زبون جديد</div>
+            <input placeholder="الاسم" style="width: 100%; height: 56px; border: 2px solid #C3CFDA; border-radius: 14px; padding-inline: 16px; font-size: 18px; background: #FFFFFF; outline: none;">
+            <input inputmode="tel" placeholder="رقم الهاتف" style="width: 100%; height: 56px; border: 2px solid #C3CFDA; border-radius: 14px; padding-inline: 16px; font-size: 18px; background: #FFFFFF; outline: none;">
+          </div>
+
+          <div>
+            <div style="font-size: 17px; font-weight: 700; margin-block-end: 8px;">قراءة العداد الحالية <span style="color: #B4232A;">*</span></div>
+            <input inputmode="numeric" placeholder="مثال: 91300" style="width: 100%; height: 64px; border: 2px solid #C3CFDA; border-radius: 16px; padding-inline: 18px; font-size: 24px; font-weight: 700; background: #FFFFFF; outline: none; text-align: center; letter-spacing: 1px;">
+          </div>
+
+          <div>
+            <div style="font-size: 17px; font-weight: 700; margin-block-end: 8px;">الخدمات</div>
+            <div id="chips" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+          </div>
+
+          <div>
+            <div style="font-size: 17px; font-weight: 700; margin-block-end: 8px;">نوع الزيت</div>
+            <select style="width: 100%; height: 56px; border: 2px solid #C3CFDA; border-radius: 14px; padding-inline: 14px; font-size: 17px; background: #FFFFFF; color: #142A3B;">
+              <option selected>نفس الزيارة السابقة — Mobil 5W-30</option>
+              <option>Castrol 5W-40</option>
+              <option>Total 10W-40</option>
+              <option>Shell 5W-30</option>
+              <option>آخر</option>
+            </select>
+          </div>
+
+          <div>
+            <div style="font-size: 17px; font-weight: 700; margin-block-end: 8px;">السعر (اختياري)</div>
+            <input inputmode="decimal" placeholder="د.أ" style="width: 100%; height: 56px; border: 2px solid #C3CFDA; border-radius: 14px; padding-inline: 16px; font-size: 20px; font-weight: 700; background: #FFFFFF; outline: none; text-align: center;">
+          </div>
+
+          <button onclick="saveVisit()" style="width: 100%; height: 64px; background: #F5A50A; color: #3A2A05; border: none; border-radius: 16px; font-size: 22px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(245,165,10,0.35); margin-block-start: 4px;">حفظ الزيارة</button>
+        </div>
+
+        <!-- post-save success -->
+        <div id="visit-saved" class="hidden" style="display: flex; flex-direction: column; gap: 16px; align-items: stretch;">
+          <div style="background: #E8F7EE; border: 2px solid #1E9E52; border-radius: 18px; padding: 22px 16px; text-align: center;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #1E9E52; color: #FFFFFF; font-size: 34px; display: flex; align-items: center; justify-content: center; margin-inline: auto;">✓</div>
+            <div style="font-size: 21px; font-weight: 800; color: #14683A; margin-block-start: 12px;">تم حفظ الزيارة</div>
+            <div style="font-size: 15px; color: #3E7A56; margin-block-start: 4px;">كيا سبورتاج — أبو محمد — عداد 91,300 كم</div>
+          </div>
+
+          <button style="width: 100%; height: 68px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 16px; font-size: 21px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(30,158,82,0.35);">إرسال ملخص الزيارة واتساب 💬</button>
+
+          <div style="font-size: 14px; color: #5B7186; text-align: center;">معاينة الرسالة</div>
+          <div style="background: #DCF3D0; border-radius: 18px 18px 4px 18px; padding: 14px 16px; margin-inline-start: 32px; box-shadow: 0 2px 6px rgba(15,42,67,0.10); font-size: 15.5px; line-height: 1.9; color: #1E3325;">
+            مرحباً أبو محمد،<br>
+            تمت اليوم صيانة <b>كيا سبورتاج 2019 — لوحة 22-14853</b>:<br>
+            ✅ تغيير زيت (Mobil 5W-30)<br>
+            ✅ فلتر زيت<br>
+            قراءة العداد: <b>91,300 كم</b><br>
+            🔔 الموعد القادم: عند <b>96,300 كم</b> أو <b>15/10/2026</b><br>
+            شكراً لثقتكم — كراج أبو رامز
+            <div style="text-align: end; font-size: 12px; color: #6B8A6F; margin-block-start: 4px;">12:40 م</div>
+          </div>
+
+          <button onclick="go('dash')" style="width: 100%; height: 56px; background: #FFFFFF; color: #17456B; border: 2px solid #C3CFDA; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer;">العودة للرئيسية</button>
+        </div>
+      </section>
+
+      <!-- ======= 3. CAR PROFILE ======= -->
+      <section id="scr-profile" class="hidden" style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-size: 21px; font-weight: 800;">كيا سبورتاج 2019</div>
+            <span style="background: #EAF1F7; color: #17456B; font-size: 15px; font-weight: 800; padding: 4px 12px; border-radius: 10px; letter-spacing: 1px;">22-14853</span>
+          </div>
+          <div style="font-size: 17px; color: #5B7186; margin-block-start: 6px;">أبو محمد — 0795XXXXXX</div>
+          <div style="font-size: 15px; color: #5B7186; margin-block-start: 4px;">شهر الترخيص: 11/2026</div>
+          <div style="display: flex; gap: 10px; margin-block-start: 14px;">
+            <button style="flex: 1; height: 52px; background: #17456B; color: #FFFFFF; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer;">اتصال 📞</button>
+            <button style="flex: 1; height: 52px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer;">واتساب 💬</button>
+          </div>
+        </div>
+
+        <div style="background: #FDEBD2; border: 2px solid #F5A50A; border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 24px;">🔔</span>
+          <div>
+            <div style="font-size: 16px; font-weight: 800; color: #9A4B00;">الزيت القادم</div>
+            <div style="font-size: 16px; color: #7A4400; margin-block-start: 2px;">عند 92,500 كم أو 15/10/2026</div>
+          </div>
+        </div>
+
+        <div style="font-size: 18px; font-weight: 800; margin-block-start: 4px;">سجل الزيارات</div>
+        <div id="timeline" style="display: flex; flex-direction: column;"></div>
+      </section>
+
+      <!-- ======= 4. REMINDERS ======= -->
+      <section id="scr-reminders" class="hidden" style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <div style="font-size: 20px; font-weight: 800;">قائمة التذكير</div>
+          <div style="font-size: 15px; color: #5B7186;">مرتبة حسب الأكثر تأخراً</div>
+        </div>
+        <div id="reminders" style="display: flex; flex-direction: column; gap: 14px;"></div>
+      </section>
+
+      <!-- ======= 5. ANALYTICS ======= -->
+      <section id="scr-analytics" class="hidden" style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border-radius: 16px; padding: 6px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+          <button onclick="stepMonth(-1)" style="width: 52px; height: 52px; background: #EAF1F7; border: none; border-radius: 12px; font-size: 20px; color: #17456B; cursor: pointer;">‹</button>
+          <div id="monthLabel" style="font-size: 18px; font-weight: 800;">تموز 2026</div>
+          <button onclick="stepMonth(1)" style="width: 52px; height: 52px; background: #EAF1F7; border: none; border-radius: 12px; font-size: 20px; color: #17456B; cursor: pointer;">›</button>
+        </div>
+
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+          <div style="font-size: 17px; font-weight: 800; margin-block-end: 12px;">الزيارات شهرياً</div>
+          <svg viewBox="0 0 320 150" style="width: 100%; height: auto; display: block;">
+            <rect x="18" y="70" width="34" height="70" rx="6" fill="#C3CFDA"></rect>
+            <rect x="68" y="55" width="34" height="85" rx="6" fill="#C3CFDA"></rect>
+            <rect x="118" y="80" width="34" height="60" rx="6" fill="#C3CFDA"></rect>
+            <rect x="168" y="40" width="34" height="100" rx="6" fill="#C3CFDA"></rect>
+            <rect x="218" y="52" width="34" height="88" rx="6" fill="#C3CFDA"></rect>
+            <rect x="268" y="25" width="34" height="115" rx="6" fill="#17456B"></rect>
+            <text x="35" y="148" font-size="11" fill="#5B7186" text-anchor="middle">شباط</text>
+            <text x="85" y="148" font-size="11" fill="#5B7186" text-anchor="middle">آذار</text>
+            <text x="135" y="148" font-size="11" fill="#5B7186" text-anchor="middle">نيسان</text>
+            <text x="185" y="148" font-size="11" fill="#5B7186" text-anchor="middle">أيار</text>
+            <text x="235" y="148" font-size="11" fill="#5B7186" text-anchor="middle">حزيران</text>
+            <text x="285" y="148" font-size="11" fill="#5B7186" text-anchor="middle">تموز</text>
+            <text x="285" y="18" font-size="13" font-weight="800" fill="#17456B" text-anchor="middle">64</text>
+          </svg>
+        </div>
+
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+          <div style="font-size: 17px; font-weight: 800; margin-block-end: 12px;">أكثر الخدمات</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; font-size: 16px;"><span>تغيير زيت</span><b style="color: #17456B;">46</b></div>
+            <div style="display: flex; justify-content: space-between; font-size: 16px;"><span>فلتر هواء</span><b style="color: #17456B;">19</b></div>
+            <div style="display: flex; justify-content: space-between; font-size: 16px;"><span>فحص فرامل</span><b style="color: #17456B;">11</b></div>
+            <div style="display: flex; justify-content: space-between; font-size: 16px;"><span>بطارية</span><b style="color: #17456B;">6</b></div>
+          </div>
+        </div>
+
+        <div style="background: #FFFFFF; border-radius: 18px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08);">
+          <div style="font-size: 17px; font-weight: 800; margin-block-end: 12px;">زبائن ما رجعوا <span style="font-size: 14px; font-weight: 500; color: #5B7186;">(أكثر من 6 أشهر)</span></div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1.5px solid #E1E8EF; border-radius: 14px; padding: 12px 14px;">
+              <div>
+                <div style="font-size: 16px; font-weight: 700;">أبو ليث — تويوتا كامري</div>
+                <div style="font-size: 14px; color: #5B7186;">آخر زيارة قبل 7 أشهر</div>
+              </div>
+              <button style="height: 48px; padding-inline: 16px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap;">واتساب 💬</button>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1.5px solid #E1E8EF; border-radius: 14px; padding: 12px 14px;">
+              <div>
+                <div style="font-size: 16px; font-weight: 700;">أم يزن — هيونداي إلنترا</div>
+                <div style="font-size: 14px; color: #5B7186;">آخر زيارة قبل 8 أشهر</div>
+              </div>
+              <button style="height: 48px; padding-inline: 16px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap;">واتساب 💬</button>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1.5px solid #E1E8EF; border-radius: 14px; padding: 12px 14px;">
+              <div>
+                <div style="font-size: 16px; font-weight: 700;">سامر العمري — ميتسوبيشي لانسر</div>
+                <div style="font-size: 14px; color: #5B7186;">آخر زيارة قبل 11 شهر</div>
+              </div>
+              <button style="height: 48px; padding-inline: 16px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap;">واتساب 💬</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- undo toast -->
+      <div id="toast" class="hidden" style="position: absolute; inset-block-end: 20px; inset-inline: 16px; background: #142A3B; color: #FFFFFF; border-radius: 16px; padding: 8px 8px 8px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 8px 24px rgba(15,42,67,0.4); animation: toastIn 0.25s ease-out;">
+        <span style="font-size: 16px;">تم حفظ الزيارة</span>
+        <button onclick="undoSave()" style="height: 48px; padding-inline: 18px; background: rgba(255,255,255,0.14); color: #FFC961; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer;">تراجع</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======= ADMIN (wide frame, LTR) ======= -->
+  <div id="adminFrame" class="hidden" dir="ltr" style="width: 1024px; max-width: 100%; background: #FFFFFF; border-radius: 20px; box-shadow: 0 16px 48px rgba(15,42,67,0.18); overflow: hidden; text-align: left;">
+    <div style="background: #142A3B; color: #FFFFFF; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="font-size: 18px; font-weight: 800;">Admin Portal</div>
+      <div style="font-size: 14px; color: #9FB4C6;">admin@ • Jul 5, 2026</div>
+    </div>
+
+    <!-- ======= 6. SHOPS LIST ======= -->
+    <section id="scr-shops" style="padding: 28px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="font-size: 22px; font-weight: 800;">Shops <span style="font-size: 15px; font-weight: 500; color: #5B7186;">(6)</span></div>
+        <input placeholder="Search shops…" style="height: 44px; width: 260px; border: 1.5px solid #C3CFDA; border-radius: 12px; padding-inline: 14px; font-size: 15px; outline: none;">
+      </div>
+      <div id="shopsGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;"></div>
+    </section>
+
+    <!-- ======= 7. SHOP DETAIL ======= -->
+    <section id="scr-shopDetail" class="hidden" style="padding: 28px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <button onclick="go('shops')" style="background: none; border: none; color: #17456B; font-size: 14px; font-weight: 700; cursor: pointer; padding: 0;">← All shops</button>
+          <div style="font-size: 24px; font-weight: 800; margin-block-start: 4px;">Abu Ramez Garage <span style="font-size: 15px; font-weight: 500; color: #5B7186;">— Marka</span></div>
+        </div>
+        <button style="height: 48px; padding-inline: 22px; background: #17456B; color: #FFFFFF; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer;">Login as shop →</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 16px;">
+          <div style="font-size: 26px; font-weight: 800; color: #17456B;">64</div>
+          <div style="font-size: 14px; color: #5B7186;">Visits this month</div>
+        </div>
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 16px;">
+          <div style="font-size: 26px; font-weight: 800; color: #17456B;">212</div>
+          <div style="font-size: 14px; color: #5B7186;">Cars on file</div>
+        </div>
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 16px;">
+          <div style="font-size: 26px; font-weight: 800; color: #17456B;">143</div>
+          <div style="font-size: 14px; color: #5B7186;">Reminders sent</div>
+        </div>
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 16px;">
+          <div style="font-size: 26px; font-weight: 800; color: #1E9E52;">89</div>
+          <div style="font-size: 14px; color: #5B7186;">WhatsApp summaries</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px;">
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="font-size: 16px; font-weight: 800;">Subscription</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 15px;">
+            <span style="color: #5B7186;">Status</span>
+            <span style="background: #E8F7EE; color: #14683A; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 999px;">Active</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 15px;">
+            <span style="color: #5B7186;">Plan</span>
+            <select style="height: 44px; border: 1.5px solid #C3CFDA; border-radius: 10px; padding-inline: 10px; font-size: 14px; background: #FFFFFF;">
+              <option selected>Basic — 15 JOD/mo</option>
+              <option>Pro — 25 JOD/mo</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 15px;">
+            <span style="color: #5B7186;">Renews</span>
+            <span style="font-weight: 700;">Aug 1, 2026</span>
+          </div>
+          <div style="display: flex; gap: 10px; margin-block-start: 4px;">
+            <button style="flex: 1; height: 44px; background: #FFFFFF; color: #17456B; border: 1.5px solid #C3CFDA; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;">Extend trial</button>
+            <button style="flex: 1; height: 44px; background: #FFFFFF; color: #B4232A; border: 1.5px solid #E8C2C4; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;">Suspend</button>
+          </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1.5px solid #E1E8EF; border-radius: 16px; padding: 20px;">
+          <div style="font-size: 16px; font-weight: 800; margin-block-end: 12px;">Recent activity</div>
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-block: 10px; border-block-end: 1px solid #E1E8EF; font-size: 14px;">
+              <span>Plan changed to <b>Basic</b> by admin</span><span style="color: #5B7186;">Today 10:22</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-block: 10px; border-block-end: 1px solid #E1E8EF; font-size: 14px;">
+              <span style="display: flex; align-items: center; gap: 10px;">Shop suspended by admin <button style="height: 32px; padding-inline: 12px; background: #FDEBD2; color: #9A4B00; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer;">Undo</button></span><span style="color: #5B7186;">Jul 3, 16:05</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-block: 10px; border-block-end: 1px solid #E1E8EF; font-size: 14px;">
+              <span>WhatsApp quota raised to 500/mo</span><span style="color: #5B7186;">Jul 1, 09:14</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-block: 10px; font-size: 14px;">
+              <span>Shop owner reset password</span><span style="color: #5B7186;">Jun 28, 13:40</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<script>
+  var state = {
+    screen: 'dash',
+    services: { 'تغيير زيت': true, 'فلتر زيت': true },
+    saved: false,
+    newCust: false,
+    contacted: {},
+    monthIdx: 6,
+  };
+  var toastTimer = null;
+
+  var MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+  var SERVICES = ['تغيير زيت', 'فلتر زيت', 'فلتر هواء', 'فلتر مكيف', 'فحص فرامل', 'بطارية', 'دواليب', 'أخرى'];
+  var PHONE_SCREENS = ['dash', 'visit', 'profile', 'reminders', 'analytics'];
+
+  var VISITS = [
+    { date: '05/03/2026', km: '82,500', price: '28 د.أ', services: ['تغيير زيت', 'فلتر زيت'] },
+    { date: '18/11/2025', km: '77,900', price: '46 د.أ', services: ['تغيير زيت', 'فلتر هواء', 'فحص فرامل'] },
+    { date: '02/07/2025', km: '72,400', price: '25 د.أ', services: ['تغيير زيت'] },
+    { date: '15/02/2025', km: '67,100', price: '95 د.أ', services: ['تغيير زيت', 'بطارية'] },
+  ];
+
+  var REMINDERS = [
+    { id: 'r1', car: 'تويوتا كامري 2017', owner: 'معاذ الخطيب — 0796XXXXXX', due: 'تغيير زيت', overdue: 'متأخر 12 يوم' },
+    { id: 'r2', car: 'هيونداي إلنترا 2020', owner: 'أم علي — 0790XXXXXX', due: 'تغيير زيت + فلتر هواء', overdue: 'متأخر 8 أيام' },
+    { id: 'r3', car: 'مرسيدس E200 2016', owner: 'أبو خالد — 0777XXXXXX', due: 'تجديد ترخيص — شهر 7/2026', overdue: 'متأخر 5 أيام' },
+    { id: 'r4', car: 'ميتسوبيشي لانسر 2015', owner: 'سامر العمري — 0798XXXXXX', due: 'فحص الشتاء (موسمي)', overdue: 'مستحق اليوم' },
+  ];
+
+  var SHOPS = [
+    { name: 'Abu Ramez Garage', area: 'Marka', status: 'Active', visits: 64, lastActive: 'Today' },
+    { name: 'Bayader Car Care', area: 'Bayader Wadi Seer', status: 'Active', visits: 51, lastActive: 'Today' },
+    { name: 'Sweileh Auto Center', area: 'Sweileh', status: 'Trial', visits: 18, lastActive: 'Yesterday' },
+    { name: 'Tabarbour Motors', area: 'Tabarbour', status: 'Active', visits: 39, lastActive: '2 days ago' },
+    { name: 'Wadi Saqra Service', area: 'Wadi Saqra', status: 'Suspended', visits: 0, lastActive: '3 weeks ago' },
+    { name: 'Marj Al Hamam Auto', area: 'Marj Al Hamam', status: 'Trial', visits: 9, lastActive: 'Today' },
+  ];
+  var BADGE = {
+    Active: 'background: #E8F7EE; color: #14683A;',
+    Trial: 'background: #EAF1F7; color: #17456B;',
+    Suspended: 'background: #FBEAEA; color: #B4232A;',
+  };
+
+  function show(id, on) { document.getElementById(id).classList.toggle('hidden', !on); }
+
+  function go(screen) {
+    state.screen = screen;
+    hideToast();
+    render();
+  }
+
+  function goVisitFresh() {
+    state.saved = false;
+    go('visit');
+  }
+
+  function toggleNewCust() {
+    state.newCust = !state.newCust;
+    render();
+  }
+
+  function toggleChip(label) {
+    state.services[label] = !state.services[label];
+    renderChips();
+  }
+
+  function saveVisit() {
+    state.saved = true;
+    render();
+    show('toast', true);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 5000);
+  }
+
+  function undoSave() {
+    state.saved = false;
+    hideToast();
+    render();
+  }
+
+  function hideToast() {
+    clearTimeout(toastTimer);
+    show('toast', false);
+  }
+
+  function toggleContacted(id) {
+    state.contacted[id] = !state.contacted[id];
+    renderReminders();
+  }
+
+  function stepMonth(dir) {
+    state.monthIdx = (state.monthIdx + dir + 12) % 12;
+    document.getElementById('monthLabel').textContent = MONTHS[state.monthIdx] + ' 2026';
+  }
+
+  function renderChips() {
+    document.getElementById('chips').innerHTML = SERVICES.map(function (label) {
+      var on = !!state.services[label];
+      return '<button class="chip' + (on ? ' on' : '') + '" onclick="toggleChip(\'' + label + '\')">' + (on ? '✓ ' : '') + label + '</button>';
+    }).join('');
+  }
+
+  function renderTimeline() {
+    document.getElementById('timeline').innerHTML = VISITS.map(function (v) {
+      var chips = v.services.map(function (s) {
+        return '<span style="background: #EAF1F7; color: #17456B; font-size: 14px; font-weight: 700; padding: 5px 12px; border-radius: 999px;">' + s + '</span>';
+      }).join('');
+      return '<div style="display: flex; gap: 14px;">' +
+        '<div style="display: flex; flex-direction: column; align-items: center;">' +
+          '<div style="width: 14px; height: 14px; border-radius: 50%; background: #17456B; margin-block-start: 6px;"></div>' +
+          '<div style="width: 2px; flex: 1; background: #C3CFDA;"></div>' +
+        '</div>' +
+        '<div style="flex: 1; background: #FFFFFF; border-radius: 16px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(15,42,67,0.08); margin-block-end: 14px;">' +
+          '<div style="display: flex; align-items: center; justify-content: space-between;">' +
+            '<div style="font-size: 16px; font-weight: 800;">' + v.date + '</div>' +
+            '<div style="font-size: 15px; font-weight: 700; color: #1E9E52;">' + v.price + '</div>' +
+          '</div>' +
+          '<div style="font-size: 15px; color: #5B7186; margin-block-start: 2px;">العداد: ' + v.km + ' كم</div>' +
+          '<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-block-start: 8px;">' + chips + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderReminders() {
+    document.getElementById('reminders').innerHTML = REMINDERS.map(function (r) {
+      var done = !!state.contacted[r.id];
+      var actions = done ? '' :
+        '<div style="display: flex; gap: 10px; margin-block-start: 14px;">' +
+          '<button style="flex: 1; height: 52px; background: #17456B; color: #FFFFFF; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer;">اتصال 📞</button>' +
+          '<button style="flex: 1; height: 52px; background: #1E9E52; color: #FFFFFF; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer;">واتساب 💬</button>' +
+        '</div>';
+      return '<div class="rem-card' + (done ? ' done' : '') + '">' +
+        '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">' +
+          '<div>' +
+            '<div style="font-size: 18px; font-weight: 800;">' + r.car + '</div>' +
+            '<div style="font-size: 16px; color: #5B7186; margin-block-start: 2px;">' + r.owner + '</div>' +
+            '<div style="font-size: 16px; font-weight: 700; color: #17456B; margin-block-start: 6px;">' + r.due + '</div>' +
+          '</div>' +
+          '<span class="rem-badge">' + r.overdue + '</span>' +
+        '</div>' +
+        actions +
+        '<button class="rem-donebtn" onclick="toggleContacted(\'' + r.id + '\')">' + (done ? 'تم التواصل ✓ — إلغاء' : 'تم التواصل ✓') + '</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderShops() {
+    document.getElementById('shopsGrid').innerHTML = SHOPS.map(function (sh) {
+      return '<div class="shop-card" onclick="go(\'shopDetail\')">' +
+        '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;">' +
+          '<div>' +
+            '<div style="font-size: 17px; font-weight: 800;">' + sh.name + '</div>' +
+            '<div style="font-size: 14px; color: #5B7186; margin-block-start: 2px;">' + sh.area + '</div>' +
+          '</div>' +
+          '<span style="' + BADGE[sh.status] + ' font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; white-space: nowrap;">' + sh.status + '</span>' +
+        '</div>' +
+        '<div style="display: flex; justify-content: space-between; font-size: 14px; color: #5B7186;">' +
+          '<span><b style="color: #142A3B;">' + sh.visits + '</b> visits this month</span>' +
+          '<span>' + sh.lastActive + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function render() {
+    var s = state.screen;
+    document.querySelectorAll('.tab').forEach(function (t) {
+      t.classList.toggle('active', t.getAttribute('data-screen') === s);
+    });
+    show('phoneFrame', PHONE_SCREENS.indexOf(s) !== -1);
+    show('adminFrame', s === 'shops' || s === 'shopDetail');
+    show('scr-dash', s === 'dash');
+    show('scr-visit', s === 'visit');
+    show('scr-profile', s === 'profile');
+    show('scr-reminders', s === 'reminders');
+    show('scr-analytics', s === 'analytics');
+    show('scr-shops', s === 'shops');
+    show('scr-shopDetail', s === 'shopDetail');
+    show('visit-form', !state.saved);
+    show('visit-saved', state.saved);
+    show('newcust', state.newCust);
+  }
+
+  renderChips();
+  renderTimeline();
+  renderReminders();
+  renderShops();
+  render();
+</script>
+</body>
+</html>
