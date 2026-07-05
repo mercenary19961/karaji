@@ -23,12 +23,12 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
         <ShopLayout shop={shop}>
             <Head title="التقارير" />
 
-            <div className="flex items-center justify-between rounded-2xl bg-card p-1.5 shadow-sm">
+            <div className="bg-card flex items-center justify-between rounded-2xl p-1.5 shadow-sm">
                 <button
                     type="button"
                     onClick={() => step(-1)}
                     aria-label="الشهر السابق"
-                    className="flex size-13 items-center justify-center rounded-xl bg-secondary text-primary"
+                    className="bg-secondary text-primary flex size-13 items-center justify-center rounded-xl"
                 >
                     <ChevronRight className="size-6" aria-hidden />
                 </button>
@@ -37,13 +37,13 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                     type="button"
                     onClick={() => step(1)}
                     aria-label="الشهر التالي"
-                    className="flex size-13 items-center justify-center rounded-xl bg-secondary text-primary"
+                    className="bg-secondary text-primary flex size-13 items-center justify-center rounded-xl"
                 >
                     <ChevronLeft className="size-6" aria-hidden />
                 </button>
             </div>
 
-            <div className="rounded-[18px] bg-card p-4 shadow-sm">
+            <div className="bg-card rounded-[18px] p-4 shadow-sm">
                 <h2 className="mb-3 text-[17px] font-extrabold">الزيارات شهرياً</h2>
                 <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="block h-auto w-full" role="img" aria-label="عدد الزيارات شهرياً">
                     {months.map((month, i) => {
@@ -54,9 +54,23 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
 
                         return (
                             <g key={month.label}>
-                                <rect x={x} y={y} width={CHART.barWidth} height={barHeight} rx={6} fill={active ? 'var(--primary)' : 'var(--input)'} />
+                                <rect
+                                    x={x}
+                                    y={y}
+                                    width={CHART.barWidth}
+                                    height={barHeight}
+                                    rx={6}
+                                    fill={active ? 'var(--primary)' : 'var(--input)'}
+                                />
                                 {active && (
-                                    <text x={x + CHART.barWidth / 2} y={y - 7} fontSize={13} fontWeight={800} fill="var(--primary)" textAnchor="middle">
+                                    <text
+                                        x={x + CHART.barWidth / 2}
+                                        y={y - 7}
+                                        fontSize={13}
+                                        fontWeight={800}
+                                        fill="var(--primary)"
+                                        textAnchor="middle"
+                                    >
                                         {month.visits}
                                     </text>
                                 )}
@@ -69,7 +83,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 </svg>
             </div>
 
-            <div className="rounded-[18px] bg-card p-4 shadow-sm">
+            <div className="bg-card rounded-[18px] p-4 shadow-sm">
                 <h2 className="mb-3 text-[17px] font-extrabold">أكثر الخدمات</h2>
                 <div className="flex flex-col gap-2.5">
                     {topServices.map((service) => (
@@ -81,30 +95,27 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 </div>
             </div>
 
-            <div className="rounded-[18px] bg-card p-4 shadow-sm">
+            <div className="bg-card rounded-[18px] p-4 shadow-sm">
                 <h2 className="mb-3 text-[17px] font-extrabold">
-                    زبائن ما رجعوا <span className="text-sm font-medium text-muted-foreground">(أكثر من 6 أشهر)</span>
+                    زبائن ما رجعوا <span className="text-muted-foreground text-sm font-medium">(أكثر من 6 أشهر)</span>
                 </h2>
                 <div className="flex flex-col gap-2.5">
                     {lostCustomers.map((customer) => {
                         const waText = `مرحباً ${customer.owner}، صار وقت نطمّن على ${customer.car} 🚗 بانتظارك في ${shop.name}`;
 
                         return (
-                            <div
-                                key={customer.owner}
-                                className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
-                            >
+                            <div key={customer.owner} className="border-border flex items-center justify-between gap-2 rounded-xl border p-3">
                                 <div>
                                     <div className="text-base font-bold">
                                         {customer.owner} — {customer.car}
                                     </div>
-                                    <div className="text-sm text-muted-foreground">{customer.lastVisit}</div>
+                                    <div className="text-muted-foreground text-sm">{customer.lastVisit}</div>
                                 </div>
                                 <a
                                     href={`https://wa.me/${customer.whatsapp}?text=${encodeURIComponent(waText)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex h-12 items-center gap-1.5 rounded-xl bg-success px-4 text-[15px] font-bold whitespace-nowrap text-success-foreground"
+                                    className="bg-success text-success-foreground flex h-12 items-center gap-1.5 rounded-xl px-4 text-[15px] font-bold whitespace-nowrap"
                                 >
                                     <MessageCircle className="size-4" aria-hidden />
                                     واتساب

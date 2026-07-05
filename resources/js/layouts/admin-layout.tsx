@@ -11,7 +11,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
     return (
-        <div dir="ltr" className="min-h-screen bg-background text-start text-foreground">
+        <div dir="ltr" className="bg-background text-foreground min-h-screen text-start">
             <header className="bg-foreground text-white">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
                     <div className="text-lg font-extrabold">Admin Portal</div>

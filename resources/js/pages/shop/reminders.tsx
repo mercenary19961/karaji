@@ -21,7 +21,7 @@ export default function Reminders({ shop, reminders }: Props) {
 
             <div className="flex items-baseline justify-between">
                 <h1 className="text-xl font-extrabold">قائمة التذكير</h1>
-                <div className="text-[15px] text-muted-foreground">مرتبة حسب الأكثر تأخراً</div>
+                <div className="text-muted-foreground text-[15px]">مرتبة حسب الأكثر تأخراً</div>
             </div>
 
             {reminders.map((reminder) => {
@@ -32,16 +32,16 @@ export default function Reminders({ shop, reminders }: Props) {
                     <div
                         key={reminder.id}
                         className={`rounded-[18px] p-4 ${
-                            done ? 'border-2 border-success bg-success-soft opacity-85' : 'border-2 border-transparent bg-card shadow-sm'
+                            done ? 'border-success bg-success-soft border-2 opacity-85' : 'bg-card border-2 border-transparent shadow-sm'
                         }`}
                     >
                         <div className="flex items-start justify-between gap-2">
                             <div>
                                 <div className="text-lg font-extrabold">{reminder.car}</div>
-                                <div className="mt-0.5 text-base text-muted-foreground">
+                                <div className="text-muted-foreground mt-0.5 text-base">
                                     {reminder.owner} — {reminder.phone}
                                 </div>
-                                <div className="mt-1.5 text-base font-bold text-primary">{reminder.due}</div>
+                                <div className="text-primary mt-1.5 text-base font-bold">{reminder.due}</div>
                             </div>
                             <span
                                 className={`rounded-full px-3 py-1.5 text-sm font-bold whitespace-nowrap ${
@@ -56,7 +56,7 @@ export default function Reminders({ shop, reminders }: Props) {
                             <div className="mt-3.5 flex gap-2.5">
                                 <a
                                     href={`tel:${reminder.phone}`}
-                                    className="flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-primary text-[17px] font-bold text-primary-foreground"
+                                    className="bg-primary text-primary-foreground flex h-13 flex-1 items-center justify-center gap-2 rounded-xl text-[17px] font-bold"
                                 >
                                     <Phone className="size-5" aria-hidden />
                                     اتصال
@@ -65,7 +65,7 @@ export default function Reminders({ shop, reminders }: Props) {
                                     href={`https://wa.me/${reminder.whatsapp}?text=${encodeURIComponent(waText)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-success text-[17px] font-bold text-success-foreground"
+                                    className="bg-success text-success-foreground flex h-13 flex-1 items-center justify-center gap-2 rounded-xl text-[17px] font-bold"
                                 >
                                     <MessageCircle className="size-5" aria-hidden />
                                     واتساب
@@ -77,9 +77,7 @@ export default function Reminders({ shop, reminders }: Props) {
                             type="button"
                             onClick={() => toggle(reminder.id)}
                             className={`mt-2.5 flex h-[50px] w-full items-center justify-center gap-1.5 rounded-xl text-base font-extrabold ${
-                                done
-                                    ? 'bg-success text-success-foreground'
-                                    : 'border-2 border-success bg-card text-success-soft-foreground'
+                                done ? 'bg-success text-success-foreground' : 'border-success bg-card text-success-soft-foreground border-2'
                             }`}
                         >
                             <Check className="size-5" aria-hidden />

@@ -6,6 +6,37 @@ on:
   pull_request:
 
 jobs:
+  quality:
+    name: Code style + lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts
+          npm ci
+
+      # Check-only on CI: unformatted code should fail, not be silently fixed.
+      - name: Pint
+        run: vendor/bin/pint --test
+
+      - name: Prettier
+        run: npm run format:check
+
+      - name: ESLint
+        run: npx eslint .
+
   backend:
     name: PHP tests
     runs-on: ubuntu-latest

@@ -62,38 +62,38 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                 <>
                     <h1 className="text-xl font-extrabold">زيارة جديدة</h1>
 
-                    <div className="rounded-2xl border-2 border-primary bg-card p-4 shadow-sm">
+                    <div className="border-primary bg-card rounded-2xl border-2 p-4 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="text-[19px] font-extrabold">{car.label}</div>
-                            <span className="rounded-lg bg-secondary px-3 py-1 text-[15px] font-extrabold tracking-wider text-secondary-foreground">
+                            <span className="bg-secondary text-secondary-foreground rounded-lg px-3 py-1 text-[15px] font-extrabold tracking-wider">
                                 {car.plate}
                             </span>
                         </div>
-                        <div className="mt-1.5 text-base text-muted-foreground">
+                        <div className="text-muted-foreground mt-1.5 text-base">
                             {car.owner} — {car.phone}
                         </div>
-                        <div className="mt-1 text-[15px] text-muted-foreground">{car.lastService}</div>
+                        <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>
                     </div>
 
                     <button
                         type="button"
                         onClick={() => setNewCust((v) => !v)}
-                        className="min-h-12 self-start px-1 text-[15px] font-bold text-primary underline"
+                        className="text-primary min-h-12 self-start px-1 text-[15px] font-bold underline"
                     >
                         سيارة غير مسجلة؟
                     </button>
 
                     {newCust && (
-                        <div className="flex flex-col gap-3 rounded-2xl bg-secondary p-4">
-                            <div className="text-base font-extrabold text-secondary-foreground">زبون جديد</div>
+                        <div className="bg-secondary flex flex-col gap-3 rounded-2xl p-4">
+                            <div className="text-secondary-foreground text-base font-extrabold">زبون جديد</div>
                             <input
                                 placeholder="الاسم"
-                                className="h-14 w-full rounded-xl border-2 border-input bg-card px-4 text-lg outline-none focus-visible:border-ring"
+                                className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none"
                             />
                             <input
                                 inputMode="tel"
                                 placeholder="رقم الهاتف"
-                                className="h-14 w-full rounded-xl border-2 border-input bg-card px-4 text-lg outline-none focus-visible:border-ring"
+                                className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none"
                             />
                         </div>
                     )}
@@ -107,7 +107,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                             placeholder="مثال: 91300"
                             value={km}
                             onChange={(e) => setKm(e.target.value)}
-                            className="h-16 w-full rounded-2xl border-2 border-input bg-card px-4 text-center text-2xl font-bold tracking-wide outline-none focus-visible:border-ring"
+                            className="border-input bg-card focus-visible:border-ring h-16 w-full rounded-2xl border-2 px-4 text-center text-2xl font-bold tracking-wide outline-none"
                         />
                     </div>
 
@@ -123,9 +123,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                                         type="button"
                                         onClick={() => toggleService(label)}
                                         className={`min-h-13 rounded-xl border-2 px-2 text-[17px] font-bold ${
-                                            on
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : 'border-input bg-card text-foreground'
+                                            on ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-card text-foreground'
                                         }`}
                                     >
                                         {on ? '✓ ' : ''}
@@ -141,7 +139,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                         <select
                             value={oil}
                             onChange={(e) => setOil(e.target.value)}
-                            className="h-14 w-full rounded-xl border-2 border-input bg-card px-3 text-[17px] text-foreground outline-none focus-visible:border-ring"
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
                         >
                             {oilBrands.map((brand, i) => (
                                 <option key={brand} value={brand}>
@@ -158,14 +156,14 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                             placeholder="د.أ"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
-                            className="h-14 w-full rounded-xl border-2 border-input bg-card px-4 text-center text-xl font-bold outline-none focus-visible:border-ring"
+                            className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
                         />
                     </div>
 
                     <button
                         type="button"
                         onClick={save}
-                        className="mt-1 h-16 rounded-2xl bg-cta text-[22px] font-extrabold text-cta-foreground shadow-lg shadow-cta/35"
+                        className="bg-cta text-cta-foreground shadow-cta/35 mt-1 h-16 rounded-2xl text-[22px] font-extrabold shadow-lg"
                     >
                         حفظ الزيارة
                     </button>
@@ -174,12 +172,12 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
 
             {saved && (
                 <>
-                    <div className="rounded-[18px] border-2 border-success bg-success-soft px-4 py-6 text-center">
-                        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-success text-success-foreground">
+                    <div className="border-success bg-success-soft rounded-[18px] border-2 px-4 py-6 text-center">
+                        <div className="bg-success text-success-foreground mx-auto flex size-16 items-center justify-center rounded-full">
                             <Check className="size-9" aria-hidden />
                         </div>
-                        <div className="mt-3 text-[21px] font-extrabold text-success-soft-foreground">تم حفظ الزيارة</div>
-                        <div className="mt-1 text-[15px] text-success-soft-foreground/80">
+                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">تم حفظ الزيارة</div>
+                        <div className="text-success-soft-foreground/80 mt-1 text-[15px]">
                             {car.label} — {car.owner} — عداد {kmLabel} كم
                         </div>
                     </div>
@@ -188,13 +186,13 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
                         href={waHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex h-17 items-center justify-center gap-2 rounded-2xl bg-success text-[21px] font-extrabold text-success-foreground shadow-lg shadow-success/35"
+                        className="bg-success text-success-foreground shadow-success/35 flex h-17 items-center justify-center gap-2 rounded-2xl text-[21px] font-extrabold shadow-lg"
                     >
                         <MessageCircle className="size-6" aria-hidden />
                         إرسال ملخص الزيارة واتساب
                     </a>
 
-                    <div className="text-center text-sm text-muted-foreground">معاينة الرسالة</div>
+                    <div className="text-muted-foreground text-center text-sm">معاينة الرسالة</div>
                     <div className="ms-8 rounded-[18px] rounded-es-sm bg-[#dcf3d0] p-4 text-[15.5px] leading-8 whitespace-pre-line text-[#1e3325] shadow-sm">
                         {summary}
                         <div className="mt-1 text-end text-xs text-[#6b8a6f]">12:40 م</div>
@@ -202,7 +200,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
 
                     <Link
                         href={route('shop.dashboard')}
-                        className="flex h-14 items-center justify-center rounded-2xl border-2 border-input bg-card text-lg font-bold text-primary"
+                        className="border-input bg-card text-primary flex h-14 items-center justify-center rounded-2xl border-2 text-lg font-bold"
                     >
                         العودة للرئيسية
                     </Link>
@@ -210,13 +208,9 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) 
             )}
 
             {toast && (
-                <div className="fixed inset-x-0 bottom-24 z-20 mx-auto flex w-[calc(100%-2rem)] max-w-[26rem] items-center justify-between gap-3 rounded-2xl bg-foreground p-2 ps-4 shadow-xl">
+                <div className="bg-foreground fixed inset-x-0 bottom-24 z-20 mx-auto flex w-[calc(100%-2rem)] max-w-[26rem] items-center justify-between gap-3 rounded-2xl p-2 ps-4 shadow-xl">
                     <span className="text-base text-white">تم حفظ الزيارة</span>
-                    <button
-                        type="button"
-                        onClick={undo}
-                        className="h-12 rounded-xl bg-white/15 px-4 text-base font-extrabold text-[#ffc961]"
-                    >
+                    <button type="button" onClick={undo} className="h-12 rounded-xl bg-white/15 px-4 text-base font-extrabold text-[#ffc961]">
                         تراجع
                     </button>
                 </div>

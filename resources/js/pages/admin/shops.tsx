@@ -25,13 +25,13 @@ export default function Shops({ shops }: Props) {
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="text-[22px] font-extrabold">
-                    Shops <span className="text-[15px] font-medium text-muted-foreground">({visible.length})</span>
+                    Shops <span className="text-muted-foreground text-[15px] font-medium">({visible.length})</span>
                 </h1>
                 <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search shops…"
-                    className="h-11 w-64 rounded-xl border border-input bg-card px-3.5 text-[15px] outline-none focus-visible:border-ring"
+                    className="border-input bg-card focus-visible:border-ring h-11 w-64 rounded-xl border px-3.5 text-[15px] outline-none"
                 />
             </div>
 
@@ -40,18 +40,18 @@ export default function Shops({ shops }: Props) {
                     <Link
                         key={shop.id}
                         href={route('admin.shops.show')}
-                        className="flex flex-col gap-2.5 rounded-2xl border border-border bg-card p-4.5 shadow-sm transition-colors hover:border-primary"
+                        className="border-border bg-card hover:border-primary flex flex-col gap-2.5 rounded-2xl border p-4.5 shadow-sm transition-colors"
                     >
                         <div className="flex items-start justify-between gap-2">
                             <div>
                                 <div className="text-[17px] font-extrabold">{shop.name}</div>
-                                <div className="mt-0.5 text-sm text-muted-foreground">{shop.area}</div>
+                                <div className="text-muted-foreground mt-0.5 text-sm">{shop.area}</div>
                             </div>
                             <span className={`rounded-full px-2.5 py-1 text-xs font-extrabold whitespace-nowrap ${badgeClasses[shop.status]}`}>
                                 {shop.status}
                             </span>
                         </div>
-                        <div className="flex justify-between text-sm text-muted-foreground">
+                        <div className="text-muted-foreground flex justify-between text-sm">
                             <span>
                                 <b className="text-foreground">{shop.visits}</b> visits this month
                             </span>
@@ -62,9 +62,7 @@ export default function Shops({ shops }: Props) {
             </div>
 
             {visible.length === 0 && (
-                <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
-                    No shops match “{query.trim()}”.
-                </div>
+                <div className="border-border bg-card text-muted-foreground rounded-2xl border p-8 text-center">No shops match “{query.trim()}”.</div>
             )}
         </AdminLayout>
     );

@@ -38,7 +38,8 @@ export default [
         },
     },
     {
-        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js'],
+        // 'design' = imported Claude Design mockup bundle (generated runtime, not ours to lint)
+        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'design'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];
