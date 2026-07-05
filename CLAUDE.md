@@ -2,7 +2,7 @@
 
 > Quick reference for AI assistants and developers
 
-> **📍 Doc sync:** _no commits yet — set this to the init commit hash right after the first commit._ Convention: whenever you edit this file, refresh this line to the current commit — run `git log -1 --format="%h %cd" --date=format:"%Y-%m-%d %H:%M (%a)"` and paste the hash + date + time.
+> **📍 Doc sync:** CLAUDE.md last synced to commit `d35024e` — 2026-07-05 14:43 (Sun). Convention: whenever you edit this file, refresh this line to the current commit — run `git log -1 --format="%h %cd" --date=format:"%Y-%m-%d %H:%M (%a)"` and paste the hash + date + time.
 
 > **📌 Log the tricky stuff.** Whenever you hit an **issue, blocker, non-obvious behavior, or anything that cost real debugging time**, write it down with its **symptom → root cause → fix** — inline near the relevant section and/or a one-liner in the `> Last updated:` log. Same convention as Retab Stores / Sky Amman; the stack is shared, so a gotcha captured once saves every sibling project.
 
@@ -16,7 +16,7 @@
 1. **Shop portal** — the garage owner/worker. **Arabic-only, RTL, mobile/tablet-first, radically simple** (users are NOT technical).
 2. **Admin portal** — us (SaaS operator). English, LTR. Manages shops, subscriptions, support (impersonation), announcements; can view/edit everything with a full audit trail.
 
-**Stack:** Laravel 12 + Inertia.js + React 19 + TypeScript + Tailwind CSS v4 (official `laravel/react-starter-kit` **v1.0.1** — PHP 8.2 pin, same as Retab Stores). ⚠️ Scaffold shipped **Inertia v2.0.24** — the **v2→v3 upgrade is the first planned task** (mirror Retab's upgrade: add `.then(m => m.default)` to `resolvePageComponent` in `app.tsx` + `ssr.jsx`; that was the only real break).
+**Stack:** Laravel 12 + Inertia.js **v3** + React 19 + TypeScript + Tailwind CSS v4 (official `laravel/react-starter-kit` **v1.0.1** — PHP 8.2 pin, same as Retab Stores). Scaffold shipped Inertia v2.0.24; **upgraded to v3 on 2026-07-05** (`inertia-laravel` v3.1.1 + `@inertiajs/react` 3.6.0). The only break, same as Retab: v3 no longer auto-unwraps the page module's default export — `app.tsx` unwraps with `.then((m) => m.default)`, `ssr.jsx` returns `pages[...].default`.
 **DB:** SQLite for the scaffold/dev right now (`database/database.sqlite`). Real dev/prod DB decision pending (likely MariaDB/MySQL like the sibling projects) — decide before schema work.
 **Hosting:** TBD — likely Railway (FrankenPHP) behind Cloudflare, mirroring Sky Amman/Retab.
 **Repo:** `origin` → `https://github.com/mercenary19961/karaji.git` (private). Single remote for now.
@@ -33,7 +33,6 @@ Same machine, same stack, proven patterns. **When in doubt, read the correspondi
 - **`c:\Users\sabba\Desktop\projects\sky-amman\`** — locale middleware origin, admin layout, Site Content CRUD, security headers, SSR sidecar + Railway deploy notes.
 
 **Don't blindly copy:**
-- Retab is already **Inertia v3**; this scaffold is **v2 until upgraded** — don't port v3-only code before the upgrade.
 - Retab's storefront is bilingual with an instant AR⇄EN toggle. Karaji's **shop portal is Arabic-ONLY in v1** (no toggle, no `_ar`/`_en` content columns for UI chrome) — the bilingual machinery is deliberately NOT needed here at first. Admin portal is EN.
 - This starter kit uses lowercase `resources/js/pages/`, modular `routes/*.php`, shadcn/Radix `components/ui/` — same as Retab, different from Sky Amman.
 
@@ -122,12 +121,12 @@ Admin portal: EN, LTR, denser UI allowed — but same component base (shadcn/Rad
 - [x] This `CLAUDE.md` seeded (brief, UX rules, references, conventions)
 
 ### Foundation (TODO — rough order)
-- [ ] Init commit + push to `origin` (user does this)
-- [ ] **Inertia v2 → v3 upgrade** (mirror Retab: `inertia-laravel` ^3 + `@inertiajs/react` ^3, `.then(m => m.default)` in `app.tsx`/`ssr.jsx`; verify build + tests)
+- [x] Init commit + push to `origin` (`d35024e`, 2026-07-05)
+- [x] **Inertia v2 → v3 upgrade** (2026-07-05) — `inertia-laravel` v3.1.1 + `@inertiajs/react` 3.6.0; the default-export unwrap in `app.tsx`/`ssr.jsx` was the only change needed, exactly as Retab predicted. Verified: `npm run build:ssr` ✓ (client + SSR bundles) + `php artisan test` ✓ (26 passed / 63 assertions, scaffold baseline held)
 - [ ] **Arabic/RTL foundation** — simpler than Retab: force `ar` locale + `dir="rtl"` in `app.blade.php` for the shop portal (no toggle), Tajawal font token override, admin stays EN/LTR
 - [ ] **HTML mockup** of the 7 core screens (prompt already drafted) → validate UX with a real shop owner before schema work
 - [ ] **Decisions:** real name/brand · dev/prod DB engine · hosting · subscription price · theme (single light theme recommended for the shop portal — garage tablets in sunlight, skip dark mode there)
 - [ ] **Schema v1:** shops, users (roles: admin / shop), customers, cars, service_types, visits + visit_services, reminders, subscriptions, announcements, activity_logs — multi-tenant `shop_id` scoping decision documented here
 - [ ] CI (port Retab's workflow incl. `withoutVite()` in TestCase + the ziggy-js devDep pin)
 
-> **Last updated:** 2026-07-05 — **Project scaffolded.** Starter kit v1.0.1 on PHP 8.2 (composer auto-resolved, same pin as Retab), `.npmrc` guard in before install, build + 26 tests green, git on `main` wired to `mercenary19961/karaji`, `APP_NAME=Karaji` set, CLAUDE.md seeded with the product brief (reminders-engine-first, two portals, Jordan-specific hooks), simplicity-first UX rules, and the reference-project map. Name is a working title — rename procedure is cheap while nothing is deployed. Next: init commit (user), then Inertia v3 upgrade before any feature work.
+> **Last updated:** 2026-07-05 — **Inertia v3 upgrade.** Bumped `inertiajs/inertia-laravel` ^2→^3 (v3.1.1) and `@inertiajs/react` ^2→^3 (3.6.0); only code change was the v3 default-export unwrap (`app.tsx` `.then((m) => m.default)` with typed glob, `ssr.jsx` `.default` return) — no other v2 API in the scaffold broke. Build:ssr + all 26 tests green, zero gotchas. Earlier same day: **project scaffolded** (starter kit v1.0.1 on PHP 8.2, `.npmrc` guard, git wired to `mercenary19961/karaji`, `APP_NAME=Karaji`, CLAUDE.md seeded) and init commit `d35024e` pushed. Next: Arabic/RTL foundation, then the 7-screen HTML mockup before any schema work.

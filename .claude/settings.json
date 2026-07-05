@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/sabba/Desktop/projects/retab-stores && grep -E '\"@inertiajs/react\"' package.json && grep -E '\"inertiajs/inertia-laravel\"' composer.json && grep -E '\"@inertiajs/react\"' package-lock.json | head -3 && grep -E '\"inertiajs/inertia-laravel\"|\"version\"' composer.lock | grep -A1 'inertia-laravel' )",
+      "Read(//c/Users/sabba/Desktop/projects/retab-stores/**)",
+      "Bash(ls /c/Users/sabba/Desktop/projects/retab-stores/resources/js/ | grep -E '^\\(app|ssr\\)\\\\.')",
+      "Read(//c/Users/sabba/Desktop/projects/retab-stores/resources/js//**)",
+      "Read(//c/Users/sabba/Desktop/projects/retab-stores/resources/js/**)"
+    ]
+  }
+}
