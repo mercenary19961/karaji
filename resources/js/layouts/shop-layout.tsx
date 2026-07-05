@@ -1,0 +1,58 @@
+import { type SharedData } from '@/types';
+import { type Shop } from '@/types/shop';
+import { Link, usePage } from '@inertiajs/react';
+import { Bell, ChartColumn, House, type LucideIcon } from 'lucide-react';
+import { type PropsWithChildren } from 'react';
+
+interface Tab {
+    label: string;
+    href: string;
+    icon: LucideIcon;
+    isActive: (url: string) => boolean;
+}
+
+const tabs: Tab[] = [
+    { label: 'الرئيسية', href: '/shop', icon: House, isActive: (url) => url === '/shop' || url.startsWith('/shop/visits') || url.startsWith('/shop/cars') },
+    { label: 'التذكيرات', href: '/shop/reminders', icon: Bell, isActive: (url) => url.startsWith('/shop/reminders') },
+    { label: 'التقارير', href: '/shop/analytics', icon: ChartColumn, isActive: (url) => url.startsWith('/shop/analytics') },
+];
+
+export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
+    const { name } = usePage<SharedData>().props;
+    const { url } = usePage();
+
+    return (
+        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background text-foreground">
+            <header className="flex items-center justify-between bg-primary px-5 pt-4 pb-3.5 text-primary-foreground">
+                {/* Brand comes from APP_NAME via the shared `name` prop — never hardcode it */}
+                <div className="text-2xl font-extrabold tracking-wide">{name}</div>
+                <div className="text-sm font-medium text-primary-foreground/70">
+                    {shop.name} — {shop.area}
+                </div>
+            </header>
+
+            <main className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-28">{children}</main>
+
+            <nav className="fixed inset-x-0 bottom-0 z-10">
+                <div className="mx-auto grid max-w-md grid-cols-3 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
+                    {tabs.map((tab) => {
+                        const active = tab.isActive(url);
+
+                        return (
+                            <Link
+                                key={tab.href}
+                                href={tab.href}
+                                className={`flex min-h-16 flex-col items-center justify-center gap-1 text-[15px] font-bold ${
+                                    active ? 'text-primary' : 'text-muted-foreground'
+                                }`}
+                            >
+                                <tab.icon className="size-6" aria-hidden />
+                                {tab.label}
+                            </Link>
+                        );
+                    })}
+                </div>
+            </nav>
+        </div>
+    );
+}
