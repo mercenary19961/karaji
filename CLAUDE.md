@@ -2,7 +2,7 @@
 
 > Quick reference for AI assistants and developers
 
-> **📍 Doc sync:** CLAUDE.md last synced to commit `2a633b2` — 2026-07-06 10:11 (Mon). Convention: whenever you edit this file, refresh this line to the current commit — run `git log -1 --format="%h %cd" --date=format:"%Y-%m-%d %H:%M (%a)"` and paste the hash + date + time.
+> **📍 Doc sync:** CLAUDE.md last synced to commit `26e633b` — 2026-07-06 10:35 (Mon). Convention: whenever you edit this file, refresh this line to the current commit — run `git log -1 --format="%h %cd" --date=format:"%Y-%m-%d %H:%M (%a)"` and paste the hash + date + time.
 
 > **📌 Log the tricky stuff.** Whenever you hit an **issue, blocker, non-obvious behavior, or anything that cost real debugging time**, write it down with its **symptom → root cause → fix** — inline near the relevant section and/or a one-liner in the `> Last updated:` log. Same convention as Retab Stores / Sky Amman; the stack is shared, so a gotcha captured once saves every sibling project.
 
@@ -30,7 +30,7 @@ Same machine, same stack, proven patterns. **When in doubt, read the correspondi
 
 - **`c:\Users\sabba\Desktop\projects\retab-stores\`** — closest and most recent. Port from here: **WhatsApp Meta Cloud API** integration (templates, webhooks, campaign sender), i18n/RTL foundation (`SetLocale`, `LanguageContext`, logical properties, Tajawal font token override), security hardening (SecurityHeaders, trustProxies, Turnstile, rate limits), media layer (`App\Support\Media`), SSR wiring (`TimeoutHttpGateway`), CI workflow (`.github/workflows/ci.yml` incl. the ziggy-js devDep gotcha), `withoutVite()` in TestCase.
 - **`c:\Users\sabba\Desktop\projects\hardrock-ecom-demo\`** — activity log + undo (`ActivityLogService`), roles, notifications, optimistic locking.
-- **`c:\Users\sabba\Desktop\projects\sky-amman\`** — locale middleware origin, admin layout, Site Content CRUD, security headers, SSR sidecar + Railway deploy notes. Also home of **`ChangeLogService`** (admin change log + revert + undo toast) — ⚠️ **before building Karaji's admin audit/undo, read sky-amman `CLAUDE.md` → "ChangeLog / Revert semantics — compound-edit behavior catalog"** (2026-07-06 audit): its full-snapshot reverts clobber newer edits to other fields; port with dirty-fields-only snapshots + a conflict check (the 4-point fix list is in the catalog).
+- **`c:\Users\sabba\Desktop\projects\sky-amman\`** — locale middleware origin, admin layout, Site Content CRUD, security headers, SSR sidecar + Railway deploy notes. Also home of **`ChangeLogService`** (admin change log + revert + undo toast) — ⚠️ **before building Karaji's admin audit/undo, read sky-amman `CLAUDE.md` → "ChangeLog / Revert semantics — compound-edit behavior catalog"** (2026-07-06 audit): its full-snapshot reverts clobber newer edits to other fields. **Port the fixed v2 implementation from retab-stores instead** (`app/Services/ChangeLog/ChangeLogService.php` + `RevertResult.php` + `tests/Feature/Admin/ChangeLogTest.php`, built 2026-07-06): dirty-fields snapshots, per-field conflict check, transactional reverts, reverts as first-class entries (redo included).
 
 **Don't blindly copy:**
 - Retab's storefront is bilingual with an instant AR⇄EN toggle. Karaji's **shop portal is Arabic-ONLY in v1** (no toggle, no `_ar`/`_en` content columns for UI chrome) — the bilingual machinery is deliberately NOT needed here at first. Admin portal is EN.
