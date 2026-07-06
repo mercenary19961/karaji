@@ -10,6 +10,7 @@ use App\Models\Shop;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Visit;
+use App\Services\Reminders\ReminderEngine;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -105,14 +106,15 @@ class DatabaseSeeder extends Seeder
         // The mockup's hero car: full history + a scheduled oil reminder
         $sportage = $this->seedCar($shop, 'أبو محمد', '0795123456', 'كيا سبورتاج 2019', '22-14853', 11);
 
+        // Synthetic (Mobil 5W-30) → the engine schedules next oil at 82,500 +
+        // 10,000 = 92,500 km, matching the mockup's "الزيت القادم".
         $visits = [
-            ['visited_at' => '2026-03-05', 'km' => 82500, 'price' => 28, 'oil_brand' => 'Mobil 5W-30', 'services' => ['تغيير زيت', 'فلتر زيت']],
-            ['visited_at' => '2025-11-18', 'km' => 77900, 'price' => 46, 'oil_brand' => 'Mobil 5W-30', 'services' => ['تغيير زيت', 'فلتر هواء', 'فحص فرامل']],
-            ['visited_at' => '2025-07-02', 'km' => 72400, 'price' => 25, 'oil_brand' => 'Castrol 5W-40', 'services' => ['تغيير زيت']],
-            ['visited_at' => '2025-02-15', 'km' => 67100, 'price' => 95, 'oil_brand' => 'Castrol 5W-40', 'services' => ['تغيير زيت', 'بطارية']],
+            ['visited_at' => '2026-03-05', 'km' => 82500, 'price' => 28, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'فلتر زيت']],
+            ['visited_at' => '2025-11-18', 'km' => 77900, 'price' => 46, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'فلتر هواء', 'فحص فرامل']],
+            ['visited_at' => '2025-07-02', 'km' => 72400, 'price' => 25, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت']],
+            ['visited_at' => '2025-02-15', 'km' => 67100, 'price' => 95, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'بطارية']],
         ];
 
-        $latestVisit = null;
         foreach ($visits as $data) {
             $visit = Visit::factory()->create([
                 'shop_id' => $shop->id,
@@ -120,21 +122,13 @@ class DatabaseSeeder extends Seeder
                 'km' => $data['km'],
                 'price' => $data['price'],
                 'oil_brand' => $data['oil_brand'],
+                'oil_type' => $data['oil_type'],
                 'visited_at' => Carbon::parse($data['visited_at']),
             ]);
             $visit->services()->attach($serviceIds->only($data['services'])->values());
-            $latestVisit ??= $visit;
         }
 
-        Reminder::factory()->create([
-            'shop_id' => $shop->id,
-            'car_id' => $sportage->id,
-            'visit_id' => $latestVisit->id,
-            'type' => 'oil',
-            'label' => 'تغيير زيت',
-            'due_km' => 92500,
-            'due_date' => '2026-10-15',
-        ]);
+        app(ReminderEngine::class)->scheduleOilReminder($sportage);
 
         // The call list: due/overdue reminders, most overdue first
         $callList = [

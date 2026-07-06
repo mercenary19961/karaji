@@ -33,6 +33,12 @@ export interface FormCar {
     phone: string;
     lastService: string | null;
     lastOilBrand: string | null;
+    lastOilType: string | null;
+}
+
+export interface OilTypeOption {
+    key: string;
+    label: string;
 }
 
 /** Everything the post-save success state needs (incl. the WhatsApp summary). */

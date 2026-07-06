@@ -22,6 +22,7 @@ class Visit extends Model
         'km',
         'price',
         'oil_brand',
+        'oil_type',
         'notes',
         'visited_at',
     ];

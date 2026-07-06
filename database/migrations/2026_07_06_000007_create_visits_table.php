@@ -15,6 +15,8 @@ return new class extends Migration
             $table->unsignedInteger('km');
             $table->decimal('price', 8, 2)->nullable();
             $table->string('oil_brand')->nullable();
+            // mineral | synthetic — drives the oil-reminder interval
+            $table->string('oil_type')->nullable();
             $table->text('notes')->nullable();
             $table->dateTime('visited_at');
             $table->timestamps();

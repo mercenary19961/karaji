@@ -1,6 +1,6 @@
 import ShopLayout from '@/layouts/shop-layout';
 import { type SharedData } from '@/types';
-import { type FormCar, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
+import { type FormCar, type OilTypeOption, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Check, MessageCircle, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
@@ -10,6 +10,7 @@ interface Props {
     car: FormCar | null;
     serviceTypes: ServiceTypeOption[];
     oilBrands: string[];
+    oilTypes: OilTypeOption[];
     savedVisit: SavedVisit | null;
 }
 
@@ -21,10 +22,11 @@ function FieldError({ message }: { message?: string }) {
     return <div className="text-destructive mt-1.5 text-[15px] font-bold">{message}</div>;
 }
 
-export default function NewVisit({ shop, car, serviceTypes, oilBrands, savedVisit }: Props) {
+export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes, savedVisit }: Props) {
     const { flash } = usePage<SharedData>().props;
 
-    const oilChangeIds = serviceTypes.filter((s) => s.name === 'تغيير زيت' || s.name === 'فلتر زيت').map((s) => s.id);
+    const oilChangeId = serviceTypes.find((s) => s.name === 'تغيير زيت')?.id;
+    const defaultServices = serviceTypes.filter((s) => s.name === 'تغيير زيت' || s.name === 'فلتر زيت').map((s) => s.id);
     const [newCust, setNewCust] = useState(false);
     const [q, setQ] = useState('');
 
@@ -34,10 +36,14 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, savedVisi
         plate: '',
         label: '',
         km: '',
-        services: oilChangeIds,
+        services: defaultServices,
         oil_brand: car?.lastOilBrand ?? oilBrands[0],
+        oil_type: car?.lastOilType ?? oilTypes[0]?.key ?? '',
         price: '',
     });
+
+    // The oil-type control only matters when this visit changes the oil
+    const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
 
     const searchCar = (e: FormEvent) => {
         e.preventDefault();
@@ -245,20 +251,48 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, savedVisi
                             <FieldError message={form.errors.services} />
                         </div>
 
-                        <div>
-                            <div className="mb-2 text-[17px] font-bold">نوع الزيت</div>
-                            <select
-                                value={form.data.oil_brand}
-                                onChange={(e) => form.setData('oil_brand', e.target.value)}
-                                className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
-                            >
-                                {oilBrands.map((brand) => (
-                                    <option key={brand} value={brand}>
-                                        {brand === car?.lastOilBrand ? `نفس الزيارة السابقة — ${brand}` : brand}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        {oilChangeSelected && (
+                            <>
+                                <div>
+                                    <div className="mb-2 text-[17px] font-bold">نوع الزيت</div>
+                                    <div className="grid grid-cols-2 gap-2.5">
+                                        {oilTypes.map((type) => {
+                                            const on = form.data.oil_type === type.key;
+
+                                            return (
+                                                <button
+                                                    key={type.key}
+                                                    type="button"
+                                                    onClick={() => form.setData('oil_type', type.key)}
+                                                    className={`min-h-13 rounded-xl border-2 px-2 text-[17px] font-bold ${
+                                                        on
+                                                            ? 'border-primary bg-primary text-primary-foreground'
+                                                            : 'border-input bg-card text-foreground'
+                                                    }`}
+                                                >
+                                                    {type.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="mb-2 text-[17px] font-bold">ماركة الزيت</div>
+                                    <select
+                                        value={form.data.oil_brand}
+                                        onChange={(e) => form.setData('oil_brand', e.target.value)}
+                                        className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
+                                    >
+                                        {oilBrands.map((brand) => (
+                                            <option key={brand} value={brand}>
+                                                {brand === car?.lastOilBrand ? `نفس الزيارة السابقة — ${brand}` : brand}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </>
+                        )}
 
                         <div>
                             <div className="mb-2 text-[17px] font-bold">السعر (اختياري)</div>

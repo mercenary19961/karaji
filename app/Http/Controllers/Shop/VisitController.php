@@ -6,6 +6,7 @@ use App\Models\Car;
 use App\Models\Customer;
 use App\Models\ServiceType;
 use App\Models\Visit;
+use App\Services\Reminders\ReminderEngine;
 use App\Support\Format;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,11 @@ class VisitController extends ShopController
 {
     // v1: static list; "remembered from last visit" comes from the car's history
     private const OIL_BRANDS = ['Mobil 5W-30', 'Castrol 5W-40', 'Total 10W-40', 'Shell 5W-30', 'آخر'];
+
+    // Oil-type chip value => Arabic label for the visit form
+    private const OIL_TYPES = ['mineral' => 'زيت عادي', 'synthetic' => 'زيت صناعي'];
+
+    public function __construct(private readonly ReminderEngine $engine) {}
 
     public function create(Request $request): Response
     {
@@ -41,9 +47,11 @@ class VisitController extends ShopController
                 'phone' => $car->customer->phone,
                 'lastService' => $this->lastOilLine($car),
                 'lastOilBrand' => $car->latestVisit?->oil_brand,
+                'lastOilType' => $car->latestVisit?->oil_type,
             ],
             'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name']),
             'oilBrands' => self::OIL_BRANDS,
+            'oilTypes' => collect(self::OIL_TYPES)->map(fn (string $label, string $key) => ['key' => $key, 'label' => $label])->values(),
             'savedVisit' => $saved === null ? null : [
                 'id' => $saved->id,
                 'carId' => $saved->car->id,
@@ -80,6 +88,7 @@ class VisitController extends ShopController
             'services' => ['required', 'array', 'min:1'],
             'services.*' => ['integer'],
             'oil_brand' => ['nullable', 'string', 'max:60'],
+            'oil_type' => ['nullable', Rule::in(array_keys(self::OIL_TYPES))],
             'price' => ['nullable', 'numeric', 'min:0', 'max:99999'],
         ], [
             'km.required' => 'قراءة العداد مطلوبة',
@@ -99,18 +108,24 @@ class VisitController extends ShopController
             throw ValidationException::withMessages(['services' => 'في خدمة غير صالحة']);
         }
 
+        // Oil type only matters when the visit includes an oil change; default
+        // it so a first-timer's reminder still uses a sane interval.
+        $isOilChange = ServiceType::query()->whereIn('id', $serviceIds)->where('name', ServiceType::OIL_CHANGE)->exists();
+        $oilType = $isOilChange ? ($validated['oil_type'] ?? ReminderEngine::DEFAULT_OIL_TYPE) : null;
+
         $car = $this->resolveCar($validated);
 
         $visit = $car->visits()->make([
             'km' => $validated['km'],
             'price' => $validated['price'] ?? null,
             'oil_brand' => $validated['oil_brand'] ?? null,
+            'oil_type' => $oilType,
             'visited_at' => now(),
         ]);
         $visit->save();
         $visit->services()->attach($serviceIds);
 
-        $car->syncOilReminder();
+        $this->engine->scheduleOilReminder($car);
 
         return redirect()
             ->route('shop.visits.create', ['car' => $car->id, 'saved' => $visit->id])
@@ -126,7 +141,7 @@ class VisitController extends ShopController
         $car = $visit->car;
 
         $visit->delete();
-        $car->syncOilReminder();
+        $this->engine->scheduleOilReminder($car);
 
         return redirect()
             ->route('shop.visits.create', ['car' => $car->id])

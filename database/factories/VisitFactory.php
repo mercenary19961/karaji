@@ -20,6 +20,7 @@ class VisitFactory extends Factory
             'km' => fake()->numberBetween(20000, 250000),
             'price' => fake()->optional()->randomFloat(2, 15, 120),
             'oil_brand' => fake()->optional()->randomElement(['Mobil 5W-30', 'Castrol 5W-40', 'Total 10W-40', 'Shell 5W-30']),
+            'oil_type' => fake()->randomElement(['mineral', 'synthetic']),
             'visited_at' => fake()->dateTimeBetween('-1 year'),
         ];
     }

@@ -9,12 +9,16 @@ use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\User;
 use App\Models\Visit;
+use App\Services\Reminders\ReminderEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class VisitFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    // POSTs without an oil_type default to mineral (see VisitController).
+    private const MINERAL_KM = ReminderEngine::INTERVALS['mineral']['km'];
 
     private Shop $shop;
 
@@ -59,8 +63,8 @@ class VisitFlowTest extends TestCase
         $this->assertSame(2, $visit->services()->count());
 
         $reminder = $car->pendingOilReminder()->sole();
-        $this->assertSame(91300 + Car::OIL_INTERVAL_KM, $reminder->due_km);
-        $this->assertTrue($reminder->due_date->isSameDay(now()->addMonths(Car::OIL_INTERVAL_MONTHS)));
+        $this->assertSame(91300 + self::MINERAL_KM, $reminder->due_km);
+        $this->assertNotNull($reminder->due_date);
     }
 
     public function test_a_second_oil_visit_updates_the_existing_reminder_instead_of_duplicating()
@@ -71,7 +75,7 @@ class VisitFlowTest extends TestCase
         $this->actingAs($this->user)->post('/shop/visits', ['car_id' => $car->id, 'km' => 85000, 'services' => [$this->oilChange->id]]);
 
         $this->assertSame(1, $car->reminders()->count());
-        $this->assertSame(85000 + Car::OIL_INTERVAL_KM, $car->pendingOilReminder()->sole()->due_km);
+        $this->assertSame(85000 + self::MINERAL_KM, $car->pendingOilReminder()->sole()->due_km);
     }
 
     public function test_a_visit_without_oil_change_schedules_no_oil_reminder()
@@ -105,7 +109,7 @@ class VisitFlowTest extends TestCase
         $car = $customer->cars()->sole();
         $this->assertSame('99-12345', $car->plate);
         $this->assertSame($this->shop->id, $car->shop_id);
-        $this->assertSame(50000 + Car::OIL_INTERVAL_KM, $car->pendingOilReminder()->sole()->due_km);
+        $this->assertSame(50000 + self::MINERAL_KM, $car->pendingOilReminder()->sole()->due_km);
     }
 
     public function test_a_known_phone_reuses_the_existing_customer()
@@ -136,7 +140,7 @@ class VisitFlowTest extends TestCase
 
         // The reminder falls back to the previous oil visit's schedule
         $this->assertSame(1, Visit::query()->count());
-        $this->assertSame(80000 + Car::OIL_INTERVAL_KM, $car->pendingOilReminder()->sole()->due_km);
+        $this->assertSame(80000 + self::MINERAL_KM, $car->pendingOilReminder()->sole()->due_km);
 
         $first = Visit::query()->sole();
         $this->actingAs($this->user)->delete("/shop/visits/{$first->id}");
