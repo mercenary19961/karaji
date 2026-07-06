@@ -1,12 +1,18 @@
 import { type SharedData } from '@/types';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
+
+const navItems = [
+    { label: 'Shops', href: '/admin', match: (url: string) => url === '/admin' || url.startsWith('/admin/shops') },
+    { label: 'Announcements', href: '/admin/announcements', match: (url: string) => url.startsWith('/admin/announcements') },
+];
 
 // EN/LTR by design (SetAdminLocale middleware sets the locale server-side;
 // dir="ltr" here is defensive for any client-side visit that skipped a full
 // page load). Denser UI than the shop portal is fine — the operator is us.
 export default function AdminLayout({ children }: PropsWithChildren) {
     const { auth, flash } = usePage<SharedData>().props;
+    const { url } = usePage();
 
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -14,7 +20,20 @@ export default function AdminLayout({ children }: PropsWithChildren) {
         <div dir="ltr" className="bg-background text-foreground min-h-screen text-start">
             <header className="bg-foreground text-white">
                 <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-                    <div className="text-lg font-extrabold">Admin Portal</div>
+                    <div className="flex items-center gap-6">
+                        <div className="text-lg font-extrabold">Admin Portal</div>
+                        <nav className="flex gap-4">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`text-sm font-bold ${item.match(url) ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
                     <div className="text-sm text-white/60">
                         {auth.user.email} • {today}
                     </div>

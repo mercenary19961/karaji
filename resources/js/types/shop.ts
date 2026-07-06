@@ -12,6 +12,12 @@ export interface ShopStats {
     monthRevenue: string;
 }
 
+export interface DashboardAnnouncement {
+    id: number;
+    title: string;
+    body: string;
+}
+
 export interface DueTodayItem {
     car: string;
     owner: string;

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Announcement;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Models\Reminder;
@@ -33,6 +34,12 @@ class DatabaseSeeder extends Seeder
         $this->seedServiceTypes();
         $this->seedDemoShop();
         $this->seedOtherShops();
+
+        // A seasonal broadcast so the shop dashboard shows a live announcement
+        Announcement::factory()->create([
+            'title' => 'فحص الشتاء 🚗❄️',
+            'body' => 'ذكّر زبائنك بفحص البطارية والإطارات قبل موسم الشتاء — عرض خاص هذا الشهر.',
+        ]);
     }
 
     /**

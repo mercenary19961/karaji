@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shop;
 
+use App\Models\Announcement;
 use App\Models\Reminder;
 use App\Models\Visit;
 use Illuminate\Http\Request;
@@ -22,8 +23,14 @@ class DashboardController extends ShopController
             ->limit(3)
             ->get();
 
+        $announcements = Announcement::query()
+            ->activeForShop($request->user()->shop_id)
+            ->latest()
+            ->get(['id', 'title', 'body']);
+
         return Inertia::render('shop/dashboard', [
             'shop' => $this->shopProps($request),
+            'announcements' => $announcements,
             'stats' => [
                 'todayVisits' => Visit::query()->whereDate('visited_at', today())->count(),
                 'dueCount' => $dueQuery->count(),

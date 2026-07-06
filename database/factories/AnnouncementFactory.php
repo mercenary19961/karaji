@@ -19,4 +19,17 @@ class AnnouncementFactory extends Factory
             'is_active' => true,
         ];
     }
+
+    public function inactive(): static
+    {
+        return $this->state(fn () => ['is_active' => false]);
+    }
+
+    public function expired(): static
+    {
+        return $this->state(fn () => [
+            'starts_at' => now()->subMonth()->toDateString(),
+            'ends_at' => now()->subWeek()->toDateString(),
+        ]);
+    }
 }

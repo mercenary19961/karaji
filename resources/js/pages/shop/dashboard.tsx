@@ -1,17 +1,18 @@
 import ShopLayout from '@/layouts/shop-layout';
 import { type SharedData } from '@/types';
-import { type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
+import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Plus, Search } from 'lucide-react';
+import { Megaphone, Plus, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface Props {
     shop: Shop;
     stats: ShopStats;
     dueToday: DueTodayItem[];
+    announcements: DashboardAnnouncement[];
 }
 
-export default function Dashboard({ shop, stats, dueToday }: Props) {
+export default function Dashboard({ shop, stats, dueToday, announcements }: Props) {
     const { flash } = usePage<SharedData>().props;
     const [q, setQ] = useState('');
 
@@ -23,6 +24,16 @@ export default function Dashboard({ shop, stats, dueToday }: Props) {
     return (
         <ShopLayout shop={shop}>
             <Head title="الرئيسية" />
+
+            {announcements.map((announcement) => (
+                <div key={announcement.id} className="border-cta bg-due flex items-start gap-3 rounded-2xl border-2 p-4">
+                    <Megaphone className="text-due-foreground mt-0.5 size-5 shrink-0" aria-hidden />
+                    <div>
+                        <div className="text-due-foreground text-[16px] font-extrabold">{announcement.title}</div>
+                        <div className="text-due-foreground/85 mt-0.5 text-[15px]">{announcement.body}</div>
+                    </div>
+                </div>
+            ))}
 
             <form onSubmit={search} className="relative">
                 <Search className="text-muted-foreground absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
