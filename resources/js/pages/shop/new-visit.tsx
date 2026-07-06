@@ -1,220 +1,286 @@
 import ShopLayout from '@/layouts/shop-layout';
-import { type Car, type Shop } from '@/types/shop';
-import { Head, Link } from '@inertiajs/react';
-import { Check, MessageCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { type SharedData } from '@/types';
+import { type FormCar, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Check, MessageCircle, Search } from 'lucide-react';
+import { type FormEvent, useState } from 'react';
 
 interface Props {
     shop: Shop;
-    car: Car;
-    serviceTypes: string[];
+    car: FormCar | null;
+    serviceTypes: ServiceTypeOption[];
     oilBrands: string[];
+    savedVisit: SavedVisit | null;
 }
 
-export default function NewVisit({ shop, car, serviceTypes, oilBrands }: Props) {
-    const [services, setServices] = useState<Record<string, boolean>>({ 'تغيير زيت': true, 'فلتر زيت': true });
+const inputClasses = 'border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none';
+
+function FieldError({ message }: { message?: string }) {
+    if (!message) return null;
+
+    return <div className="text-destructive mt-1.5 text-[15px] font-bold">{message}</div>;
+}
+
+export default function NewVisit({ shop, car, serviceTypes, oilBrands, savedVisit }: Props) {
+    const { flash } = usePage<SharedData>().props;
+
+    const oilChangeIds = serviceTypes.filter((s) => s.name === 'تغيير زيت' || s.name === 'فلتر زيت').map((s) => s.id);
     const [newCust, setNewCust] = useState(false);
-    const [km, setKm] = useState('');
-    const [price, setPrice] = useState('');
-    const [oil, setOil] = useState(oilBrands[0]);
-    const [saved, setSaved] = useState(false);
-    const [toast, setToast] = useState(false);
-    const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
+    const [q, setQ] = useState('');
 
-    useEffect(() => () => clearTimeout(toastTimer.current ?? undefined), []);
+    const form = useForm({
+        name: '',
+        phone: '',
+        plate: '',
+        label: '',
+        km: '',
+        services: oilChangeIds,
+        oil_brand: car?.lastOilBrand ?? oilBrands[0],
+        price: '',
+    });
 
-    const toggleService = (label: string) => setServices((s) => ({ ...s, [label]: !s[label] }));
-
-    // Demo: save is client-side only until visits exist in the schema
-    const save = () => {
-        setSaved(true);
-        setToast(true);
-        clearTimeout(toastTimer.current ?? undefined);
-        toastTimer.current = setTimeout(() => setToast(false), 5000);
+    const searchCar = (e: FormEvent) => {
+        e.preventDefault();
+        router.get(route('shop.cars.search'), { q, to: 'visit' });
     };
 
-    const undo = () => {
-        clearTimeout(toastTimer.current ?? undefined);
-        setToast(false);
-        setSaved(false);
+    const toggleService = (id: number) =>
+        form.setData('services', form.data.services.includes(id) ? form.data.services.filter((s) => s !== id) : [...form.data.services, id]);
+
+    const save = (e: FormEvent) => {
+        e.preventDefault();
+        form.transform((data) => ({
+            ...data,
+            car_id: newCust ? null : (car?.id ?? null),
+            km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
+            price: data.price === '' ? null : data.price,
+        }));
+        form.post(route('shop.visits.store'), { preserveScroll: true });
     };
 
-    const kmDigits = parseInt(km.replace(/\D/g, ''), 10);
-    const kmLabel = Number.isNaN(kmDigits) ? '91,300' : kmDigits.toLocaleString('en-US');
-    const nextKmLabel = Number.isNaN(kmDigits) ? '96,300' : (kmDigits + 5000).toLocaleString('en-US');
-    const selectedServices = serviceTypes.filter((s) => services[s]);
+    // ===== Post-save success state (the digital windshield sticker) =====
+    if (savedVisit) {
+        const summary = [
+            `مرحباً ${savedVisit.owner}،`,
+            `تمت اليوم صيانة ${savedVisit.carLabel} — لوحة ${savedVisit.plate}:`,
+            ...savedVisit.services.map((s) => `✅ ${s}${s === 'تغيير زيت' && savedVisit.oilBrand ? ` (${savedVisit.oilBrand})` : ''}`),
+            `قراءة العداد: ${savedVisit.km} كم`,
+            ...(savedVisit.nextDueKm ? [`🔔 الموعد القادم: عند ${savedVisit.nextDueKm} كم أو ${savedVisit.nextDueDate}`] : []),
+            `شكراً لثقتكم — ${shop.name}`,
+        ].join('\n');
+        const waHref = `https://wa.me/${savedVisit.whatsapp}?text=${encodeURIComponent(summary)}`;
 
-    const summary = [
-        `مرحباً ${car.owner}،`,
-        `تمت اليوم صيانة ${car.label} — لوحة ${car.plate}:`,
-        ...selectedServices.map((s) => `✅ ${s}${s === 'تغيير زيت' ? ` (${oil})` : ''}`),
-        `قراءة العداد: ${kmLabel} كم`,
-        `🔔 الموعد القادم: عند ${nextKmLabel} كم أو ${car.nextDue.date}`,
-        `شكراً لثقتكم — ${shop.name}`,
-    ].join('\n');
-    const waHref = `https://wa.me/${car.whatsapp}?text=${encodeURIComponent(summary)}`;
+        return (
+            <ShopLayout shop={shop}>
+                <Head title="تم حفظ الزيارة" />
 
+                <div className="border-success bg-success-soft rounded-[18px] border-2 px-4 py-6 text-center">
+                    <div className="bg-success text-success-foreground mx-auto flex size-16 items-center justify-center rounded-full">
+                        <Check className="size-9" aria-hidden />
+                    </div>
+                    <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">تم حفظ الزيارة</div>
+                    <div className="text-success-soft-foreground/80 mt-1 text-[15px]">
+                        {savedVisit.carLabel} — {savedVisit.owner} — عداد {savedVisit.km} كم
+                    </div>
+                </div>
+
+                <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-success text-success-foreground shadow-success/35 flex h-17 items-center justify-center gap-2 rounded-2xl text-[21px] font-extrabold shadow-lg"
+                >
+                    <MessageCircle className="size-6" aria-hidden />
+                    إرسال ملخص الزيارة واتساب
+                </a>
+
+                <div className="text-muted-foreground text-center text-sm">معاينة الرسالة</div>
+                <div className="ms-8 rounded-[18px] rounded-es-sm bg-[#dcf3d0] p-4 text-[15.5px] leading-8 whitespace-pre-line text-[#1e3325] shadow-sm">
+                    {summary}
+                </div>
+
+                <Link
+                    href={route('shop.dashboard')}
+                    className="border-input bg-card text-primary flex h-14 items-center justify-center rounded-2xl border-2 text-lg font-bold"
+                >
+                    العودة للرئيسية
+                </Link>
+
+                <button
+                    type="button"
+                    onClick={() => router.delete(route('shop.visits.destroy', savedVisit.id))}
+                    className="text-destructive min-h-12 text-center text-[15px] font-bold underline"
+                >
+                    تراجع عن الحفظ
+                </button>
+            </ShopLayout>
+        );
+    }
+
+    // ===== Entry form =====
     return (
         <ShopLayout shop={shop}>
             <Head title="زيارة جديدة" />
 
-            {!saved && (
-                <>
-                    <h1 className="text-xl font-extrabold">زيارة جديدة</h1>
+            <h1 className="text-xl font-extrabold">زيارة جديدة</h1>
 
-                    <div className="border-primary bg-card rounded-2xl border-2 p-4 shadow-sm">
-                        <div className="flex items-center justify-between">
-                            <div className="text-[19px] font-extrabold">{car.label}</div>
-                            <span className="bg-secondary text-secondary-foreground rounded-lg px-3 py-1 text-[15px] font-extrabold tracking-wider">
-                                {car.plate}
-                            </span>
-                        </div>
-                        <div className="text-muted-foreground mt-1.5 text-base">
-                            {car.owner} — {car.phone}
-                        </div>
-                        <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>
+            {!newCust && car && (
+                <div className="border-primary bg-card rounded-2xl border-2 p-4 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <div className="text-[19px] font-extrabold">{car.label}</div>
+                        <span className="bg-secondary text-secondary-foreground rounded-lg px-3 py-1 text-[15px] font-extrabold tracking-wider">
+                            {car.plate}
+                        </span>
                     </div>
+                    <div className="text-muted-foreground mt-1.5 text-base">
+                        {car.owner} — {car.phone}
+                    </div>
+                    {car.lastService && <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>}
+                </div>
+            )}
 
-                    <button
-                        type="button"
-                        onClick={() => setNewCust((v) => !v)}
-                        className="text-primary min-h-12 self-start px-1 text-[15px] font-bold underline"
-                    >
-                        سيارة غير مسجلة؟
-                    </button>
+            {!newCust && !car && (
+                <form onSubmit={searchCar}>
+                    <div className="relative">
+                        <Search className="text-muted-foreground absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
+                        <input
+                            inputMode="numeric"
+                            placeholder="دوّر بالسيارة: رقم اللوحة أو الهاتف"
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            className="border-input bg-card focus-visible:border-ring h-15 w-full rounded-2xl border-2 ps-12 pe-4 text-[18px] outline-none"
+                        />
+                    </div>
+                    {flash.error && <div className="text-destructive mt-2 text-[15px] font-bold">{flash.error}</div>}
+                </form>
+            )}
 
-                    {newCust && (
-                        <div className="bg-secondary flex flex-col gap-3 rounded-2xl p-4">
-                            <div className="text-secondary-foreground text-base font-extrabold">زبون جديد</div>
+            <button
+                type="button"
+                onClick={() => setNewCust((v) => !v)}
+                className="text-primary min-h-12 self-start px-1 text-[15px] font-bold underline"
+            >
+                {newCust ? 'رجوع لسيارة مسجلة' : 'سيارة غير مسجلة؟'}
+            </button>
+
+            <form onSubmit={save} className="flex flex-col gap-4">
+                {newCust && (
+                    <div className="bg-secondary flex flex-col gap-3 rounded-2xl p-4">
+                        <div className="text-secondary-foreground text-base font-extrabold">زبون جديد</div>
+                        <div>
                             <input
                                 placeholder="الاسم"
-                                className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none"
+                                value={form.data.name}
+                                onChange={(e) => form.setData('name', e.target.value)}
+                                className={inputClasses}
                             />
+                            <FieldError message={form.errors.name} />
+                        </div>
+                        <div>
                             <input
                                 inputMode="tel"
                                 placeholder="رقم الهاتف"
-                                className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none"
+                                value={form.data.phone}
+                                onChange={(e) => form.setData('phone', e.target.value)}
+                                className={inputClasses}
+                            />
+                            <FieldError message={form.errors.phone} />
+                        </div>
+                        <div>
+                            <input
+                                inputMode="numeric"
+                                placeholder="رقم اللوحة"
+                                value={form.data.plate}
+                                onChange={(e) => form.setData('plate', e.target.value)}
+                                className={inputClasses}
+                            />
+                            <FieldError message={form.errors.plate} />
+                        </div>
+                        <input
+                            placeholder="السيارة (مثال: كيا سبورتاج 2019) — اختياري"
+                            value={form.data.label}
+                            onChange={(e) => form.setData('label', e.target.value)}
+                            className={inputClasses}
+                        />
+                    </div>
+                )}
+
+                {(car || newCust) && (
+                    <>
+                        <div>
+                            <div className="mb-2 text-[17px] font-bold">
+                                قراءة العداد الحالية <span className="text-destructive">*</span>
+                            </div>
+                            <input
+                                inputMode="numeric"
+                                placeholder="مثال: 91300"
+                                value={form.data.km}
+                                onChange={(e) => form.setData('km', e.target.value)}
+                                className="border-input bg-card focus-visible:border-ring h-16 w-full rounded-2xl border-2 px-4 text-center text-2xl font-bold tracking-wide outline-none"
+                            />
+                            <FieldError message={form.errors.km} />
+                        </div>
+
+                        <div>
+                            <div className="mb-2 text-[17px] font-bold">الخدمات</div>
+                            <div className="grid grid-cols-2 gap-2.5">
+                                {serviceTypes.map((service) => {
+                                    const on = form.data.services.includes(service.id);
+
+                                    return (
+                                        <button
+                                            key={service.id}
+                                            type="button"
+                                            onClick={() => toggleService(service.id)}
+                                            className={`min-h-13 rounded-xl border-2 px-2 text-[17px] font-bold ${
+                                                on ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-card text-foreground'
+                                            }`}
+                                        >
+                                            {on ? '✓ ' : ''}
+                                            {service.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <FieldError message={form.errors.services} />
+                        </div>
+
+                        <div>
+                            <div className="mb-2 text-[17px] font-bold">نوع الزيت</div>
+                            <select
+                                value={form.data.oil_brand}
+                                onChange={(e) => form.setData('oil_brand', e.target.value)}
+                                className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
+                            >
+                                {oilBrands.map((brand) => (
+                                    <option key={brand} value={brand}>
+                                        {brand === car?.lastOilBrand ? `نفس الزيارة السابقة — ${brand}` : brand}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <div className="mb-2 text-[17px] font-bold">السعر (اختياري)</div>
+                            <input
+                                inputMode="decimal"
+                                placeholder="د.أ"
+                                value={form.data.price}
+                                onChange={(e) => form.setData('price', e.target.value)}
+                                className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
                             />
                         </div>
-                    )}
 
-                    <div>
-                        <div className="mb-2 text-[17px] font-bold">
-                            قراءة العداد الحالية <span className="text-destructive">*</span>
-                        </div>
-                        <input
-                            inputMode="numeric"
-                            placeholder="مثال: 91300"
-                            value={km}
-                            onChange={(e) => setKm(e.target.value)}
-                            className="border-input bg-card focus-visible:border-ring h-16 w-full rounded-2xl border-2 px-4 text-center text-2xl font-bold tracking-wide outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <div className="mb-2 text-[17px] font-bold">الخدمات</div>
-                        <div className="grid grid-cols-2 gap-2.5">
-                            {serviceTypes.map((label) => {
-                                const on = !!services[label];
-
-                                return (
-                                    <button
-                                        key={label}
-                                        type="button"
-                                        onClick={() => toggleService(label)}
-                                        className={`min-h-13 rounded-xl border-2 px-2 text-[17px] font-bold ${
-                                            on ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-card text-foreground'
-                                        }`}
-                                    >
-                                        {on ? '✓ ' : ''}
-                                        {label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="mb-2 text-[17px] font-bold">نوع الزيت</div>
-                        <select
-                            value={oil}
-                            onChange={(e) => setOil(e.target.value)}
-                            className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
+                        <button
+                            type="submit"
+                            disabled={form.processing}
+                            className="bg-cta text-cta-foreground shadow-cta/35 mt-1 h-16 rounded-2xl text-[22px] font-extrabold shadow-lg disabled:opacity-60"
                         >
-                            {oilBrands.map((brand, i) => (
-                                <option key={brand} value={brand}>
-                                    {i === 0 ? `نفس الزيارة السابقة — ${brand}` : brand}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <div className="mb-2 text-[17px] font-bold">السعر (اختياري)</div>
-                        <input
-                            inputMode="decimal"
-                            placeholder="د.أ"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
-                        />
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={save}
-                        className="bg-cta text-cta-foreground shadow-cta/35 mt-1 h-16 rounded-2xl text-[22px] font-extrabold shadow-lg"
-                    >
-                        حفظ الزيارة
-                    </button>
-                </>
-            )}
-
-            {saved && (
-                <>
-                    <div className="border-success bg-success-soft rounded-[18px] border-2 px-4 py-6 text-center">
-                        <div className="bg-success text-success-foreground mx-auto flex size-16 items-center justify-center rounded-full">
-                            <Check className="size-9" aria-hidden />
-                        </div>
-                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">تم حفظ الزيارة</div>
-                        <div className="text-success-soft-foreground/80 mt-1 text-[15px]">
-                            {car.label} — {car.owner} — عداد {kmLabel} كم
-                        </div>
-                    </div>
-
-                    <a
-                        href={waHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-success text-success-foreground shadow-success/35 flex h-17 items-center justify-center gap-2 rounded-2xl text-[21px] font-extrabold shadow-lg"
-                    >
-                        <MessageCircle className="size-6" aria-hidden />
-                        إرسال ملخص الزيارة واتساب
-                    </a>
-
-                    <div className="text-muted-foreground text-center text-sm">معاينة الرسالة</div>
-                    <div className="ms-8 rounded-[18px] rounded-es-sm bg-[#dcf3d0] p-4 text-[15.5px] leading-8 whitespace-pre-line text-[#1e3325] shadow-sm">
-                        {summary}
-                        <div className="mt-1 text-end text-xs text-[#6b8a6f]">12:40 م</div>
-                    </div>
-
-                    <Link
-                        href={route('shop.dashboard')}
-                        className="border-input bg-card text-primary flex h-14 items-center justify-center rounded-2xl border-2 text-lg font-bold"
-                    >
-                        العودة للرئيسية
-                    </Link>
-                </>
-            )}
-
-            {toast && (
-                <div className="bg-foreground fixed inset-x-0 bottom-24 z-20 mx-auto flex w-[calc(100%-2rem)] max-w-[26rem] items-center justify-between gap-3 rounded-2xl p-2 ps-4 shadow-xl">
-                    <span className="text-base text-white">تم حفظ الزيارة</span>
-                    <button type="button" onClick={undo} className="h-12 rounded-xl bg-white/15 px-4 text-base font-extrabold text-[#ffc961]">
-                        تراجع
-                    </button>
-                </div>
-            )}
+                            حفظ الزيارة
+                        </button>
+                    </>
+                )}
+            </form>
         </ShopLayout>
     );
 }

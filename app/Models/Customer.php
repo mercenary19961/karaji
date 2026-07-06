@@ -28,4 +28,12 @@ class Customer extends Model
     {
         return $this->hasMany(Car::class);
     }
+
+    /**
+     * Local Jordanian mobile ("0795...") as a wa.me-ready number ("962795...").
+     */
+    public function whatsappNumber(): string
+    {
+        return '962'.ltrim($this->phone, '0');
+    }
 }

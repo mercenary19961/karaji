@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -31,15 +32,15 @@ class AdminPortalTest extends TestCase
 
     public function test_admin_pages_render_in_english_ltr()
     {
-        $this->actingAs(User::factory()->create());
-
         // SetAdminLocale flips the blade shell to lang="en" dir="ltr"
-        $this->get('/admin')
+        $this->actingAs(User::factory()->create())
+            ->get('/admin')
             ->assertSee('lang="en"', false)
             ->assertSee('dir="ltr"', false);
 
-        // Shop portal stays Arabic RTL
-        $this->get('/shop')
+        // Shop portal stays Arabic RTL (same process — guards the locale leak)
+        $this->actingAs(User::factory()->create(['shop_id' => Shop::factory()->create()->id]))
+            ->get('/shop')
             ->assertSee('lang="ar"', false)
             ->assertSee('dir="rtl"', false);
     }

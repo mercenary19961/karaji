@@ -17,7 +17,8 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
 
     const step = (dir: number) => setMonthIdx((i) => (i + dir + months.length) % months.length);
 
-    const maxVisits = Math.max(...months.map((m) => m.visits));
+    const maxVisits = Math.max(...months.map((m) => m.visits), 1);
+    const current = months[monthIdx];
 
     return (
         <ShopLayout shop={shop}>
@@ -32,7 +33,9 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 >
                     <ChevronRight className="size-6" aria-hidden />
                 </button>
-                <div className="text-lg font-extrabold">{months[monthIdx].label} 2026</div>
+                <div className="text-lg font-extrabold">
+                    {current.label} {current.year}
+                </div>
                 <button
                     type="button"
                     onClick={() => step(1)}
@@ -53,7 +56,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                         const active = i === monthIdx;
 
                         return (
-                            <g key={month.label}>
+                            <g key={`${month.label}-${month.year}`}>
                                 <rect
                                     x={x}
                                     y={y}
@@ -92,6 +95,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                             <b className="text-primary">{service.count}</b>
                         </div>
                     ))}
+                    {topServices.length === 0 && <div className="text-muted-foreground text-base">لسا ما في خدمات مسجلة</div>}
                 </div>
             </div>
 
@@ -104,7 +108,10 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                         const waText = `مرحباً ${customer.owner}، صار وقت نطمّن على ${customer.car} 🚗 بانتظارك في ${shop.name}`;
 
                         return (
-                            <div key={customer.owner} className="border-border flex items-center justify-between gap-2 rounded-xl border p-3">
+                            <div
+                                key={`${customer.owner}-${customer.car}`}
+                                className="border-border flex items-center justify-between gap-2 rounded-xl border p-3"
+                            >
                                 <div>
                                     <div className="text-base font-bold">
                                         {customer.owner} — {customer.car}
@@ -123,6 +130,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                             </div>
                         );
                     })}
+                    {lostCustomers.length === 0 && <div className="text-muted-foreground text-base">ما في زبائن منقطعين — ممتاز 👌</div>}
                 </div>
             </div>
         </ShopLayout>

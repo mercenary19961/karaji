@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToShop;
+use App\Support\Format;
 use Database\Factories\ReminderFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,6 +45,13 @@ class Reminder extends Model
     public function visit(): BelongsTo
     {
         return $this->belongsTo(Visit::class);
+    }
+
+    public function overdueLabel(): string
+    {
+        $days = $this->due_date === null ? 0 : (int) $this->due_date->startOfDay()->diffInDays(today(), false);
+
+        return Format::overdueDays($days);
     }
 
     public function markContacted(): void

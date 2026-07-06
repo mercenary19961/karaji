@@ -1,8 +1,9 @@
 import ShopLayout from '@/layouts/shop-layout';
+import { type SharedData } from '@/types';
 import { type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus, Search } from 'lucide-react';
-import { type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 
 interface Props {
     shop: Shop;
@@ -11,10 +12,12 @@ interface Props {
 }
 
 export default function Dashboard({ shop, stats, dueToday }: Props) {
-    // Demo: any search lands on the demo car until real lookup exists
+    const { flash } = usePage<SharedData>().props;
+    const [q, setQ] = useState('');
+
     const search = (e: FormEvent) => {
         e.preventDefault();
-        router.visit(route('shop.cars.show'));
+        router.get(route('shop.cars.search'), { q });
     };
 
     return (
@@ -26,9 +29,12 @@ export default function Dashboard({ shop, stats, dueToday }: Props) {
                 <input
                     inputMode="numeric"
                     placeholder="رقم اللوحة أو الهاتف"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
                     className="border-input bg-card text-foreground focus-visible:border-ring h-15 w-full rounded-2xl border-2 ps-12 pe-4 text-[19px] outline-none"
                 />
             </form>
+            {flash.error && <div className="text-destructive -mt-2 text-[15px] font-bold">{flash.error}</div>}
 
             <Link
                 href={route('shop.visits.create')}
@@ -80,6 +86,9 @@ export default function Dashboard({ shop, stats, dueToday }: Props) {
                         </span>
                     </Link>
                 ))}
+                {dueToday.length === 0 && (
+                    <div className="bg-card text-muted-foreground rounded-2xl p-5 text-center text-base">ما في تذكيرات مستحقة اليوم 🎉</div>
+                )}
             </div>
         </ShopLayout>
     );
