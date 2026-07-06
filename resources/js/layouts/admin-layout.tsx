@@ -6,7 +6,7 @@ import { type PropsWithChildren } from 'react';
 // dir="ltr" here is defensive for any client-side visit that skipped a full
 // page load). Denser UI than the shop portal is fine — the operator is us.
 export default function AdminLayout({ children }: PropsWithChildren) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, flash } = usePage<SharedData>().props;
 
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -21,7 +21,13 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                 </div>
             </header>
 
-            <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-7">{children}</main>
+            <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-7">
+                {flash.success && (
+                    <div className="bg-success-soft text-success-soft-foreground rounded-xl px-4 py-2.5 text-sm font-bold">{flash.success}</div>
+                )}
+                {flash.error && <div className="bg-destructive/10 text-destructive rounded-xl px-4 py-2.5 text-sm font-bold">{flash.error}</div>}
+                {children}
+            </main>
         </div>
     );
 }

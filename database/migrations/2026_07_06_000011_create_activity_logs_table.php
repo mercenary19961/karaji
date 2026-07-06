@@ -14,8 +14,10 @@ return new class extends Migration
             $table->foreignId('shop_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('action');
             $table->nullableMorphs('subject');
-            // before/after snapshots powering undo (hardrock ActivityLogService pattern)
-            $table->json('changes')->nullable();
+            // before/after snapshots powering undo (hardrock ActivityLogService
+            // pattern). NOT named `changes` — that collides with Eloquent's
+            // internal Model::$changes property inside model methods.
+            $table->json('change_set')->nullable();
             $table->dateTime('undone_at')->nullable();
             $table->timestamps();
 

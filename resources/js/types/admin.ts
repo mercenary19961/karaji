@@ -1,33 +1,40 @@
-// Prop contracts for the admin portal pages, fulfilled by App\Support\AdminDemoData
-// until schema v1.
+// Prop contracts for the admin portal pages, fulfilled by the Admin\* controllers.
 
-export type SubscriptionStatus = 'Active' | 'Trial' | 'Suspended';
+export type SubscriptionStatus = 'active' | 'trial' | 'suspended';
 
 export interface ShopListItem {
-    id: string;
+    id: number;
     name: string;
-    area: string;
-    status: SubscriptionStatus;
+    area: string | null;
+    status: SubscriptionStatus | null;
     visits: number;
     lastActive: string;
 }
 
+export interface PlanOption {
+    key: string;
+    label: string;
+}
+
 export interface ActivityEntry {
-    id: string;
+    id: number;
     text: string;
     at: string;
     undoable: boolean;
+    undone: boolean;
 }
 
 export interface ShopDetail {
+    id: number;
     name: string;
-    area: string;
+    area: string | null;
     stats: { label: string; value: number }[];
     subscription: {
         status: SubscriptionStatus;
         plan: string;
-        plans: string[];
-        renewsAt: string;
-    };
+        plans: PlanOption[];
+        renewsAt: string | null;
+        trialEndsAt: string | null;
+    } | null;
     activity: ActivityEntry[];
 }

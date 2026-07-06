@@ -1,6 +1,6 @@
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Bell, ChartColumn, House, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
@@ -23,11 +23,24 @@ const tabs: Tab[] = [
 ];
 
 export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
-    const { name } = usePage<SharedData>().props;
+    const { name, impersonating } = usePage<SharedData>().props;
     const { url } = usePage();
 
     return (
         <div className="bg-background text-foreground mx-auto flex min-h-screen w-full max-w-md flex-col">
+            {/* Operator-only banner while "Login as shop" is active — EN on purpose */}
+            {impersonating && (
+                <div dir="ltr" className="bg-cta text-cta-foreground flex items-center justify-between px-4 py-1.5 text-sm font-bold">
+                    Viewing as shop
+                    <button
+                        type="button"
+                        onClick={() => router.post(route('impersonation.leave'))}
+                        className="min-h-10 cursor-pointer px-2 underline"
+                    >
+                        Return to admin
+                    </button>
+                </div>
+            )}
             <header className="bg-primary text-primary-foreground flex items-center justify-between px-5 pt-4 pb-3.5">
                 {/* Brand comes from APP_NAME via the shared `name` prop — never hardcode it */}
                 <div className="text-2xl font-extrabold tracking-wide">{name}</div>

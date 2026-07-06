@@ -19,14 +19,14 @@ class ActivityLog extends Model
         'action',
         'subject_type',
         'subject_id',
-        'changes',
+        'change_set',
         'undone_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'changes' => 'array',
+            'change_set' => 'array',
             'undone_at' => 'datetime',
         ];
     }
@@ -44,5 +44,28 @@ class ActivityLog extends Model
     public function subject(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function isUndoable(): bool
+    {
+        return $this->undone_at === null
+            && filled($this->change_set['before'] ?? null)
+            && $this->subject !== null;
+    }
+
+    /**
+     * Restore the subject's before-state. One-shot: a log entry can only be
+     * undone once (undone_at marks it spent).
+     */
+    public function undo(): bool
+    {
+        if (! $this->isUndoable()) {
+            return false;
+        }
+
+        $this->subject->update($this->change_set['before']);
+        $this->update(['undone_at' => now()]);
+
+        return true;
     }
 }

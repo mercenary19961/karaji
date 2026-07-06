@@ -31,6 +31,43 @@ class DatabaseSeeder extends Seeder
 
         $this->seedServiceTypes();
         $this->seedDemoShop();
+        $this->seedOtherShops();
+    }
+
+    /**
+     * A few more shops in varied subscription states so the admin portal
+     * list looks like a running SaaS.
+     */
+    private function seedOtherShops(): void
+    {
+        $others = [
+            ['name' => 'كراج البيادر', 'area' => 'البيادر', 'email' => 'shop2@example.com', 'status' => 'active', 'plan' => 'basic', 'visits' => 5],
+            ['name' => 'مركز صويلح للسيارات', 'area' => 'صويلح', 'email' => 'shop3@example.com', 'status' => 'trial', 'plan' => 'basic', 'visits' => 2],
+            ['name' => 'كراج طبربور', 'area' => 'طبربور', 'email' => 'shop4@example.com', 'status' => 'active', 'plan' => 'pro', 'visits' => 4],
+            ['name' => 'ورشة وادي صقرة', 'area' => 'وادي صقرة', 'email' => 'shop5@example.com', 'status' => 'suspended', 'plan' => 'basic', 'visits' => 0],
+        ];
+
+        foreach ($others as $data) {
+            $shop = Shop::factory()->create(['name' => $data['name'], 'area' => $data['area']]);
+
+            User::factory()->create(['name' => $data['name'], 'email' => $data['email'], 'shop_id' => $shop->id]);
+
+            Subscription::factory()->create([
+                'shop_id' => $shop->id,
+                'plan' => $data['plan'],
+                'status' => $data['status'],
+                'price_jod' => Subscription::PLANS[$data['plan']]['price'],
+                'renews_at' => $data['status'] === 'active' ? now()->addMonth()->toDateString() : null,
+                'trial_ends_at' => $data['status'] === 'trial' ? now()->addWeeks(2)->toDateString() : null,
+            ]);
+
+            if ($data['visits'] > 0) {
+                Visit::factory()->count($data['visits'])->create([
+                    'shop_id' => $shop->id,
+                    'visited_at' => fake()->dateTimeBetween(now()->startOfMonth()),
+                ]);
+            }
+        }
     }
 
     private function seedServiceTypes(): void

@@ -26,6 +26,7 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     flash: { success: string | null; error: string | null };
+    impersonating: boolean;
     [key: string]: unknown;
 }
 

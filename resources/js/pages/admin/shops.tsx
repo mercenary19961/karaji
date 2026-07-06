@@ -4,9 +4,15 @@ import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
 const badgeClasses: Record<SubscriptionStatus, string> = {
-    Active: 'bg-success-soft text-success-soft-foreground',
-    Trial: 'bg-secondary text-secondary-foreground',
-    Suspended: 'bg-destructive/10 text-destructive',
+    active: 'bg-success-soft text-success-soft-foreground',
+    trial: 'bg-secondary text-secondary-foreground',
+    suspended: 'bg-destructive/10 text-destructive',
+};
+
+const statusLabels: Record<SubscriptionStatus, string> = {
+    active: 'Active',
+    trial: 'Trial',
+    suspended: 'Suspended',
 };
 
 interface Props {
@@ -17,7 +23,7 @@ export default function Shops({ shops }: Props) {
     const [query, setQuery] = useState('');
 
     const q = query.trim().toLowerCase();
-    const visible = q === '' ? shops : shops.filter((s) => `${s.name} ${s.area}`.toLowerCase().includes(q));
+    const visible = q === '' ? shops : shops.filter((s) => `${s.name} ${s.area ?? ''}`.toLowerCase().includes(q));
 
     return (
         <AdminLayout>
@@ -39,7 +45,7 @@ export default function Shops({ shops }: Props) {
                 {visible.map((shop) => (
                     <Link
                         key={shop.id}
-                        href={route('admin.shops.show')}
+                        href={route('admin.shops.show', shop.id)}
                         className="border-border bg-card hover:border-primary flex flex-col gap-2.5 rounded-2xl border p-4.5 shadow-sm transition-colors"
                     >
                         <div className="flex items-start justify-between gap-2">
@@ -47,8 +53,12 @@ export default function Shops({ shops }: Props) {
                                 <div className="text-[17px] font-extrabold">{shop.name}</div>
                                 <div className="text-muted-foreground mt-0.5 text-sm">{shop.area}</div>
                             </div>
-                            <span className={`rounded-full px-2.5 py-1 text-xs font-extrabold whitespace-nowrap ${badgeClasses[shop.status]}`}>
-                                {shop.status}
+                            <span
+                                className={`rounded-full px-2.5 py-1 text-xs font-extrabold whitespace-nowrap ${
+                                    shop.status ? badgeClasses[shop.status] : 'bg-muted text-muted-foreground'
+                                }`}
+                            >
+                                {shop.status ? statusLabels[shop.status] : 'No plan'}
                             </span>
                         </div>
                         <div className="text-muted-foreground flex justify-between text-sm">

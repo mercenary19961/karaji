@@ -64,4 +64,9 @@ class Shop extends Model
     {
         return $this->hasOne(Subscription::class)->latestOfMany();
     }
+
+    public function latestVisit(): HasOne
+    {
+        return $this->hasOne(Visit::class)->latestOfMany('visited_at');
+    }
 }
