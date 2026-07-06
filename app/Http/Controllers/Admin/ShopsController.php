@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Shop;
 use App\Models\Subscription;
+use App\Services\ChangeLog\ChangeLogService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ShopsController extends Controller
 {
+    public function __construct(private readonly ChangeLogService $changeLog) {}
+
     public function index(): Response
     {
         $shops = Shop::query()
@@ -64,10 +67,11 @@ class ShopsController extends Controller
                 ],
                 'activity' => $activity->map(fn (ActivityLog $log) => [
                     'id' => $log->id,
-                    'text' => $log->action,
+                    'text' => $log->label ?? $this->changeLog->sectionLabel($log).' '.$log->action,
                     'at' => $log->created_at->format('M j, H:i'),
-                    'undoable' => $log->isUndoable(),
-                    'undone' => $log->undone_at !== null,
+                    'undoable' => $this->changeLog->revertable($log),
+                    'undone' => $log->isReverted(),
+                    'isRevert' => $log->isRevert(),
                 ]),
             ],
         ]);

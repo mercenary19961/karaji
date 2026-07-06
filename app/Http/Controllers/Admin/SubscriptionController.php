@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Shop;
 use App\Models\Subscription;
-use App\Support\AdminActivity;
+use App\Services\ChangeLog\ChangeLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(private readonly ChangeLogService $changeLog) {}
+
     /**
-     * Change plan and/or status. Every change is activity-logged with its
-     * before-state so it can be undone from the activity list.
+     * Change plan and/or status. Every change is logged with dirty-field
+     * snapshots so it can be reverted (with conflict detection) from the
+     * activity list.
      */
     public function update(Request $request, Shop $shop): RedirectResponse
     {
@@ -34,15 +37,14 @@ class SubscriptionController extends Controller
             $validated['price_jod'] = Subscription::PLANS[$validated['plan']]['price'];
         }
 
-        $before = array_intersect_key($subscription->getOriginal(), $validated);
-
+        $before = $subscription->attributesToArray();
         $subscription->update($validated);
 
         if (! $subscription->wasChanged()) {
             return back();
         }
 
-        AdminActivity::log($shop->id, $this->describeChange($subscription, $validated), $subscription, $before, $validated);
+        $this->changeLog->logUpdated($subscription, $before, $this->describeChange($subscription, $validated));
 
         return back()->with('success', 'Subscription updated');
     }
@@ -52,25 +54,15 @@ class SubscriptionController extends Controller
         $subscription = $shop->currentSubscription;
         abort_if($subscription === null, 404);
 
-        $before = [
-            'status' => $subscription->status,
-            'trial_ends_at' => $subscription->trial_ends_at?->toDateString(),
-        ];
-
         $base = $subscription->trial_ends_at !== null && $subscription->trial_ends_at->isFuture()
             ? $subscription->trial_ends_at
             : today();
         $newEnd = $base->copy()->addMonth();
 
+        $before = $subscription->attributesToArray();
         $subscription->update(['status' => 'trial', 'trial_ends_at' => $newEnd->toDateString()]);
 
-        AdminActivity::log(
-            $shop->id,
-            'Trial extended to '.$newEnd->format('M j, Y'),
-            $subscription,
-            $before,
-            ['status' => 'trial', 'trial_ends_at' => $newEnd->toDateString()],
-        );
+        $this->changeLog->logUpdated($subscription, $before, 'Trial extended to '.$newEnd->format('M j, Y'));
 
         return back()->with('success', 'Trial extended');
     }

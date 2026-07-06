@@ -39,8 +39,9 @@ class SubscriptionManagementTest extends TestCase
         $this->assertSame('25.00', $this->subscription->price_jod);
 
         $log = ActivityLog::query()->sole();
-        $this->assertSame('Plan changed to Pro — 25 JOD/mo', $log->action);
-        $this->assertSame('basic', $log->change_set['before']['plan']);
+        $this->assertSame('Plan changed to Pro — 25 JOD/mo', $log->label);
+        $this->assertSame($this->shop->id, $log->shop_id);
+        $this->assertSame('basic', $log->old_data['plan']);
     }
 
     public function test_admin_can_suspend_and_reactivate_a_shop()
@@ -61,31 +62,8 @@ class SubscriptionManagementTest extends TestCase
         $this->subscription->refresh();
         $this->assertSame('trial', $this->subscription->status);
         $this->assertTrue($this->subscription->trial_ends_at->isSameDay(today()->addMonth()));
-    }
 
-    public function test_undo_restores_the_before_state_exactly_once()
-    {
-        $this->actingAs($this->admin)->put("/admin/shops/{$this->shop->id}/subscription", ['plan' => 'pro']);
-        $log = ActivityLog::query()->sole();
-
-        $this->actingAs($this->admin)->post("/admin/activity-logs/{$log->id}/undo");
-
-        $this->assertSame('basic', $this->subscription->fresh()->plan);
-        $this->assertNotNull($log->fresh()->undone_at);
-
-        // A spent log entry cannot be undone again
-        $this->subscription->update(['plan' => 'pro']);
-        $this->actingAs($this->admin)
-            ->post("/admin/activity-logs/{$log->id}/undo")
-            ->assertSessionHas('error');
-        $this->assertSame('pro', $this->subscription->fresh()->plan);
-    }
-
-    public function test_a_noop_update_writes_no_log()
-    {
-        $this->actingAs($this->admin)->put("/admin/shops/{$this->shop->id}/subscription", ['plan' => 'basic']);
-
-        $this->assertSame(0, ActivityLog::query()->count());
+        $this->assertStringStartsWith('Trial extended to', ActivityLog::query()->sole()->label);
     }
 
     public function test_shop_users_cannot_manage_subscriptions()

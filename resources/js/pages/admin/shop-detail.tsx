@@ -139,6 +139,11 @@ export default function ShopDetailPage({ shop }: Props) {
                             >
                                 <span className="flex items-center gap-2.5">
                                     {entry.undone ? <s className="text-muted-foreground">{entry.text}</s> : entry.text}
+                                    {entry.isRevert && (
+                                        <span className="bg-secondary text-secondary-foreground rounded px-1.5 py-0.5 text-[11px] font-extrabold">
+                                            undo
+                                        </span>
+                                    )}
                                     {entry.undoable && (
                                         <button
                                             type="button"

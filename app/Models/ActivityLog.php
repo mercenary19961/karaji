@@ -7,27 +7,40 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
+ * Change-log v2 entry (retab-stores port). Written ONLY through
+ * App\Services\ChangeLog\ChangeLogService — no tenancy scope, admins read
+ * it per shop explicitly.
+ *
  * @mixin IdeHelperActivityLog
  */
 class ActivityLog extends Model
 {
-    // Written by the (to-be-ported) ActivityLogService only — no factory,
-    // no tenancy scope, admins read it per shop explicitly.
+    public const ACTION_CREATED = 'created';
+
+    public const ACTION_UPDATED = 'updated';
+
+    public const ACTION_DELETED = 'deleted';
+
     protected $fillable = [
         'user_id',
         'shop_id',
         'action',
         'subject_type',
         'subject_id',
-        'change_set',
-        'undone_at',
+        'old_data',
+        'new_data',
+        'label',
+        'reverts_log_id',
+        'reverted_at',
+        'reverted_by',
     ];
 
     protected function casts(): array
     {
         return [
-            'change_set' => 'array',
-            'undone_at' => 'datetime',
+            'old_data' => 'array',
+            'new_data' => 'array',
+            'reverted_at' => 'datetime',
         ];
     }
 
@@ -46,26 +59,19 @@ class ActivityLog extends Model
         return $this->morphTo();
     }
 
-    public function isUndoable(): bool
+    /** The entry this one was created by reverting (mirror link — redo path). */
+    public function revertsLog(): BelongsTo
     {
-        return $this->undone_at === null
-            && filled($this->change_set['before'] ?? null)
-            && $this->subject !== null;
+        return $this->belongsTo(self::class, 'reverts_log_id');
     }
 
-    /**
-     * Restore the subject's before-state. One-shot: a log entry can only be
-     * undone once (undone_at marks it spent).
-     */
-    public function undo(): bool
+    public function isReverted(): bool
     {
-        if (! $this->isUndoable()) {
-            return false;
-        }
+        return $this->reverted_at !== null;
+    }
 
-        $this->subject->update($this->change_set['before']);
-        $this->update(['undone_at' => now()]);
-
-        return true;
+    public function isRevert(): bool
+    {
+        return $this->reverts_log_id !== null;
     }
 }

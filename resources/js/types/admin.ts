@@ -22,6 +22,8 @@ export interface ActivityEntry {
     at: string;
     undoable: boolean;
     undone: boolean;
+    /** Entry produced by reverting another entry (reverting it again = redo). */
+    isRevert: boolean;
 }
 
 export interface ShopDetail {
