@@ -6,9 +6,10 @@ use App\Http\Controllers\Shop\DashboardController;
 use App\Http\Controllers\Shop\ReminderController;
 use App\Http\Controllers\Shop\VisitController;
 use App\Http\Middleware\EnsureShopUser;
+use App\Http\Middleware\SetShopLocale;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', EnsureShopUser::class])->prefix('shop')->name('shop.')->group(function () {
+Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix('shop')->name('shop.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
 
     // Generous limits — a busy counter taps fast; these only stop abuse

@@ -63,4 +63,13 @@ class User extends Authenticatable
     {
         return $this->role === 'admin';
     }
+
+    /**
+     * Where this user belongs after login — their portal, never the scaffold
+     * dashboard. Single source of truth for every post-auth redirect.
+     */
+    public function homeRoute(): string
+    {
+        return $this->isAdmin() ? route('admin.shops.index') : route('shop.dashboard');
+    }
 }

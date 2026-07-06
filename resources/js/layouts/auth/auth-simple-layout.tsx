@@ -1,5 +1,6 @@
 import AppLogoIcon from '@/components/app-logo-icon';
-import { Link } from '@inertiajs/react';
+import { type SharedData } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -9,8 +10,20 @@ interface AuthLayoutProps {
 }
 
 export default function AuthSimpleLayout({ children, title, description }: AuthLayoutProps) {
+    const { locale } = usePage<SharedData>().props;
+    const next = locale === 'ar' ? 'en' : 'ar';
+
     return (
         <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+            {/* Guest language toggle — shows the OTHER language you can switch to */}
+            <button
+                type="button"
+                onClick={() => router.get(route('locale', next), {}, { preserveScroll: true })}
+                className="border-border text-muted-foreground hover:text-foreground fixed end-4 top-4 h-9 cursor-pointer rounded-lg border px-3 text-sm font-bold"
+            >
+                {locale === 'ar' ? 'English' : 'العربية'}
+            </button>
+
             <div className="w-full max-w-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">

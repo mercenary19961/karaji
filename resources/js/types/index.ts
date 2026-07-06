@@ -23,6 +23,7 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    locale: string;
     quote: { message: string; author: string };
     auth: Auth;
     flash: { success: string | null; error: string | null };
