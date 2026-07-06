@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Shop\AccountController;
 use App\Http\Controllers\Shop\AnalyticsController;
 use App\Http\Controllers\Shop\CarController;
 use App\Http\Controllers\Shop\DashboardController;
@@ -24,4 +25,7 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
     Route::post('reminders/{reminder}/contacted', [ReminderController::class, 'toggleContacted'])->middleware('throttle:60,1')->name('reminders.contact');
 
     Route::get('analytics', AnalyticsController::class)->name('analytics');
+
+    Route::get('account', [AccountController::class, 'edit'])->name('account');
+    Route::put('account/password', [AccountController::class, 'updatePassword'])->middleware('throttle:10,1')->name('account.password');
 });
