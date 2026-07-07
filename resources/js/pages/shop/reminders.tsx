@@ -16,13 +16,13 @@ export default function Reminders({ shop, reminders }: Props) {
             <Head title="التذكيرات" />
 
             <div className="flex items-baseline justify-between">
-                <h1 className="text-xl font-extrabold">قائمة التذكير</h1>
-                <div className="text-muted-foreground text-[15px]">مرتبة حسب الأكثر تأخراً</div>
+                <h1 className="text-xl font-extrabold">قائمة التذكيرات</h1>
+                <div className="text-muted-foreground text-[15px]">مرتّبة من الأكثر تأخير</div>
             </div>
 
             <div className="grid gap-3.5 md:grid-cols-2 md:items-start xl:grid-cols-3">
                 {reminders.map((reminder) => {
-                    const waText = `مرحباً ${reminder.owner}، سيارتك ${reminder.car} مستحقة: ${reminder.due}. بانتظارك في ${shop.name} 🔧`;
+                    const waText = `مرحبا ${reminder.owner}، سيارتك ${reminder.car} صار إلها ${reminder.due}. بنستناك في ${shop.name} 🔧`;
 
                     return (
                         <div
@@ -37,7 +37,7 @@ export default function Reminders({ shop, reminders }: Props) {
                                 <div>
                                     <div className="text-lg font-extrabold">{reminder.car}</div>
                                     <div className="text-muted-foreground mt-0.5 text-base">
-                                        {reminder.owner} — {reminder.phone}
+                                        {reminder.owner} · {reminder.phone}
                                     </div>
                                     <div className="text-primary mt-1.5 text-base font-bold">{reminder.due}</div>
                                 </div>
@@ -81,7 +81,7 @@ export default function Reminders({ shop, reminders }: Props) {
                                 }`}
                             >
                                 <Check className="size-5" aria-hidden />
-                                {reminder.contacted ? 'تم التواصل — إلغاء' : 'تم التواصل'}
+                                {reminder.contacted ? 'حكيت معه ✓ · تراجع' : 'حكيت معه'}
                             </button>
                         </div>
                     );
@@ -89,7 +89,7 @@ export default function Reminders({ shop, reminders }: Props) {
             </div>
 
             {reminders.length === 0 && (
-                <div className="bg-card text-muted-foreground rounded-2xl p-6 text-center text-base">ما في تذكيرات مستحقة اليوم 🎉</div>
+                <div className="bg-card text-muted-foreground rounded-2xl p-6 text-center text-base">ما في تذكيرات لليوم 🎉</div>
             )}
         </ShopLayout>
     );

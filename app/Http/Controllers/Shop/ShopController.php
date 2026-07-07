@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Car;
 use App\Models\ServiceType;
 use App\Support\Format;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 
 abstract class ShopController extends Controller
@@ -35,6 +36,6 @@ abstract class ShopController extends Controller
             return null;
         }
 
-        return 'آخر تغيير زيت: '.$visit->visited_at->locale('ar')->diffForHumans().' على عداد '.Format::km($visit->km).' كم';
+        return 'آخر تغيير زيت قبل '.$visit->visited_at->locale('ar')->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE).' على عداد '.Format::km($visit->km).' كم';
     }
 }

@@ -27,11 +27,11 @@ class AccountController extends ShopController
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'current_password.required' => 'أدخل كلمة المرور الحالية',
-            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
-            'password.required' => 'أدخل كلمة المرور الجديدة',
-            'password.min' => 'كلمة المرور لازم تكون 8 أحرف على الأقل',
-            'password.confirmed' => 'تأكيد كلمة المرور غير مطابق',
+            'current_password.required' => 'اكتب كلمة المرور الحالية',
+            'current_password.current_password' => 'كلمة المرور الحالية غلط',
+            'password.required' => 'اكتب كلمة المرور الجديدة',
+            'password.min' => 'كلمة المرور لازم تكون 8 أحرف عالأقل',
+            'password.confirmed' => 'التأكيد مش مطابق',
         ]);
 
         $request->user()->update(['password' => Hash::make($request->string('password')->value())]);

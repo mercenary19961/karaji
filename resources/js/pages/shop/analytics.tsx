@@ -107,7 +107,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 </h2>
                 <div className="grid gap-2.5 md:grid-cols-2">
                     {lostCustomers.map((customer) => {
-                        const waText = `مرحباً ${customer.owner}، صار وقت نطمّن على ${customer.car} 🚗 بانتظارك في ${shop.name}`;
+                        const waText = `مرحبا ${customer.owner}، صار وقتها نطمّن على ${customer.car} 🚗 بنستناك في ${shop.name}`;
 
                         return (
                             <div
@@ -116,7 +116,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                             >
                                 <div>
                                     <div className="text-base font-bold">
-                                        {customer.owner} — {customer.car}
+                                        {customer.owner} · {customer.car}
                                     </div>
                                     <div className="text-muted-foreground text-sm">{customer.lastVisit}</div>
                                 </div>
@@ -132,7 +132,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                             </div>
                         );
                     })}
-                    {lostCustomers.length === 0 && <div className="text-muted-foreground text-base">ما في زبائن منقطعين — ممتاز 👌</div>}
+                    {lostCustomers.length === 0 && <div className="text-muted-foreground text-base">ما في زبائن منقطعين · ممتاز 👌</div>}
                 </div>
             </div>
         </ShopLayout>

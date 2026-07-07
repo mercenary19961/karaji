@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         // A seasonal broadcast so the shop dashboard shows a live announcement
         Announcement::factory()->create([
             'title' => 'فحص الشتاء 🚗❄️',
-            'body' => 'ذكّر زبائنك بفحص البطارية والإطارات قبل موسم الشتاء — عرض خاص هذا الشهر.',
+            'body' => 'ذكّر زبائنك يفحصوا البطارية والإطارات قبل الشتا · عرض خاص هالشهر.',
         ]);
     }
 
@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
         $callList = [
             ['name' => 'معاذ الخطيب', 'phone' => '0796234567', 'label' => 'تويوتا كامري 2017', 'plate' => '13-45210', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت', 'overdueDays' => 12],
             ['name' => 'أم علي', 'phone' => '0790345678', 'label' => 'هيونداي إلنترا 2020', 'plate' => '40-21873', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت + فلتر هواء', 'overdueDays' => 8],
-            ['name' => 'أبو خالد', 'phone' => '0777456789', 'label' => 'مرسيدس E200 2016', 'plate' => '5-98412', 'licenseMonth' => 7, 'type' => 'license', 'due' => 'تجديد ترخيص — شهر 7/2026', 'overdueDays' => 5],
+            ['name' => 'أبو خالد', 'phone' => '0777456789', 'label' => 'مرسيدس E200 2016', 'plate' => '5-98412', 'licenseMonth' => 7, 'type' => 'license', 'due' => 'تجديد ترخيص · شهر 7/2026', 'overdueDays' => 5],
             ['name' => 'سامر العمري', 'phone' => '0798567890', 'label' => 'ميتسوبيشي لانسر 2015', 'plate' => '17-30654', 'licenseMonth' => null, 'type' => 'seasonal', 'due' => 'فحص الشتاء (موسمي)', 'overdueDays' => 0],
         ];
 

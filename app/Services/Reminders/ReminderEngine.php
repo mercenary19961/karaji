@@ -136,7 +136,7 @@ class ReminderEngine
 
                     $reminder = $car->reminders()->make([
                         'type' => 'license',
-                        'label' => "تجديد ترخيص — شهر {$car->license_month}/{$due->year}",
+                        'label' => "تجديد ترخيص · شهر {$car->license_month}/{$due->year}",
                         'due_date' => $due->toDateString(),
                         'status' => 'pending',
                     ]);

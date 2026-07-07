@@ -67,12 +67,12 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
     // ===== Post-save success state (the digital windshield sticker) =====
     if (savedVisit) {
         const summary = [
-            `مرحباً ${savedVisit.owner}،`,
-            `تمت اليوم صيانة ${savedVisit.carLabel} — لوحة ${savedVisit.plate}:`,
+            `مرحبا ${savedVisit.owner}،`,
+            `عملنا اليوم صيانة ${savedVisit.carLabel} (لوحة ${savedVisit.plate}):`,
             ...savedVisit.services.map((s) => `✅ ${s}${s === 'تغيير زيت' && savedVisit.oilBrand ? ` (${savedVisit.oilBrand})` : ''}`),
             `قراءة العداد: ${savedVisit.km} كم`,
-            ...(savedVisit.nextDueKm ? [`🔔 الموعد القادم: عند ${savedVisit.nextDueKm} كم أو ${savedVisit.nextDueDate}`] : []),
-            `شكراً لثقتكم — ${shop.name}`,
+            ...(savedVisit.nextDueKm ? [`🔔 الموعد الجاي: عند ${savedVisit.nextDueKm} كم أو ${savedVisit.nextDueDate}`] : []),
+            `شكراً لثقتك 🙏 ${shop.name}`,
         ].join('\n');
         const waHref = `https://wa.me/${savedVisit.whatsapp}?text=${encodeURIComponent(summary)}`;
 
@@ -85,9 +85,9 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         <div className="bg-success text-success-foreground mx-auto flex size-16 items-center justify-center rounded-full">
                             <Check className="size-9" aria-hidden />
                         </div>
-                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">تم حفظ الزيارة</div>
+                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">انحفظت الزيارة ✓</div>
                         <div className="text-success-soft-foreground/80 mt-1 text-[15px]">
-                            {savedVisit.carLabel} — {savedVisit.owner} — عداد {savedVisit.km} كم
+                            {savedVisit.carLabel} · {savedVisit.owner} · عداد {savedVisit.km} كم
                         </div>
                     </div>
 
@@ -98,10 +98,10 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         className="bg-success text-success-foreground shadow-success/35 flex h-17 items-center justify-center gap-2 rounded-2xl text-[21px] font-extrabold shadow-lg"
                     >
                         <MessageCircle className="size-6" aria-hidden />
-                        إرسال ملخص الزيارة واتساب
+                        ابعت ملخص الزيارة واتساب
                     </a>
 
-                    <div className="text-muted-foreground text-center text-sm">معاينة الرسالة</div>
+                    <div className="text-muted-foreground text-center text-sm">شوف الرسالة</div>
                     <div className="ms-8 rounded-[18px] rounded-es-sm bg-[#dcf3d0] p-4 text-[15.5px] leading-8 whitespace-pre-line text-[#1e3325] shadow-sm">
                         {summary}
                     </div>
@@ -110,7 +110,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         href={route('shop.dashboard')}
                         className="border-input bg-card text-primary flex h-14 items-center justify-center rounded-2xl border-2 text-lg font-bold"
                     >
-                        العودة للرئيسية
+                        ارجع للرئيسية
                     </Link>
 
                     <button
@@ -142,7 +142,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             </span>
                         </div>
                         <div className="text-muted-foreground mt-1.5 text-base">
-                            {car.owner} — {car.phone}
+                            {car.owner} · {car.phone}
                         </div>
                         {car.lastService && <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>}
                     </div>
@@ -154,7 +154,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             <Search className="text-muted-foreground absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
                             <input
                                 inputMode="numeric"
-                                placeholder="دوّر بالسيارة: رقم اللوحة أو الهاتف"
+                                placeholder="دوّر ع السيارة برقم اللوحة أو التلفون"
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
                                 className="border-input bg-card focus-visible:border-ring h-15 w-full rounded-2xl border-2 ps-12 pe-4 text-[18px] outline-none"
@@ -169,7 +169,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                     onClick={() => setNewCust((v) => !v)}
                     className="text-primary min-h-12 self-start px-1 text-[15px] font-bold underline"
                 >
-                    {newCust ? 'رجوع لسيارة مسجلة' : 'سيارة غير مسجلة؟'}
+                    {newCust ? 'ارجع لسيارة مسجلة' : 'سيارة مش مسجلة؟'}
                 </button>
 
                 <form onSubmit={save} className="flex flex-col gap-4">
@@ -188,7 +188,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             <div>
                                 <input
                                     inputMode="tel"
-                                    placeholder="رقم الهاتف"
+                                    placeholder="رقم التلفون"
                                     value={form.data.phone}
                                     onChange={(e) => form.setData('phone', e.target.value)}
                                     className={inputClasses}
@@ -206,7 +206,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                 <FieldError message={form.errors.plate} />
                             </div>
                             <input
-                                placeholder="السيارة (مثال: كيا سبورتاج 2019) — اختياري"
+                                placeholder="السيارة (مثلاً كيا سبورتاج 2019) · اختياري"
                                 value={form.data.label}
                                 onChange={(e) => form.setData('label', e.target.value)}
                                 className={inputClasses}
@@ -222,7 +222,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                 </div>
                                 <input
                                     inputMode="numeric"
-                                    placeholder="مثال: 91300"
+                                    placeholder="مثلاً 91300"
                                     value={form.data.km}
                                     onChange={(e) => form.setData('km', e.target.value)}
                                     className="border-input bg-card focus-visible:border-ring h-16 w-full rounded-2xl border-2 px-4 text-center text-2xl font-bold tracking-wide outline-none"
@@ -289,7 +289,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                         >
                                             {oilBrands.map((brand) => (
                                                 <option key={brand} value={brand}>
-                                                    {brand === car?.lastOilBrand ? `نفس الزيارة السابقة — ${brand}` : brand}
+                                                    {brand === car?.lastOilBrand ? `زي آخر زيارة · ${brand}` : brand}
                                                 </option>
                                             ))}
                                         </select>

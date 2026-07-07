@@ -108,7 +108,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                     <div className="min-w-0">
                         <div className="text-2xl font-extrabold tracking-wide">{name}</div>
                         <div className="text-primary-foreground/70 truncate text-[13px] font-medium">
-                            {shop.name} — {shop.area}
+                            {shop.name} · {shop.area}
                         </div>
                     </div>
                     <Link

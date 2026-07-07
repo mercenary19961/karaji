@@ -35,8 +35,8 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
 
             {/* Desktop-only greeting (mobile shows the header instead) */}
             <div className="hidden md:block">
-                <h1 className="text-2xl font-extrabold">مرحباً بك 👋</h1>
-                <p className="text-muted-foreground mt-1 text-[15px]">عندك {stats.dueCount} سيارة مستحقة تواصل اليوم</p>
+                <h1 className="text-2xl font-extrabold">أهلين 👋</h1>
+                <p className="text-muted-foreground mt-1 text-[15px]">عندك {stats.dueCount} زبائن لازم تحكي معهم اليوم</p>
             </div>
 
             {announcements.map((announcement) => (
@@ -54,7 +54,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                     <Search className="text-muted-foreground absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
                     <input
                         inputMode="numeric"
-                        placeholder="رقم اللوحة أو الهاتف"
+                        placeholder="رقم اللوحة أو التلفون"
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                         className="border-input bg-card text-foreground focus-visible:border-ring h-16 w-full rounded-2xl border-2 ps-12 pe-4 text-[19px] outline-none"
@@ -94,7 +94,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-extrabold">مستحق التواصل اليوم</h2>
                         <Link href={route('shop.reminders')} className="text-primary flex min-h-12 items-center px-2 text-[15px] font-bold">
-                            عرض الكل ←
+                            شوف الكل ←
                         </Link>
                     </div>
 
@@ -106,7 +106,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                         >
                             <div>
                                 <div className="text-[17px] font-bold">
-                                    {item.car} — {item.owner}
+                                    {item.car} · {item.owner}
                                 </div>
                                 <div className="text-muted-foreground mt-0.5 text-[15px]">{item.due}</div>
                             </div>
@@ -116,7 +116,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                         </Link>
                     ))}
                     {dueToday.length === 0 && (
-                        <div className="bg-card text-muted-foreground rounded-2xl p-5 text-center text-base">ما في تذكيرات مستحقة اليوم 🎉</div>
+                        <div className="bg-card text-muted-foreground rounded-2xl p-5 text-center text-base">ما في حدا لازم تحكي معه اليوم 🎉</div>
                     )}
                 </div>
 
@@ -133,7 +133,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                             >
                                 <div className="min-w-0">
                                     <div className="truncate text-[15px] font-bold">
-                                        {customer.owner} — {customer.car}
+                                        {customer.owner} · {customer.car}
                                     </div>
                                     <div className="text-muted-foreground text-[13px]">{customer.lastVisit}</div>
                                 </div>

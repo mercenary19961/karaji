@@ -91,13 +91,13 @@ class VisitController extends ShopController
             'oil_type' => ['nullable', Rule::in(array_keys(self::OIL_TYPES))],
             'price' => ['nullable', 'numeric', 'min:0', 'max:99999'],
         ], [
-            'km.required' => 'قراءة العداد مطلوبة',
+            'km.required' => 'لازم تكتب قراءة العداد',
             'km.integer' => 'قراءة العداد لازم تكون رقم',
-            'services.required' => 'اختر خدمة وحدة على الأقل',
-            'name.required_without' => 'اسم الزبون مطلوب',
-            'phone.required_without' => 'رقم الهاتف مطلوب',
-            'plate.required_without' => 'رقم اللوحة مطلوب',
-            'plate.unique' => 'هاللوحة مسجلة عندك من قبل — دوّر عليها من البحث',
+            'services.required' => 'اختر خدمة وحدة عالأقل',
+            'name.required_without' => 'لازم اسم الزبون',
+            'phone.required_without' => 'لازم رقم التلفون',
+            'plate.required_without' => 'لازم رقم اللوحة',
+            'plate.unique' => 'هاللوحة مسجلة عندك من قبل · دوّرها من البحث',
         ]);
 
         $serviceIds = ServiceType::availableToShop($shopId)
@@ -105,7 +105,7 @@ class VisitController extends ShopController
             ->pluck('id');
 
         if ($serviceIds->count() !== count(array_unique($validated['services']))) {
-            throw ValidationException::withMessages(['services' => 'في خدمة غير صالحة']);
+            throw ValidationException::withMessages(['services' => 'في خدمة مش صالحة']);
         }
 
         // Oil type only matters when the visit includes an oil change; default
@@ -129,7 +129,7 @@ class VisitController extends ShopController
 
         return redirect()
             ->route('shop.visits.create', ['car' => $car->id, 'saved' => $visit->id])
-            ->with('success', 'تم حفظ الزيارة');
+            ->with('success', 'انحفظت الزيارة');
     }
 
     /**
@@ -145,7 +145,7 @@ class VisitController extends ShopController
 
         return redirect()
             ->route('shop.visits.create', ['car' => $car->id])
-            ->with('success', 'تم التراجع عن الزيارة');
+            ->with('success', 'رجّعنا الزيارة');
     }
 
     private function resolveCar(array $validated): Car

@@ -48,7 +48,7 @@ export default function Account({ shop, account }: Props) {
                         {account.email}
                     </div>
                     <div className="text-muted-foreground mt-1 text-[15px]">
-                        {shop.name} — {shop.area}
+                        {shop.name} · {shop.area}
                     </div>
                 </div>
 

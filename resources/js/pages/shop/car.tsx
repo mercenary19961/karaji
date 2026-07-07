@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function CarProfilePage({ shop, car }: Props) {
-    const greeting = `مرحباً ${car.owner}، معك ${shop.name} بخصوص ${car.label} 🚗`;
+    const greeting = `مرحبا ${car.owner}، معك ${shop.name} بخصوص ${car.label} 🚗`;
     const waHref = `https://wa.me/${car.whatsapp}?text=${encodeURIComponent(greeting)}`;
 
     return (
@@ -26,7 +26,7 @@ export default function CarProfilePage({ shop, car }: Props) {
                             </span>
                         </div>
                         <div className="text-muted-foreground mt-1.5 text-[17px]">
-                            {car.owner} — {car.phone}
+                            {car.owner} · {car.phone}
                         </div>
                         {car.licenseMonth && <div className="text-muted-foreground mt-1 text-[15px]">شهر الترخيص: {car.licenseMonth}</div>}
                         {car.lastService && <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>}
@@ -62,7 +62,7 @@ export default function CarProfilePage({ shop, car }: Props) {
                         <div className="border-cta bg-due flex items-center gap-3 rounded-2xl border-2 p-4">
                             <Bell className="text-due-foreground size-6 shrink-0" aria-hidden />
                             <div>
-                                <div className="text-due-foreground text-base font-extrabold">الزيت القادم</div>
+                                <div className="text-due-foreground text-base font-extrabold">الزيت الجاي</div>
                                 <div className="text-due-foreground/85 mt-0.5 text-base">
                                     {car.nextDue.km && `عند ${car.nextDue.km} كم`}
                                     {car.nextDue.km && car.nextDue.date && ' أو '}
