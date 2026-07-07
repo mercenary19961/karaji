@@ -11,11 +11,22 @@ import { usePage } from '@inertiajs/react';
 const dict = {
     // Navigation + layout
     'nav.home': { ar: 'الرئيسية', en: 'Home' },
+    'nav.new_visit': { ar: 'زيارة جديدة', en: 'New visit' },
     'nav.reminders': { ar: 'التذكيرات', en: 'Reminders' },
     'nav.reports': { ar: 'التقارير', en: 'Reports' },
     'nav.messages': { ar: 'الرسائل', en: 'Messages' },
     'nav.account': { ar: 'حسابي', en: 'My account' },
     'nav.logout': { ar: 'تسجيل الخروج', en: 'Log out' },
+
+    // New-visit entry (search + recents + new customer)
+    'entry.recent': { ar: 'آخر الزبائن', en: 'Recent customers' },
+    'entry.results': { ar: 'نتائج البحث', en: 'Search results' },
+    'entry.no_results': { ar: 'ما لقينا سيارة بهالرقم', en: 'No car found for that' },
+    'entry.no_results_hint': { ar: 'جرّب رقم ثاني، أو أضفها كزبون جديد', en: 'Try another number, or add as a new customer' },
+    'entry.no_recent': { ar: 'لسا ما في زبائن · ابدأ بإضافة واحد', en: 'No customers yet · add your first one' },
+    'entry.last_visit': { ar: 'آخر زيارة {date}', en: 'Last visit {date}' },
+    'entry.no_last_visit': { ar: 'لسا ما زار', en: 'No visits yet' },
+    'entry.new_customer': { ar: 'سيارة جديدة / زبون جديد', en: 'New car / customer' },
 
     // Messages + suggestions
     'msg.title': { ar: 'الرسائل والتنبيهات', en: 'Messages & notifications' },

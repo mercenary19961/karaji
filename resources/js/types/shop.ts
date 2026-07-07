@@ -28,6 +28,16 @@ export interface DueTodayItem {
     overdueLabel: string;
 }
 
+/** A car in the entry-page client-side search index. */
+export interface CarSearchItem {
+    id: number;
+    plate: string;
+    label: string;
+    owner: string;
+    phone: string;
+    lastVisit: string | null;
+}
+
 export interface ServiceTypeOption {
     id: number;
     /** Stable Arabic key (used for form matching + the Arabic WhatsApp summary). */

@@ -2,7 +2,7 @@ import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChartColumn, House, Languages, LogOut, MessageSquare, UserRound, type LucideIcon } from 'lucide-react';
+import { Bell, ChartColumn, House, Languages, LogOut, MessageSquare, Plus, UserRound, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
@@ -18,12 +18,21 @@ const primaryNav: NavItem[] = [
         labelKey: 'nav.home',
         href: '/shop',
         icon: House,
-        isActive: (url) => url === '/shop' || url.startsWith('/shop/visits') || url.startsWith('/shop/cars'),
+        isActive: (url) => url === '/shop' || url.startsWith('/shop/cars'),
     },
     { labelKey: 'nav.reminders', href: '/shop/reminders', icon: Bell, isActive: (url) => url.startsWith('/shop/reminders') },
     { labelKey: 'nav.reports', href: '/shop/analytics', icon: ChartColumn, isActive: (url) => url.startsWith('/shop/analytics') },
     { labelKey: 'nav.messages', href: '/shop/messages', icon: MessageSquare, isActive: (url) => url.startsWith('/shop/messages') },
 ];
+
+// The primary action — a prominent CTA at the top of the desktop sidebar (the
+// mobile equivalent is the dashboard's big "New visit" button).
+const newVisitItem: NavItem = {
+    labelKey: 'nav.new_visit',
+    href: '/shop/entry',
+    icon: Plus,
+    isActive: (url) => url.startsWith('/shop/entry') || url.startsWith('/shop/visits'),
+};
 
 const accountItem: NavItem = {
     labelKey: 'nav.account',
@@ -53,6 +62,17 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                 </div>
 
                 <nav className="flex flex-col gap-1">
+                    {/* Primary action: start a new visit */}
+                    <Link
+                        href={newVisitItem.href}
+                        className={`bg-cta text-cta-foreground shadow-cta/30 mb-2 flex items-center gap-3 rounded-xl px-3 py-3 text-[16px] font-extrabold shadow-lg transition-transform hover:scale-[1.02] ${
+                            newVisitItem.isActive(url) ? 'ring-2 ring-white/40' : ''
+                        }`}
+                    >
+                        <newVisitItem.icon className="size-5" aria-hidden />
+                        {t(newVisitItem.labelKey)}
+                    </Link>
+
                     {sidebarNav.map((item) => {
                         const active = item.isActive(url);
 
@@ -62,7 +82,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                                 href={item.href}
                                 className={`flex items-center gap-3 rounded-xl px-3 py-3 text-[16px] font-bold transition-colors ${
                                     active
-                                        ? 'bg-cta text-cta-foreground'
+                                        ? 'text-primary-foreground bg-white/15'
                                         : 'text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10'
                                 }`}
                             >

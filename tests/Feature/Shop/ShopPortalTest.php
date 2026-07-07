@@ -38,6 +38,7 @@ class ShopPortalTest extends TestCase
 
         $screens = [
             '/shop' => 'shop/dashboard',
+            '/shop/entry' => 'shop/entry',
             '/shop/visits/new' => 'shop/new-visit',
             "/shop/cars/{$car->id}" => 'shop/car',
             '/shop/reminders' => 'shop/reminders',

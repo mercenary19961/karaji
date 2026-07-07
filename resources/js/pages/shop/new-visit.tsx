@@ -9,6 +9,7 @@ import { type FormEvent, useState } from 'react';
 interface Props {
     shop: Shop;
     car: FormCar | null;
+    startNew: boolean;
     serviceTypes: ServiceTypeOption[];
     oilBrands: string[];
     oilTypes: OilTypeOption[];
@@ -23,14 +24,14 @@ function FieldError({ message }: { message?: string }) {
     return <div className="text-destructive mt-1.5 text-[15px] font-bold">{message}</div>;
 }
 
-export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes, savedVisit }: Props) {
+export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands, oilTypes, savedVisit }: Props) {
     const { flash } = usePage<SharedData>().props;
     const t = useT();
 
     // Compares service NAMES (Arabic data), unaffected by UI language
     const oilChangeId = serviceTypes.find((s) => s.name === 'تغيير زيت')?.id;
     const defaultServices = serviceTypes.filter((s) => s.name === 'تغيير زيت' || s.name === 'فلتر زيت').map((s) => s.id);
-    const [newCust, setNewCust] = useState(false);
+    const [newCust, setNewCust] = useState(startNew);
     const [q, setQ] = useState('');
 
     const form = useForm({

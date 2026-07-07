@@ -5,6 +5,7 @@ use App\Http\Controllers\Shop\AnalyticsController;
 use App\Http\Controllers\Shop\AnnouncementController;
 use App\Http\Controllers\Shop\CarController;
 use App\Http\Controllers\Shop\DashboardController;
+use App\Http\Controllers\Shop\EntryController;
 use App\Http\Controllers\Shop\InboxController;
 use App\Http\Controllers\Shop\ReminderController;
 use App\Http\Controllers\Shop\VisitController;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix('shop')->name('shop.')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+
+    // The new-visit landing (instant search + recents + new-customer shortcut)
+    Route::get('entry', [EntryController::class, 'index'])->name('entry');
 
     // Generous limits — a busy counter taps fast; these only stop abuse
     Route::get('cars/search', [CarController::class, 'search'])->middleware('throttle:60,1')->name('cars.search');

@@ -72,7 +72,7 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                 </form>
 
                 <Link
-                    href={route('shop.visits.create')}
+                    href={route('shop.entry')}
                     className="bg-cta text-cta-foreground shadow-cta/35 flex h-16 items-center justify-center gap-2 rounded-2xl px-6 text-[22px] font-extrabold shadow-lg md:w-auto"
                 >
                     <Plus className="size-6" aria-hidden />

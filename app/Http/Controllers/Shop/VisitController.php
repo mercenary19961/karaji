@@ -39,6 +39,9 @@ class VisitController extends ShopController
 
         return Inertia::render('shop/new-visit', [
             'shop' => $this->shopProps($request),
+            // Arriving from the entry page's "new customer" shortcut opens the
+            // form straight in new-customer mode.
+            'startNew' => $car === null && $request->query('new') !== null,
             'car' => $car === null ? null : [
                 'id' => $car->id,
                 'label' => $car->displayLabel(),
