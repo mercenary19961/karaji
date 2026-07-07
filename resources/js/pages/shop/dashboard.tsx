@@ -75,16 +75,22 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
 
             <div className="grid grid-cols-3 gap-2.5 md:gap-4">
                 <div className="bg-card rounded-2xl px-2.5 py-3.5 text-center shadow-sm md:px-4 md:py-5">
-                    <div className="text-primary text-[26px] font-extrabold md:text-[32px]">{stats.todayVisits}</div>
+                    <div className="text-primary flex h-9 items-center justify-center text-[26px] font-extrabold md:h-11 md:text-[32px]">
+                        {stats.todayVisits}
+                    </div>
                     <div className="text-muted-foreground mt-1 text-sm">{t('dash.today_cars')}</div>
                 </div>
                 <div className="bg-card rounded-2xl px-2.5 py-3.5 text-center shadow-sm md:px-4 md:py-5">
-                    <div className="text-due-foreground text-[26px] font-extrabold md:text-[32px]">{stats.dueCount}</div>
+                    <div className="text-due-foreground flex h-9 items-center justify-center text-[26px] font-extrabold md:h-11 md:text-[32px]">
+                        {stats.dueCount}
+                    </div>
                     <div className="text-muted-foreground mt-1 text-sm">{t('dash.due_count')}</div>
                 </div>
                 <div className="bg-card rounded-2xl px-2.5 py-3.5 text-center shadow-sm md:px-4 md:py-5">
-                    <div className="text-success text-[22px] font-extrabold md:text-[30px]">
-                        {stats.monthRevenue} <span className="text-[13px]">{t('common.currency')}</span>
+                    <div className="text-success flex h-9 items-center justify-center text-[22px] font-extrabold md:h-11 md:text-[30px]">
+                        <span>
+                            {stats.monthRevenue} <span className="text-[13px]">{t('common.currency')}</span>
+                        </span>
                     </div>
                     <div className="text-muted-foreground mt-1 text-sm">{t('dash.month_income')}</div>
                 </div>
