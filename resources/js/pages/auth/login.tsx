@@ -20,6 +20,7 @@ interface LoginForm {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    contactWhatsapp: string;
 }
 
 const copy = {
@@ -31,8 +32,8 @@ const copy = {
         forgot: 'نسيت كلمة المرور؟',
         remember: 'تذكّرني',
         submit: 'دخول',
-        noAccount: 'ما عندك حساب؟',
-        signUp: 'إنشاء حساب',
+        wantAccount: 'بدك تفتح حساب لمحلك؟',
+        contactUs: 'تواصل معنا واتساب',
     },
     en: {
         title: 'Log in to your account',
@@ -42,12 +43,12 @@ const copy = {
         forgot: 'Forgot password?',
         remember: 'Remember me',
         submit: 'Log in',
-        noAccount: "Don't have an account?",
-        signUp: 'Sign up',
+        wantAccount: 'Want an account for your shop?',
+        contactUs: 'Contact us on WhatsApp',
     },
 };
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, contactWhatsapp }: LoginProps) {
     const { locale } = usePage<SharedData>().props;
     const t = locale === 'ar' ? copy.ar : copy.en;
 
@@ -120,10 +121,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                 </div>
 
                 <div className="text-muted-foreground text-center text-sm">
-                    {t.noAccount}{' '}
-                    <TextLink href={route('register')} tabIndex={5}>
-                        {t.signUp}
-                    </TextLink>
+                    {t.wantAccount}{' '}
+                    <a
+                        href={`https://wa.me/${contactWhatsapp}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-foreground font-medium underline underline-offset-4"
+                    >
+                        {t.contactUs}
+                    </a>
                 </div>
             </form>
 

@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -16,6 +17,14 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+    }
+
+    public function test_public_registration_is_disabled()
+    {
+        // Shops are onboarded by an admin — there is no signup route or page.
+        $this->assertFalse(Route::has('register'));
+        $this->get('/register')->assertNotFound();
+        $this->post('/register', [])->assertNotFound();
     }
 
     public function test_users_can_authenticate_using_the_login_screen()
