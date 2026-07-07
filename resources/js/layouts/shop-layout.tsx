@@ -31,10 +31,11 @@ const accountItem: NavItem = {
 };
 
 export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
-    const { name, impersonating } = usePage<SharedData>().props;
+    const { name, impersonating, auth } = usePage<SharedData>().props;
     const { url } = usePage();
 
     const sidebarNav = [...primaryNav, accountItem];
+    const avatarUrl = auth.user.avatar_url;
 
     return (
         <div className="bg-muted flex min-h-screen">
@@ -68,8 +69,12 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
 
                 <div className="mt-auto border-t border-white/15 pt-4">
                     <div className="flex items-center gap-2.5 px-2 pb-2">
-                        <div className="flex size-9 items-center justify-center rounded-full bg-white/10">
-                            <UserRound className="size-5" aria-hidden />
+                        <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/10">
+                            {avatarUrl ? (
+                                <img src={avatarUrl} alt="" className="size-full object-cover" />
+                            ) : (
+                                <UserRound className="size-5" aria-hidden />
+                            )}
                         </div>
                         <div className="min-w-0">
                             <div className="truncate text-sm font-bold">{shop.name}</div>
@@ -114,11 +119,11 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                     <Link
                         href={route('shop.account')}
                         aria-label="حسابي"
-                        className={`flex size-11 shrink-0 items-center justify-center rounded-full ${
+                        className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full ${
                             accountItem.isActive(url) ? 'bg-white/25' : 'bg-white/10'
                         }`}
                     >
-                        <UserRound className="size-6" aria-hidden />
+                        {avatarUrl ? <img src={avatarUrl} alt="" className="size-full object-cover" /> : <UserRound className="size-6" aria-hidden />}
                     </Link>
                 </header>
 

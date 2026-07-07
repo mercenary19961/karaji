@@ -28,4 +28,6 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
 
     Route::get('account', [AccountController::class, 'edit'])->name('account');
     Route::put('account/password', [AccountController::class, 'updatePassword'])->middleware('throttle:10,1')->name('account.password');
+    Route::post('account/avatar', [AccountController::class, 'updateAvatar'])->middleware('throttle:20,1')->name('account.avatar');
+    Route::delete('account/avatar', [AccountController::class, 'deleteAvatar'])->middleware('throttle:20,1')->name('account.avatar.delete');
 });

@@ -2,8 +2,8 @@ import ShopLayout from '@/layouts/shop-layout';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { LogOut } from 'lucide-react';
-import { type FormEvent } from 'react';
+import { Camera, LogOut, UserRound } from 'lucide-react';
+import { type ChangeEvent, type FormEvent } from 'react';
 
 interface Props {
     shop: Shop;
@@ -19,7 +19,9 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function Account({ shop, account }: Props) {
-    const { flash } = usePage<SharedData>().props;
+    const { flash, auth, errors } = usePage<SharedData>().props;
+    const avatarUrl = auth.user.avatar_url;
+    const avatarError = (errors as Record<string, string>)?.avatar;
 
     const form = useForm({
         current_password: '',
@@ -35,6 +37,13 @@ export default function Account({ shop, account }: Props) {
         });
     };
 
+    const uploadAvatar = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        router.post(route('shop.account.avatar'), { avatar: file }, { preserveScroll: true, forceFormData: true });
+    };
+
     return (
         <ShopLayout shop={shop}>
             <Head title="حسابي" />
@@ -42,15 +51,38 @@ export default function Account({ shop, account }: Props) {
             <div className="mx-auto flex w-full flex-col gap-4 md:max-w-xl">
                 <h1 className="text-xl font-extrabold">حسابي</h1>
 
-                <div className="bg-card flex flex-col gap-1 rounded-2xl p-4 shadow-sm">
-                    <div className="text-[17px] font-extrabold">{account.name}</div>
-                    <div className="text-muted-foreground text-[15px]" dir="ltr">
-                        {account.email}
+                <div className="bg-card flex items-center gap-4 rounded-2xl p-4 shadow-sm">
+                    <div className="bg-muted text-muted-foreground flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full">
+                        {avatarUrl ? <img src={avatarUrl} alt="" className="size-full object-cover" /> : <UserRound className="size-9" aria-hidden />}
                     </div>
-                    <div className="text-muted-foreground mt-1 text-[15px]">
-                        {shop.name} · {shop.area}
+                    <div className="min-w-0">
+                        <div className="text-[17px] font-extrabold">{account.name}</div>
+                        <div className="text-muted-foreground truncate text-[15px]" dir="ltr">
+                            {account.email}
+                        </div>
+                        <div className="text-muted-foreground mt-1 text-[15px]">
+                            {shop.name} · {shop.area}
+                        </div>
                     </div>
                 </div>
+
+                <div className="flex gap-2.5">
+                    <label className="bg-secondary text-secondary-foreground flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl text-[16px] font-bold">
+                        <Camera className="size-5" aria-hidden />
+                        غيّر الصورة
+                        <input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadAvatar} className="hidden" />
+                    </label>
+                    {avatarUrl && (
+                        <button
+                            type="button"
+                            onClick={() => router.delete(route('shop.account.avatar.delete'), { preserveScroll: true })}
+                            className="text-destructive border-destructive/40 bg-card h-12 rounded-xl border-2 px-4 text-[16px] font-bold"
+                        >
+                            شيل الصورة
+                        </button>
+                    )}
+                </div>
+                {avatarError && <div className="text-destructive -mt-1 text-[15px] font-bold">{avatarError}</div>}
 
                 {flash.success && (
                     <div className="bg-success-soft text-success-soft-foreground rounded-xl px-4 py-2.5 text-[15px] font-bold">{flash.success}</div>

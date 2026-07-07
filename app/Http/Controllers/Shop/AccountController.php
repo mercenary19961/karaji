@@ -38,4 +38,30 @@ class AccountController extends ShopController
 
         return back()->with('success', 'تم تغيير كلمة المرور');
     }
+
+    public function updateAvatar(Request $request): RedirectResponse
+    {
+        // `image` validates by MIME/content; `mimes` locks the extension —
+        // both, per the upload-hardening rule.
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [
+            'avatar.required' => 'اختر صورة',
+            'avatar.image' => 'لازم تكون صورة',
+            'avatar.mimes' => 'الصورة لازم تكون jpg أو png أو webp',
+            'avatar.max' => 'الصورة كبيرة، أقصى حجم 4 ميغا',
+        ]);
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $request->user()->setAvatar($path);
+
+        return back()->with('success', 'تم تغيير الصورة');
+    }
+
+    public function deleteAvatar(Request $request): RedirectResponse
+    {
+        $request->user()->removeAvatar();
+
+        return back()->with('success', 'شلنا الصورة');
+    }
 }
