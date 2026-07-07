@@ -46,56 +46,58 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 </button>
             </div>
 
-            <div className="bg-card rounded-[18px] p-4 shadow-sm">
-                <h2 className="mb-3 text-[17px] font-extrabold">الزيارات شهرياً</h2>
-                <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="block h-auto w-full" role="img" aria-label="عدد الزيارات شهرياً">
-                    {months.map((month, i) => {
-                        const barHeight = Math.round((month.visits / maxVisits) * CHART.maxBarHeight);
-                        const x = 18 + i * CHART.gap;
-                        const y = CHART.baseline - barHeight;
-                        const active = i === monthIdx;
+            <div className="grid gap-4 md:grid-cols-2 md:items-start">
+                <div className="bg-card rounded-[18px] p-4 shadow-sm">
+                    <h2 className="mb-3 text-[17px] font-extrabold">الزيارات شهرياً</h2>
+                    <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="block h-auto w-full" role="img" aria-label="عدد الزيارات شهرياً">
+                        {months.map((month, i) => {
+                            const barHeight = Math.round((month.visits / maxVisits) * CHART.maxBarHeight);
+                            const x = 18 + i * CHART.gap;
+                            const y = CHART.baseline - barHeight;
+                            const active = i === monthIdx;
 
-                        return (
-                            <g key={`${month.label}-${month.year}`}>
-                                <rect
-                                    x={x}
-                                    y={y}
-                                    width={CHART.barWidth}
-                                    height={barHeight}
-                                    rx={6}
-                                    fill={active ? 'var(--primary)' : 'var(--input)'}
-                                />
-                                {active && (
-                                    <text
-                                        x={x + CHART.barWidth / 2}
-                                        y={y - 7}
-                                        fontSize={13}
-                                        fontWeight={800}
-                                        fill="var(--primary)"
-                                        textAnchor="middle"
-                                    >
-                                        {month.visits}
+                            return (
+                                <g key={`${month.label}-${month.year}`}>
+                                    <rect
+                                        x={x}
+                                        y={y}
+                                        width={CHART.barWidth}
+                                        height={barHeight}
+                                        rx={6}
+                                        fill={active ? 'var(--primary)' : 'var(--input)'}
+                                    />
+                                    {active && (
+                                        <text
+                                            x={x + CHART.barWidth / 2}
+                                            y={y - 7}
+                                            fontSize={13}
+                                            fontWeight={800}
+                                            fill="var(--primary)"
+                                            textAnchor="middle"
+                                        >
+                                            {month.visits}
+                                        </text>
+                                    )}
+                                    <text x={x + CHART.barWidth / 2} y={148} fontSize={11} fill="var(--muted-foreground)" textAnchor="middle">
+                                        {month.label}
                                     </text>
-                                )}
-                                <text x={x + CHART.barWidth / 2} y={148} fontSize={11} fill="var(--muted-foreground)" textAnchor="middle">
-                                    {month.label}
-                                </text>
-                            </g>
-                        );
-                    })}
-                </svg>
-            </div>
+                                </g>
+                            );
+                        })}
+                    </svg>
+                </div>
 
-            <div className="bg-card rounded-[18px] p-4 shadow-sm">
-                <h2 className="mb-3 text-[17px] font-extrabold">أكثر الخدمات</h2>
-                <div className="flex flex-col gap-2.5">
-                    {topServices.map((service) => (
-                        <div key={service.label} className="flex justify-between text-base">
-                            <span>{service.label}</span>
-                            <b className="text-primary">{service.count}</b>
-                        </div>
-                    ))}
-                    {topServices.length === 0 && <div className="text-muted-foreground text-base">لسا ما في خدمات مسجلة</div>}
+                <div className="bg-card rounded-[18px] p-4 shadow-sm">
+                    <h2 className="mb-3 text-[17px] font-extrabold">أكثر الخدمات</h2>
+                    <div className="flex flex-col gap-2.5">
+                        {topServices.map((service) => (
+                            <div key={service.label} className="flex justify-between text-base">
+                                <span>{service.label}</span>
+                                <b className="text-primary">{service.count}</b>
+                            </div>
+                        ))}
+                        {topServices.length === 0 && <div className="text-muted-foreground text-base">لسا ما في خدمات مسجلة</div>}
+                    </div>
                 </div>
             </div>
 
@@ -103,7 +105,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 <h2 className="mb-3 text-[17px] font-extrabold">
                     زبائن ما رجعوا <span className="text-muted-foreground text-sm font-medium">(أكثر من 6 أشهر)</span>
                 </h2>
-                <div className="flex flex-col gap-2.5">
+                <div className="grid gap-2.5 md:grid-cols-2">
                     {lostCustomers.map((customer) => {
                         const waText = `مرحباً ${customer.owner}، صار وقت نطمّن على ${customer.car} 🚗 بانتظارك في ${shop.name}`;
 
