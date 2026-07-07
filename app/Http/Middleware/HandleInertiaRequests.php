@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Message;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -51,6 +52,13 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'impersonating' => $request->session()->has('impersonator_id'),
+            'shopUnread' => function () use ($request) {
+                $user = $request->user();
+
+                return $user && $user->shop_id
+                    ? Message::query()->where('shop_id', $user->shop_id)->whereNull('read_at')->count()
+                    : 0;
+            },
         ]);
     }
 }

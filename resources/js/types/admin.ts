@@ -26,6 +26,22 @@ export interface ActivityEntry {
     isRevert: boolean;
 }
 
+export interface AdminMessage {
+    id: number;
+    title: string;
+    body: string;
+    at: string;
+    read: boolean;
+}
+
+export interface AdminSuggestion {
+    id: number;
+    shop: string;
+    body: string;
+    status: 'open' | 'reviewed';
+    date: string;
+}
+
 export interface ShopDetail {
     id: number;
     name: string;
@@ -39,6 +55,7 @@ export interface ShopDetail {
         trialEndsAt: string | null;
     } | null;
     activity: ActivityEntry[];
+    messages: AdminMessage[];
 }
 
 export interface AnnouncementItem {

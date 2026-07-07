@@ -31,6 +31,10 @@ return [
     'password_mismatch' => "Confirmation doesn't match",
     'password_changed' => 'Password changed',
 
+    // Suggestions
+    'suggestion_required' => 'Write your suggestion',
+    'suggestion_sent' => 'Got your suggestion, thanks',
+
     // Account: avatar
     'avatar_required' => 'Choose an image',
     'avatar_image' => 'Must be an image',

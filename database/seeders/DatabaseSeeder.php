@@ -5,10 +5,12 @@ namespace Database\Seeders;
 use App\Models\Announcement;
 use App\Models\Car;
 use App\Models\Customer;
+use App\Models\Message;
 use App\Models\Reminder;
 use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\Subscription;
+use App\Models\Suggestion;
 use App\Models\User;
 use App\Models\Visit;
 use App\Services\Reminders\ReminderEngine;
@@ -179,6 +181,27 @@ class DatabaseSeeder extends Seeder
             ]);
             $visit->services()->attach($serviceIds->only(['تغيير زيت'])->values());
         }
+
+        // Admin → shop message (one unread, so the inbox badge shows) + a
+        // suggestion the shop sent back, so both directions have demo content.
+        Message::factory()->create([
+            'shop_id' => $shop->id,
+            'title' => 'أهلين فيك ببرنامج الكراج 👋',
+            'body' => 'يا هلا أبو رامز، حسابك صار شغّال. أي استفسار احكِ معنا واتساب وإحنا بخدمتك.',
+            'read_at' => now(),
+        ]);
+        Message::factory()->create([
+            'shop_id' => $shop->id,
+            'title' => 'تحديث جديد ع البرنامج',
+            'body' => 'ضفنا صفحة التقارير الشهرية. شوفها من قائمة "التقارير" تحت.',
+            'read_at' => null,
+        ]);
+
+        Suggestion::factory()->create([
+            'shop_id' => $shop->id,
+            'body' => 'ياريت تضيفوا خدمة تغيير زيت الفرامل، لأنه حالياً في بس تغيير زيت المحرك.',
+            'status' => Suggestion::STATUS_OPEN,
+        ]);
     }
 
     private function seedCar(Shop $shop, string $customerName, string $phone, ?string $label, string $plate, ?int $licenseMonth): Car

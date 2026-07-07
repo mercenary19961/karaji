@@ -20,7 +20,7 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function Account({ shop, account }: Props) {
-    const { flash, auth, errors, locale } = usePage<SharedData>().props;
+    const { flash, auth, errors } = usePage<SharedData>().props;
     const t = useT();
     const avatarUrl = auth.user.avatar_url;
     const avatarError = (errors as Record<string, string>)?.avatar;
@@ -85,24 +85,6 @@ export default function Account({ shop, account }: Props) {
                     )}
                 </div>
                 {avatarError && <div className="text-destructive -mt-1 text-[15px] font-bold">{avatarError}</div>}
-
-                <div className="bg-card flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm">
-                    <div className="text-[17px] font-extrabold">{t('acct.language')}</div>
-                    <div className="flex gap-2">
-                        {(['ar', 'en'] as const).map((lng) => (
-                            <button
-                                key={lng}
-                                type="button"
-                                onClick={() => router.get(route('locale', lng), {}, { preserveScroll: true })}
-                                className={`h-11 cursor-pointer rounded-xl px-4 text-[15px] font-bold ${
-                                    locale === lng ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                                }`}
-                            >
-                                {lng === 'ar' ? 'العربية' : 'English'}
-                            </button>
-                        ))}
-                    </div>
-                </div>
 
                 {flash.success && (
                     <div className="bg-success-soft text-success-soft-foreground rounded-xl px-4 py-2.5 text-[15px] font-bold">{flash.success}</div>

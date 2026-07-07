@@ -5,6 +5,7 @@ import { type PropsWithChildren } from 'react';
 const navItems = [
     { label: 'Shops', href: '/admin', match: (url: string) => url === '/admin' || url.startsWith('/admin/shops') },
     { label: 'Announcements', href: '/admin/announcements', match: (url: string) => url.startsWith('/admin/announcements') },
+    { label: 'Suggestions', href: '/admin/suggestions', match: (url: string) => url.startsWith('/admin/suggestions') },
 ];
 
 // EN/LTR by design (SetAdminLocale middleware sets the locale server-side;

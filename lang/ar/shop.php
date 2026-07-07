@@ -33,6 +33,10 @@ return [
     'password_mismatch' => 'التأكيد مش مطابق',
     'password_changed' => 'تم تغيير كلمة المرور',
 
+    // Suggestions
+    'suggestion_required' => 'اكتب اقتراحك',
+    'suggestion_sent' => 'وصلنا اقتراحك، شكراً',
+
     // Account: avatar
     'avatar_required' => 'اختر صورة',
     'avatar_image' => 'لازم تكون صورة',

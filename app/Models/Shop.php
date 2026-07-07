@@ -69,4 +69,14 @@ class Shop extends Model
     {
         return $this->hasOne(Visit::class)->latestOfMany('visited_at');
     }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function suggestions(): HasMany
+    {
+        return $this->hasMany(Suggestion::class);
+    }
 }

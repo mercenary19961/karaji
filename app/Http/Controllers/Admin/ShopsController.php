@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\Message;
 use App\Models\Shop;
 use App\Models\Subscription;
 use App\Services\ChangeLog\ChangeLogService;
@@ -47,6 +48,8 @@ class ShopsController extends Controller
             ->limit(10)
             ->get();
 
+        $messages = $shop->messages()->latest()->limit(20)->get();
+
         return Inertia::render('admin/shop-detail', [
             'shop' => [
                 'id' => $shop->id,
@@ -72,6 +75,13 @@ class ShopsController extends Controller
                     'undoable' => $this->changeLog->revertable($log),
                     'undone' => $log->isReverted(),
                     'isRevert' => $log->isRevert(),
+                ]),
+                'messages' => $messages->map(fn (Message $m) => [
+                    'id' => $m->id,
+                    'title' => $m->title,
+                    'body' => $m->body,
+                    'at' => $m->created_at->format('M j, H:i'),
+                    'read' => $m->read_at !== null,
                 ]),
             ],
         ]);

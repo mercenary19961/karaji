@@ -28,6 +28,7 @@ export interface SharedData {
     auth: Auth;
     flash: { success: string | null; error: string | null };
     impersonating: boolean;
+    shopUnread: number;
     [key: string]: unknown;
 }
 

@@ -13,8 +13,22 @@ const dict = {
     'nav.home': { ar: 'الرئيسية', en: 'Home' },
     'nav.reminders': { ar: 'التذكيرات', en: 'Reminders' },
     'nav.reports': { ar: 'التقارير', en: 'Reports' },
+    'nav.messages': { ar: 'الرسائل', en: 'Messages' },
     'nav.account': { ar: 'حسابي', en: 'My account' },
     'nav.logout': { ar: 'تسجيل الخروج', en: 'Log out' },
+
+    // Messages + suggestions
+    'msg.title': { ar: 'الرسائل والتنبيهات', en: 'Messages & notifications' },
+    'msg.inbox': { ar: 'رسائل الإدارة', en: 'From the team' },
+    'msg.none': { ar: 'ما في رسائل', en: 'No messages yet' },
+    'msg.suggest_title': { ar: 'عندك اقتراح؟', en: 'Have a suggestion?' },
+    'msg.suggest_hint': { ar: 'عندك فكرة تحسّن البرنامج؟ ابعتلنا', en: 'An idea to improve the app? Send it our way' },
+    'msg.suggest_placeholder': { ar: 'مثلاً: ضيفوا خدمة تغيير زيت الفرامل', en: 'e.g. add a brake-fluid change service' },
+    'msg.suggest_send': { ar: 'ابعت الاقتراح', en: 'Send suggestion' },
+    'msg.your_suggestions': { ar: 'اقتراحاتك', en: 'Your suggestions' },
+    'msg.no_suggestions': { ar: 'ما بعثت أي اقتراح لسا', en: 'No suggestions sent yet' },
+    'msg.status_open': { ar: 'قيد المراجعة', en: 'Under review' },
+    'msg.status_reviewed': { ar: 'تمت المراجعة', en: 'Reviewed' },
 
     // Common
     'common.call': { ar: 'اتصال', en: 'Call' },

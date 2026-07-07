@@ -1,6 +1,7 @@
 import AdminLayout from '@/layouts/admin-layout';
 import { type ShopDetail, type SubscriptionStatus } from '@/types/admin';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { type FormEvent } from 'react';
 
 const statusBadge: Record<SubscriptionStatus, string> = {
     active: 'bg-success-soft text-success-soft-foreground',
@@ -23,6 +24,13 @@ export default function ShopDetailPage({ shop }: Props) {
 
     const updateSubscription = (payload: { plan?: string; status?: SubscriptionStatus }) =>
         router.put(route('admin.shops.subscription', shop.id), payload, { preserveScroll: true });
+
+    const message = useForm({ title: '', body: '' });
+
+    const sendMessage = (e: FormEvent) => {
+        e.preventDefault();
+        message.post(route('admin.shops.messages', shop.id), { preserveScroll: true, onSuccess: () => message.reset() });
+    };
 
     return (
         <AdminLayout>
@@ -159,6 +167,64 @@ export default function ShopDetailPage({ shop }: Props) {
                             </div>
                         ))}
                         {shop.activity.length === 0 && <div className="text-muted-foreground text-sm">No admin activity for this shop yet.</div>}
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.4fr]">
+                <form onSubmit={sendMessage} className="border-border bg-card flex flex-col gap-3 rounded-2xl border p-5">
+                    <h2 className="text-base font-extrabold">Send a message</h2>
+                    <p className="text-muted-foreground -mt-1 text-sm">Shows in this shop's inbox and marks as unread until they open it.</p>
+                    <input
+                        type="text"
+                        value={message.data.title}
+                        onChange={(e) => message.setData('title', e.target.value)}
+                        placeholder="Subject"
+                        className="border-input bg-card focus-visible:border-ring h-11 rounded-lg border px-3 text-sm outline-none"
+                    />
+                    {message.errors.title && <div className="text-destructive text-sm font-bold">{message.errors.title}</div>}
+                    <textarea
+                        value={message.data.body}
+                        onChange={(e) => message.setData('body', e.target.value)}
+                        placeholder="Message"
+                        rows={4}
+                        className="border-input bg-card focus-visible:border-ring rounded-lg border px-3 py-2.5 text-sm outline-none"
+                    />
+                    {message.errors.body && <div className="text-destructive text-sm font-bold">{message.errors.body}</div>}
+                    <button
+                        type="submit"
+                        disabled={message.processing}
+                        className="bg-primary text-primary-foreground h-11 cursor-pointer rounded-lg text-sm font-bold disabled:opacity-60"
+                    >
+                        Send message
+                    </button>
+                </form>
+
+                <div className="border-border bg-card rounded-2xl border p-5">
+                    <h2 className="mb-3 text-base font-extrabold">Sent messages</h2>
+                    <div className="flex flex-col">
+                        {shop.messages.map((entry, i) => (
+                            <div
+                                key={entry.id}
+                                className={`flex flex-col gap-1 py-3 ${i < shop.messages.length - 1 ? 'border-border border-b' : ''}`}
+                            >
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="flex items-center gap-2 text-sm font-bold">
+                                        {entry.title}
+                                        <span
+                                            className={`rounded-full px-2 py-0.5 text-[11px] font-extrabold ${
+                                                entry.read ? 'bg-success-soft text-success-soft-foreground' : 'bg-due text-due-foreground'
+                                            }`}
+                                        >
+                                            {entry.read ? 'Read' : 'Unread'}
+                                        </span>
+                                    </span>
+                                    <span className="text-muted-foreground text-[13px] whitespace-nowrap">{entry.at}</span>
+                                </div>
+                                <div className="text-muted-foreground text-sm whitespace-pre-line">{entry.body}</div>
+                            </div>
+                        ))}
+                        {shop.messages.length === 0 && <div className="text-muted-foreground text-sm">No messages sent to this shop yet.</div>}
                     </div>
                 </div>
             </div>
