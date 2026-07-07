@@ -3,7 +3,7 @@ import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Megaphone, MessageCircle, Plus, Search } from 'lucide-react';
+import { Megaphone, MessageCircle, Plus, Search, X } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface LostCustomer {
@@ -44,10 +44,18 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
             {announcements.map((announcement) => (
                 <div key={announcement.id} className="border-cta bg-due flex items-start gap-3 rounded-2xl border-2 p-4">
                     <Megaphone className="text-due-foreground mt-0.5 size-5 shrink-0" aria-hidden />
-                    <div>
+                    <div className="flex-1">
                         <div className="text-due-foreground text-[16px] font-extrabold">{announcement.title}</div>
                         <div className="text-due-foreground/85 mt-0.5 text-[15px]">{announcement.body}</div>
                     </div>
+                    <button
+                        type="button"
+                        onClick={() => router.post(route('shop.announcements.dismiss', announcement.id), {}, { preserveScroll: true })}
+                        aria-label={t('dash.dismiss')}
+                        className="text-due-foreground/60 hover:text-due-foreground -my-1 -me-1 flex size-9 shrink-0 items-center justify-center rounded-lg"
+                    >
+                        <X className="size-5" aria-hidden />
+                    </button>
                 </div>
             ))}
 

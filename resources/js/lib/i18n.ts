@@ -46,6 +46,7 @@ const dict = {
     'dash.due_today': { ar: 'مستحق التواصل اليوم', en: 'To contact today' },
     'dash.view_all': { ar: 'شوف الكل ←', en: 'View all →' },
     'dash.no_due': { ar: 'ما في حدا لازم تحكي معه اليوم 🎉', en: 'No one to contact today 🎉' },
+    'dash.dismiss': { ar: 'إخفاء التنبيه', en: 'Dismiss' },
     'dash.losing': { ar: 'زبائن ما رجعوا', en: 'Slipping away' },
     'dash.losing_window': { ar: '(+6 أشهر)', en: '(6+ months)' },
     'dash.no_losing': { ar: 'ما في زبائن منقطعين 👌', en: 'No lapsed customers 👌' },

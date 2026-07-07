@@ -65,4 +65,44 @@ class DashboardAnnouncementTest extends TestCase
 
         $this->assertSame(0, $this->dashboardAnnouncementCount());
     }
+
+    public function test_a_shop_can_dismiss_an_announcement_and_it_stays_hidden()
+    {
+        $announcement = Announcement::factory()->create();
+        $this->assertSame(1, $this->dashboardAnnouncementCount());
+
+        $this->actingAs($this->user)
+            ->post("/shop/announcements/{$announcement->id}/dismiss")
+            ->assertRedirect();
+
+        $this->assertSame(0, $this->dashboardAnnouncementCount());
+    }
+
+    public function test_dismissing_is_per_shop_only()
+    {
+        $announcement = Announcement::factory()->create();
+        $this->actingAs($this->user)->post("/shop/announcements/{$announcement->id}/dismiss");
+
+        // A different shop still sees the broadcast.
+        $otherShop = Shop::factory()->create();
+        $otherUser = User::factory()->create(['shop_id' => $otherShop->id]);
+
+        $count = 0;
+        $this->actingAs($otherUser)->get('/shop')->assertInertia(function (Assert $page) use (&$count) {
+            $count = count($page->toArray()['props']['announcements']);
+        });
+
+        $this->assertSame(1, $count);
+    }
+
+    public function test_dismissing_twice_is_a_no_op()
+    {
+        $announcement = Announcement::factory()->create();
+
+        $this->actingAs($this->user)->post("/shop/announcements/{$announcement->id}/dismiss");
+        $this->actingAs($this->user)->post("/shop/announcements/{$announcement->id}/dismiss")->assertRedirect();
+
+        $this->assertSame(1, $announcement->dismissedBy()->count());
+        $this->assertSame(0, $this->dashboardAnnouncementCount());
+    }
 }

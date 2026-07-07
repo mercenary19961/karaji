@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Shop\AccountController;
 use App\Http\Controllers\Shop\AnalyticsController;
+use App\Http\Controllers\Shop\AnnouncementController;
 use App\Http\Controllers\Shop\CarController;
 use App\Http\Controllers\Shop\DashboardController;
 use App\Http\Controllers\Shop\InboxController;
@@ -26,6 +27,8 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
     Route::post('reminders/{reminder}/contacted', [ReminderController::class, 'toggleContacted'])->middleware('throttle:60,1')->name('reminders.contact');
 
     Route::get('analytics', AnalyticsController::class)->name('analytics');
+
+    Route::post('announcements/{announcement}/dismiss', [AnnouncementController::class, 'dismiss'])->middleware('throttle:30,1')->name('announcements.dismiss');
 
     Route::get('messages', [InboxController::class, 'index'])->name('messages');
     Route::post('suggestions', [InboxController::class, 'storeSuggestion'])->middleware('throttle:20,1')->name('suggestions.store');
