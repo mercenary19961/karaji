@@ -19,7 +19,7 @@ class CarController extends ShopController
     public function search(Request $request): RedirectResponse
     {
         $validated = $request->validate(['q' => ['required', 'string', 'max:30']], [
-            'q.required' => 'اكتب رقم اللوحة أو التلفون',
+            'q.required' => __('shop.search_required'),
         ]);
 
         $q = trim($validated['q']);
@@ -28,7 +28,7 @@ class CarController extends ShopController
             ?? Car::query()->whereHas('customer', fn ($query) => $query->where('phone', 'like', "%{$q}%"))->first();
 
         if ($car === null) {
-            return back()->with('error', 'ما لقينا سيارة بهالرقم · جرّب رقم ثاني أو سجّلها كسيارة جديدة');
+            return back()->with('error', __('shop.search_not_found'));
         }
 
         return $request->query('to') === 'visit'

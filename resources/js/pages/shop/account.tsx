@@ -1,4 +1,5 @@
 import ShopLayout from '@/layouts/shop-layout';
+import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
@@ -19,7 +20,8 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function Account({ shop, account }: Props) {
-    const { flash, auth, errors } = usePage<SharedData>().props;
+    const { flash, auth, errors, locale } = usePage<SharedData>().props;
+    const t = useT();
     const avatarUrl = auth.user.avatar_url;
     const avatarError = (errors as Record<string, string>)?.avatar;
 
@@ -46,10 +48,10 @@ export default function Account({ shop, account }: Props) {
 
     return (
         <ShopLayout shop={shop}>
-            <Head title="حسابي" />
+            <Head title={t('acct.title')} />
 
             <div className="mx-auto flex w-full flex-col gap-4 md:max-w-xl">
-                <h1 className="text-xl font-extrabold">حسابي</h1>
+                <h1 className="text-xl font-extrabold">{t('acct.title')}</h1>
 
                 <div className="bg-card flex items-center gap-4 rounded-2xl p-4 shadow-sm">
                     <div className="bg-muted text-muted-foreground flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full">
@@ -69,7 +71,7 @@ export default function Account({ shop, account }: Props) {
                 <div className="flex gap-2.5">
                     <label className="bg-secondary text-secondary-foreground flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl text-[16px] font-bold">
                         <Camera className="size-5" aria-hidden />
-                        غيّر الصورة
+                        {t('acct.change_picture')}
                         <input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadAvatar} className="hidden" />
                     </label>
                     {avatarUrl && (
@@ -78,24 +80,42 @@ export default function Account({ shop, account }: Props) {
                             onClick={() => router.delete(route('shop.account.avatar.delete'), { preserveScroll: true })}
                             className="text-destructive border-destructive/40 bg-card h-12 rounded-xl border-2 px-4 text-[16px] font-bold"
                         >
-                            شيل الصورة
+                            {t('acct.remove_picture')}
                         </button>
                     )}
                 </div>
                 {avatarError && <div className="text-destructive -mt-1 text-[15px] font-bold">{avatarError}</div>}
+
+                <div className="bg-card flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm">
+                    <div className="text-[17px] font-extrabold">{t('acct.language')}</div>
+                    <div className="flex gap-2">
+                        {(['ar', 'en'] as const).map((lng) => (
+                            <button
+                                key={lng}
+                                type="button"
+                                onClick={() => router.get(route('locale', lng), {}, { preserveScroll: true })}
+                                className={`h-11 cursor-pointer rounded-xl px-4 text-[15px] font-bold ${
+                                    locale === lng ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                                }`}
+                            >
+                                {lng === 'ar' ? 'العربية' : 'English'}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 {flash.success && (
                     <div className="bg-success-soft text-success-soft-foreground rounded-xl px-4 py-2.5 text-[15px] font-bold">{flash.success}</div>
                 )}
 
                 <form onSubmit={changePassword} className="bg-card flex flex-col gap-3 rounded-2xl p-4 shadow-sm">
-                    <div className="text-[17px] font-extrabold">تغيير كلمة المرور</div>
+                    <div className="text-[17px] font-extrabold">{t('acct.change_password')}</div>
 
                     <div>
                         <input
                             type="password"
                             autoComplete="current-password"
-                            placeholder="كلمة المرور الحالية"
+                            placeholder={t('acct.current_pw')}
                             value={form.data.current_password}
                             onChange={(e) => form.setData('current_password', e.target.value)}
                             className={inputClasses}
@@ -107,7 +127,7 @@ export default function Account({ shop, account }: Props) {
                         <input
                             type="password"
                             autoComplete="new-password"
-                            placeholder="كلمة المرور الجديدة"
+                            placeholder={t('acct.new_pw')}
                             value={form.data.password}
                             onChange={(e) => form.setData('password', e.target.value)}
                             className={inputClasses}
@@ -119,7 +139,7 @@ export default function Account({ shop, account }: Props) {
                         <input
                             type="password"
                             autoComplete="new-password"
-                            placeholder="تأكيد كلمة المرور الجديدة"
+                            placeholder={t('acct.confirm_pw')}
                             value={form.data.password_confirmation}
                             onChange={(e) => form.setData('password_confirmation', e.target.value)}
                             className={inputClasses}
@@ -131,7 +151,7 @@ export default function Account({ shop, account }: Props) {
                         disabled={form.processing}
                         className="bg-primary text-primary-foreground h-14 rounded-xl text-[18px] font-extrabold disabled:opacity-60"
                     >
-                        حفظ كلمة المرور
+                        {t('acct.save_password')}
                     </button>
                 </form>
 
@@ -141,7 +161,7 @@ export default function Account({ shop, account }: Props) {
                     className="border-destructive/40 text-destructive bg-card flex h-14 items-center justify-center gap-2 rounded-2xl border-2 text-[18px] font-extrabold"
                 >
                     <LogOut className="size-5" aria-hidden />
-                    تسجيل الخروج
+                    {t('nav.logout')}
                 </button>
             </div>
         </ShopLayout>

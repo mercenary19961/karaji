@@ -22,21 +22,21 @@ class AccountController extends ShopController
 
     public function updatePassword(Request $request): RedirectResponse
     {
-        // Explicit min:8 (not Password::defaults) so the messages stay Arabic.
+        // Explicit min:8 (not Password::defaults) to keep the localized message.
         $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'current_password.required' => 'اكتب كلمة المرور الحالية',
-            'current_password.current_password' => 'كلمة المرور الحالية غلط',
-            'password.required' => 'اكتب كلمة المرور الجديدة',
-            'password.min' => 'كلمة المرور لازم تكون 8 أحرف عالأقل',
-            'password.confirmed' => 'التأكيد مش مطابق',
+            'current_password.required' => __('shop.current_password_required'),
+            'current_password.current_password' => __('shop.current_password_wrong'),
+            'password.required' => __('shop.new_password_required'),
+            'password.min' => __('shop.password_min'),
+            'password.confirmed' => __('shop.password_mismatch'),
         ]);
 
         $request->user()->update(['password' => Hash::make($request->string('password')->value())]);
 
-        return back()->with('success', 'تم تغيير كلمة المرور');
+        return back()->with('success', __('shop.password_changed'));
     }
 
     public function updateAvatar(Request $request): RedirectResponse
@@ -46,22 +46,22 @@ class AccountController extends ShopController
         $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ], [
-            'avatar.required' => 'اختر صورة',
-            'avatar.image' => 'لازم تكون صورة',
-            'avatar.mimes' => 'الصورة لازم تكون jpg أو png أو webp',
-            'avatar.max' => 'الصورة كبيرة، أقصى حجم 4 ميغا',
+            'avatar.required' => __('shop.avatar_required'),
+            'avatar.image' => __('shop.avatar_image'),
+            'avatar.mimes' => __('shop.avatar_mimes'),
+            'avatar.max' => __('shop.avatar_max'),
         ]);
 
         $path = $request->file('avatar')->store('avatars', 'public');
         $request->user()->setAvatar($path);
 
-        return back()->with('success', 'تم تغيير الصورة');
+        return back()->with('success', __('shop.avatar_changed'));
     }
 
     public function deleteAvatar(Request $request): RedirectResponse
     {
         $request->user()->removeAvatar();
 
-        return back()->with('success', 'شلنا الصورة');
+        return back()->with('success', __('shop.avatar_removed'));
     }
 }

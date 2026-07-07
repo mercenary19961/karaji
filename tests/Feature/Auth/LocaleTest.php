@@ -34,16 +34,38 @@ class LocaleTest extends TestCase
         $this->get('/login')->assertSee('lang="ar"', false);
     }
 
-    public function test_the_shop_portal_stays_arabic_even_when_english_is_toggled()
+    public function test_the_shop_portal_defaults_to_arabic_and_ignores_a_guest_session_toggle()
     {
         $shop = Shop::factory()->create();
-        $user = User::factory()->create(['shop_id' => $shop->id]);
+        $user = User::factory()->create(['shop_id' => $shop->id]); // no locale preference
 
-        // Guest parks 'en' in the session, then that same session logs in
+        // Guest parks 'en' in the session, then that same session logs in;
+        // the shop reads the user's (null) preference, not the session.
         $this->get(route('locale', 'en'));
 
         $this->actingAs($user)->get('/shop')
             ->assertSee('lang="ar"', false)
             ->assertSee('dir="rtl"', false);
+    }
+
+    public function test_a_shop_user_with_an_english_preference_sees_english_ltr()
+    {
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create(['shop_id' => $shop->id, 'locale' => 'en']);
+
+        $this->actingAs($user)->get('/shop')
+            ->assertSee('lang="en"', false)
+            ->assertSee('dir="ltr"', false);
+    }
+
+    public function test_the_language_toggle_persists_on_the_shop_user()
+    {
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create(['shop_id' => $shop->id]);
+
+        $this->actingAs($user)->get(route('locale', 'en'));
+
+        $this->assertSame('en', $user->fresh()->locale);
+        $this->actingAs($user)->get('/shop')->assertSee('lang="en"', false);
     }
 }

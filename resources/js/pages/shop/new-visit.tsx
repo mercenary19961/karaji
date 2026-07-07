@@ -1,4 +1,5 @@
 import ShopLayout from '@/layouts/shop-layout';
+import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type FormCar, type OilTypeOption, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -24,7 +25,9 @@ function FieldError({ message }: { message?: string }) {
 
 export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes, savedVisit }: Props) {
     const { flash } = usePage<SharedData>().props;
+    const t = useT();
 
+    // Compares service NAMES (Arabic data), unaffected by UI language
     const oilChangeId = serviceTypes.find((s) => s.name === 'تغيير زيت')?.id;
     const defaultServices = serviceTypes.filter((s) => s.name === 'تغيير زيت' || s.name === 'فلتر زيت').map((s) => s.id);
     const [newCust, setNewCust] = useState(false);
@@ -78,16 +81,16 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
 
         return (
             <ShopLayout shop={shop}>
-                <Head title="تم حفظ الزيارة" />
+                <Head title={t('visit.saved_title')} />
 
                 <div className="mx-auto flex w-full flex-col gap-4 md:max-w-xl">
                     <div className="border-success bg-success-soft rounded-[18px] border-2 px-4 py-6 text-center">
                         <div className="bg-success text-success-foreground mx-auto flex size-16 items-center justify-center rounded-full">
                             <Check className="size-9" aria-hidden />
                         </div>
-                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">انحفظت الزيارة ✓</div>
+                        <div className="text-success-soft-foreground mt-3 text-[21px] font-extrabold">{t('visit.saved_title')}</div>
                         <div className="text-success-soft-foreground/80 mt-1 text-[15px]">
-                            {savedVisit.carLabel} · {savedVisit.owner} · عداد {savedVisit.km} كم
+                            {savedVisit.carLabel} · {savedVisit.owner} · {t('visit.saved_meter', { km: savedVisit.km })}
                         </div>
                     </div>
 
@@ -98,10 +101,10 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         className="bg-success text-success-foreground shadow-success/35 flex h-17 items-center justify-center gap-2 rounded-2xl text-[21px] font-extrabold shadow-lg"
                     >
                         <MessageCircle className="size-6" aria-hidden />
-                        ابعت ملخص الزيارة واتساب
+                        {t('visit.send_summary')}
                     </a>
 
-                    <div className="text-muted-foreground text-center text-sm">شوف الرسالة</div>
+                    <div className="text-muted-foreground text-center text-sm">{t('visit.preview')}</div>
                     <div className="ms-8 rounded-[18px] rounded-es-sm bg-[#dcf3d0] p-4 text-[15.5px] leading-8 whitespace-pre-line text-[#1e3325] shadow-sm">
                         {summary}
                     </div>
@@ -110,7 +113,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         href={route('shop.dashboard')}
                         className="border-input bg-card text-primary flex h-14 items-center justify-center rounded-2xl border-2 text-lg font-bold"
                     >
-                        ارجع للرئيسية
+                        {t('visit.back_home')}
                     </Link>
 
                     <button
@@ -118,7 +121,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         onClick={() => router.delete(route('shop.visits.destroy', savedVisit.id))}
                         className="text-destructive min-h-12 text-center text-[15px] font-bold underline"
                     >
-                        تراجع عن الحفظ
+                        {t('visit.undo')}
                     </button>
                 </div>
             </ShopLayout>
@@ -128,10 +131,10 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
     // ===== Entry form =====
     return (
         <ShopLayout shop={shop}>
-            <Head title="زيارة جديدة" />
+            <Head title={t('visit.title')} />
 
             <div className="mx-auto flex w-full flex-col gap-4 md:max-w-xl">
-                <h1 className="text-xl font-extrabold">زيارة جديدة</h1>
+                <h1 className="text-xl font-extrabold">{t('visit.title')}</h1>
 
                 {!newCust && car && (
                     <div className="border-primary bg-card rounded-2xl border-2 p-4 shadow-sm">
@@ -154,7 +157,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             <Search className="text-muted-foreground absolute start-4 top-1/2 size-5 -translate-y-1/2" aria-hidden />
                             <input
                                 inputMode="numeric"
-                                placeholder="دوّر ع السيارة برقم اللوحة أو التلفون"
+                                placeholder={t('visit.search')}
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
                                 className="border-input bg-card focus-visible:border-ring h-15 w-full rounded-2xl border-2 ps-12 pe-4 text-[18px] outline-none"
@@ -169,16 +172,16 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                     onClick={() => setNewCust((v) => !v)}
                     className="text-primary min-h-12 self-start px-1 text-[15px] font-bold underline"
                 >
-                    {newCust ? 'ارجع لسيارة مسجلة' : 'سيارة مش مسجلة؟'}
+                    {newCust ? t('visit.back_registered') : t('visit.unregistered')}
                 </button>
 
                 <form onSubmit={save} className="flex flex-col gap-4">
                     {newCust && (
                         <div className="bg-secondary flex flex-col gap-3 rounded-2xl p-4">
-                            <div className="text-secondary-foreground text-base font-extrabold">زبون جديد</div>
+                            <div className="text-secondary-foreground text-base font-extrabold">{t('visit.new_customer')}</div>
                             <div>
                                 <input
-                                    placeholder="الاسم"
+                                    placeholder={t('visit.name')}
                                     value={form.data.name}
                                     onChange={(e) => form.setData('name', e.target.value)}
                                     className={inputClasses}
@@ -188,7 +191,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             <div>
                                 <input
                                     inputMode="tel"
-                                    placeholder="رقم التلفون"
+                                    placeholder={t('visit.phone')}
                                     value={form.data.phone}
                                     onChange={(e) => form.setData('phone', e.target.value)}
                                     className={inputClasses}
@@ -198,7 +201,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             <div>
                                 <input
                                     inputMode="numeric"
-                                    placeholder="رقم اللوحة"
+                                    placeholder={t('visit.plate')}
                                     value={form.data.plate}
                                     onChange={(e) => form.setData('plate', e.target.value)}
                                     className={inputClasses}
@@ -206,7 +209,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                 <FieldError message={form.errors.plate} />
                             </div>
                             <input
-                                placeholder="السيارة (مثلاً كيا سبورتاج 2019) · اختياري"
+                                placeholder={t('visit.car_optional')}
                                 value={form.data.label}
                                 onChange={(e) => form.setData('label', e.target.value)}
                                 className={inputClasses}
@@ -218,11 +221,11 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                         <>
                             <div>
                                 <div className="mb-2 text-[17px] font-bold">
-                                    قراءة العداد الحالية <span className="text-destructive">*</span>
+                                    {t('visit.km_label')} <span className="text-destructive">*</span>
                                 </div>
                                 <input
                                     inputMode="numeric"
-                                    placeholder="مثلاً 91300"
+                                    placeholder={t('visit.km_placeholder')}
                                     value={form.data.km}
                                     onChange={(e) => form.setData('km', e.target.value)}
                                     className="border-input bg-card focus-visible:border-ring h-16 w-full rounded-2xl border-2 px-4 text-center text-2xl font-bold tracking-wide outline-none"
@@ -231,7 +234,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             </div>
 
                             <div>
-                                <div className="mb-2 text-[17px] font-bold">الخدمات</div>
+                                <div className="mb-2 text-[17px] font-bold">{t('visit.services')}</div>
                                 <div className="grid grid-cols-2 gap-2.5">
                                     {serviceTypes.map((service) => {
                                         const on = form.data.services.includes(service.id);
@@ -257,7 +260,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             {oilChangeSelected && (
                                 <>
                                     <div>
-                                        <div className="mb-2 text-[17px] font-bold">نوع الزيت</div>
+                                        <div className="mb-2 text-[17px] font-bold">{t('visit.oil_type')}</div>
                                         <div className="grid grid-cols-2 gap-2.5">
                                             {oilTypes.map((type) => {
                                                 const on = form.data.oil_type === type.key;
@@ -281,7 +284,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                     </div>
 
                                     <div>
-                                        <div className="mb-2 text-[17px] font-bold">ماركة الزيت</div>
+                                        <div className="mb-2 text-[17px] font-bold">{t('visit.oil_brand')}</div>
                                         <select
                                             value={form.data.oil_brand}
                                             onChange={(e) => form.setData('oil_brand', e.target.value)}
@@ -289,7 +292,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                         >
                                             {oilBrands.map((brand) => (
                                                 <option key={brand} value={brand}>
-                                                    {brand === car?.lastOilBrand ? `زي آخر زيارة · ${brand}` : brand}
+                                                    {brand === car?.lastOilBrand ? t('visit.same_last', { brand }) : brand}
                                                 </option>
                                             ))}
                                         </select>
@@ -298,10 +301,10 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                             )}
 
                             <div>
-                                <div className="mb-2 text-[17px] font-bold">السعر (اختياري)</div>
+                                <div className="mb-2 text-[17px] font-bold">{t('visit.price')}</div>
                                 <input
                                     inputMode="decimal"
-                                    placeholder="د.أ"
+                                    placeholder={t('common.currency')}
                                     value={form.data.price}
                                     onChange={(e) => form.setData('price', e.target.value)}
                                     className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
@@ -313,7 +316,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                 disabled={form.processing}
                                 className="bg-cta text-cta-foreground shadow-cta/35 mt-1 h-16 rounded-2xl text-[22px] font-extrabold shadow-lg disabled:opacity-60"
                             >
-                                حفظ الزيارة
+                                {t('visit.save')}
                             </button>
                         </>
                     )}

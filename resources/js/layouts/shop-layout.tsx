@@ -1,3 +1,4 @@
+import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Link, router, usePage } from '@inertiajs/react';
@@ -5,7 +6,7 @@ import { Bell, ChartColumn, House, LogOut, UserRound, type LucideIcon } from 'lu
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
-    label: string;
+    labelKey: TKey;
     href: string;
     icon: LucideIcon;
     isActive: (url: string) => boolean;
@@ -14,17 +15,17 @@ interface NavItem {
 // Shared between the desktop sidebar and the mobile bottom bar.
 const primaryNav: NavItem[] = [
     {
-        label: 'الرئيسية',
+        labelKey: 'nav.home',
         href: '/shop',
         icon: House,
         isActive: (url) => url === '/shop' || url.startsWith('/shop/visits') || url.startsWith('/shop/cars'),
     },
-    { label: 'التذكيرات', href: '/shop/reminders', icon: Bell, isActive: (url) => url.startsWith('/shop/reminders') },
-    { label: 'التقارير', href: '/shop/analytics', icon: ChartColumn, isActive: (url) => url.startsWith('/shop/analytics') },
+    { labelKey: 'nav.reminders', href: '/shop/reminders', icon: Bell, isActive: (url) => url.startsWith('/shop/reminders') },
+    { labelKey: 'nav.reports', href: '/shop/analytics', icon: ChartColumn, isActive: (url) => url.startsWith('/shop/analytics') },
 ];
 
 const accountItem: NavItem = {
-    label: 'حسابي',
+    labelKey: 'nav.account',
     href: '/shop/account',
     icon: UserRound,
     isActive: (url) => url.startsWith('/shop/account'),
@@ -33,6 +34,7 @@ const accountItem: NavItem = {
 export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
     const { name, impersonating, auth } = usePage<SharedData>().props;
     const { url } = usePage();
+    const t = useT();
 
     const sidebarNav = [...primaryNav, accountItem];
     const avatarUrl = auth.user.avatar_url;
@@ -61,7 +63,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                                 }`}
                             >
                                 <item.icon className="size-5" aria-hidden />
-                                {item.label}
+                                {t(item.labelKey)}
                             </Link>
                         );
                     })}
@@ -87,7 +89,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                         className="text-primary-foreground/70 mt-1 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 py-2.5 text-sm font-bold hover:bg-white/10"
                     >
                         <LogOut className="size-4" aria-hidden />
-                        تسجيل الخروج
+                        {t('nav.logout')}
                     </button>
                 </div>
             </aside>
@@ -108,7 +110,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                     </div>
                 )}
 
-                {/* Mobile header (phones only) — unchanged from the current design */}
+                {/* Mobile header (phones only) */}
                 <header className="bg-primary text-primary-foreground flex items-center justify-between gap-3 px-5 pt-4 pb-3.5 md:hidden">
                     <div className="min-w-0">
                         <div className="text-2xl font-extrabold tracking-wide">{name}</div>
@@ -118,7 +120,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                     </div>
                     <Link
                         href={route('shop.account')}
-                        aria-label="حسابي"
+                        aria-label={t('nav.account')}
                         className={`flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full ${
                             accountItem.isActive(url) ? 'bg-white/25' : 'bg-white/10'
                         }`}
@@ -132,7 +134,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                     {children}
                 </main>
 
-                {/* Mobile bottom nav (phones only) — unchanged from the current design */}
+                {/* Mobile bottom nav (phones only) */}
                 <nav className="fixed inset-x-0 bottom-0 z-10 md:hidden">
                     <div className="border-border bg-card mx-auto grid max-w-md grid-cols-3 border-t pb-[env(safe-area-inset-bottom)]">
                         {primaryNav.map((item) => {
@@ -147,7 +149,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                                     }`}
                                 >
                                     <item.icon className="size-6" aria-hidden />
-                                    {item.label}
+                                    {t(item.labelKey)}
                                 </Link>
                             );
                         })}

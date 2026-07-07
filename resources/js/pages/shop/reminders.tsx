@@ -1,4 +1,5 @@
 import ShopLayout from '@/layouts/shop-layout';
+import { useT } from '@/lib/i18n';
 import { type Reminder, type Shop } from '@/types/shop';
 import { Head, router } from '@inertiajs/react';
 import { Check, MessageCircle, Phone } from 'lucide-react';
@@ -9,15 +10,16 @@ interface Props {
 }
 
 export default function Reminders({ shop, reminders }: Props) {
+    const t = useT();
     const toggle = (id: number) => router.post(route('shop.reminders.contact', id), {}, { preserveScroll: true });
 
     return (
         <ShopLayout shop={shop}>
-            <Head title="التذكيرات" />
+            <Head title={t('rem.title')} />
 
             <div className="flex items-baseline justify-between">
-                <h1 className="text-xl font-extrabold">قائمة التذكيرات</h1>
-                <div className="text-muted-foreground text-[15px]">مرتّبة من الأكثر تأخير</div>
+                <h1 className="text-xl font-extrabold">{t('rem.title')}</h1>
+                <div className="text-muted-foreground text-[15px]">{t('rem.subtitle')}</div>
             </div>
 
             <div className="grid gap-3.5 md:grid-cols-2 md:items-start xl:grid-cols-3">
@@ -57,7 +59,7 @@ export default function Reminders({ shop, reminders }: Props) {
                                         className="bg-primary text-primary-foreground flex h-13 flex-1 items-center justify-center gap-2 rounded-xl text-[17px] font-bold"
                                     >
                                         <Phone className="size-5" aria-hidden />
-                                        اتصال
+                                        {t('common.call')}
                                     </a>
                                     <a
                                         href={`https://wa.me/${reminder.whatsapp}?text=${encodeURIComponent(waText)}`}
@@ -66,7 +68,7 @@ export default function Reminders({ shop, reminders }: Props) {
                                         className="bg-success text-success-foreground flex h-13 flex-1 items-center justify-center gap-2 rounded-xl text-[17px] font-bold"
                                     >
                                         <MessageCircle className="size-5" aria-hidden />
-                                        واتساب
+                                        {t('common.whatsapp')}
                                     </a>
                                 </div>
                             )}
@@ -81,16 +83,14 @@ export default function Reminders({ shop, reminders }: Props) {
                                 }`}
                             >
                                 <Check className="size-5" aria-hidden />
-                                {reminder.contacted ? 'حكيت معه ✓ · تراجع' : 'حكيت معه'}
+                                {reminder.contacted ? t('rem.contacted_undo') : t('rem.contacted')}
                             </button>
                         </div>
                     );
                 })}
             </div>
 
-            {reminders.length === 0 && (
-                <div className="bg-card text-muted-foreground rounded-2xl p-6 text-center text-base">ما في تذكيرات لليوم 🎉</div>
-            )}
+            {reminders.length === 0 && <div className="bg-card text-muted-foreground rounded-2xl p-6 text-center text-base">{t('rem.none')}</div>}
         </ShopLayout>
     );
 }

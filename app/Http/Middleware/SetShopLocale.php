@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The shop portal is Arabic-only in v1. Force 'ar' per request so the guest
- * language toggle (which may have parked 'en' in the session) can never leak
- * into the shop UI, whose strings are hardcoded Arabic. Mirror of
- * SetAdminLocale (which forces 'en').
+ * The shop portal is bilingual (ar default, en optional). Set the locale from
+ * the user's stored preference on every request so worker-mode leaks can't
+ * cross requests, and so the guest session toggle never overrides a shop
+ * user's saved choice. Mirror of SetAdminLocale (which forces 'en').
  */
 class SetShopLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        App::setLocale('ar');
+        App::setLocale($request->user()?->locale ?? 'ar');
 
         return $next($request);
     }
