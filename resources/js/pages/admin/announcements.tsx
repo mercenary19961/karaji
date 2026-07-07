@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminLayout from '@/layouts/admin-layout';
 import { type AnnouncementItem, type AnnouncementTemplate, type ShopOption } from '@/types/admin';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -115,21 +116,25 @@ export default function Announcements({ announcements, shops, templates }: Props
                         </div>
                     </div>
 
-                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                    <div className="text-muted-foreground flex flex-col gap-1 text-sm">
                         Audience
-                        <select
-                            value={form.data.shop_id}
-                            onChange={(e) => form.setData('shop_id', e.target.value)}
-                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-2.5 text-[15px] outline-none"
+                        <Select
+                            value={form.data.shop_id === '' ? 'broadcast' : form.data.shop_id}
+                            onValueChange={(v) => form.setData('shop_id', v === 'broadcast' ? '' : v)}
                         >
-                            <option value="">All shops (broadcast)</option>
-                            {shops.map((shop) => (
-                                <option key={shop.id} value={shop.id}>
-                                    {shop.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                            <SelectTrigger className="h-11 text-[15px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="broadcast">All shops (broadcast)</SelectItem>
+                                {shops.map((shop) => (
+                                    <SelectItem key={shop.id} value={String(shop.id)}>
+                                        {shop.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
                     <div className="flex gap-3">
                         <label className="text-muted-foreground flex flex-1 flex-col gap-1 text-sm">

@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AdminLayout from '@/layouts/admin-layout';
 import { type ShopDetail, type SubscriptionStatus } from '@/types/admin';
 import { Head, Link, router, useForm } from '@inertiajs/react';
@@ -146,17 +147,18 @@ export default function ShopDetailPage({ shop }: Props) {
                             </div>
                             <div className="flex items-center justify-between gap-3 text-[15px]">
                                 <span className="text-muted-foreground">Plan</span>
-                                <select
-                                    value={subscription.plan}
-                                    onChange={(e) => updateSubscription({ plan: e.target.value })}
-                                    className="border-input bg-card focus-visible:border-ring h-11 rounded-lg border px-2.5 text-sm outline-none"
-                                >
-                                    {subscription.plans.map((plan) => (
-                                        <option key={plan.key} value={plan.key}>
-                                            {plan.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <Select value={subscription.plan} onValueChange={(v) => updateSubscription({ plan: v })}>
+                                    <SelectTrigger className="h-11 w-auto min-w-36 text-sm">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {subscription.plans.map((plan) => (
+                                            <SelectItem key={plan.key} value={plan.key}>
+                                                {plan.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             {subscription.renewsAt && (
                                 <div className="flex items-center justify-between text-[15px]">

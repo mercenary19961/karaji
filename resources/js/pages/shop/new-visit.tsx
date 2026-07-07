@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
@@ -286,17 +287,18 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
 
                                     <div>
                                         <div className="mb-2 text-[17px] font-bold">{t('visit.oil_brand')}</div>
-                                        <select
-                                            value={form.data.oil_brand}
-                                            onChange={(e) => form.setData('oil_brand', e.target.value)}
-                                            className="border-input bg-card text-foreground focus-visible:border-ring h-14 w-full rounded-xl border-2 px-3 text-[17px] outline-none"
-                                        >
-                                            {oilBrands.map((brand) => (
-                                                <option key={brand} value={brand}>
-                                                    {brand === car?.lastOilBrand ? t('visit.same_last', { brand }) : brand}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <Select value={form.data.oil_brand} onValueChange={(v) => form.setData('oil_brand', v)}>
+                                            <SelectTrigger className="h-14 text-[17px]">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {oilBrands.map((brand) => (
+                                                    <SelectItem key={brand} value={brand} className="text-[17px]">
+                                                        {brand === car?.lastOilBrand ? t('visit.same_last', { brand }) : brand}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </>
                             )}
