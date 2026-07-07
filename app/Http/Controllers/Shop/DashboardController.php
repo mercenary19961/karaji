@@ -28,7 +28,12 @@ class DashboardController extends ShopController
         $announcements = Announcement::query()
             ->activeForShop($request->user()->shop_id)
             ->latest()
-            ->get(['id', 'title', 'body']);
+            ->get()
+            ->map(fn (Announcement $a) => [
+                'id' => $a->id,
+                'title' => $a->displayTitle(),
+                'body' => $a->displayBody(),
+            ]);
 
         // Spec dashboard item: "customers you're losing" (no visit in 6+ months).
         $lostCustomers = Car::query()

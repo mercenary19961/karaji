@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', SetAdminLocale::class, EnsureAdminUser::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [ShopsController::class, 'index'])->name('shops.index');
     Route::get('shops/{shop}', [ShopsController::class, 'show'])->name('shops.show');
+    Route::put('shops/{shop}', [ShopsController::class, 'update'])->middleware('throttle:30,1')->name('shops.update');
 
     Route::put('shops/{shop}/subscription', [SubscriptionController::class, 'update'])->middleware('throttle:30,1')->name('shops.subscription');
     Route::post('shops/{shop}/subscription/extend-trial', [SubscriptionController::class, 'extendTrial'])->middleware('throttle:30,1')->name('shops.subscription.extend');

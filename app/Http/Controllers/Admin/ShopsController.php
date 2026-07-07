@@ -8,6 +8,8 @@ use App\Models\Message;
 use App\Models\Shop;
 use App\Models\Subscription;
 use App\Services\ChangeLog\ChangeLogService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -54,7 +56,9 @@ class ShopsController extends Controller
             'shop' => [
                 'id' => $shop->id,
                 'name' => $shop->name,
+                'nameEn' => $shop->name_en,
                 'area' => $shop->area,
+                'areaEn' => $shop->area_en,
                 'stats' => [
                     ['label' => 'Visits this month', 'value' => $shop->visits()->where('visited_at', '>=', now()->startOfMonth())->count()],
                     ['label' => 'Cars on file', 'value' => $shop->cars()->count()],
@@ -85,5 +89,20 @@ class ShopsController extends Controller
                 ]),
             ],
         ]);
+    }
+
+    /** Edit a shop's Arabic + English name/area (the identity shown per locale). */
+    public function update(Request $request, Shop $shop): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'name_en' => ['nullable', 'string', 'max:120'],
+            'area' => ['nullable', 'string', 'max:120'],
+            'area_en' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $shop->update($validated);
+
+        return back()->with('success', 'Shop updated');
     }
 }

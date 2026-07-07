@@ -12,7 +12,7 @@ interface Props {
 export default function CarProfilePage({ shop, car }: Props) {
     const t = useT();
     // Customer-facing message stays Arabic regardless of UI language
-    const greeting = `مرحبا ${car.owner}، معك ${shop.name} بخصوص ${car.label} 🚗`;
+    const greeting = `مرحبا ${car.owner}، معك ${shop.nameAr} بخصوص ${car.label} 🚗`;
     const waHref = `https://wa.me/${car.whatsapp}?text=${encodeURIComponent(greeting)}`;
 
     return (

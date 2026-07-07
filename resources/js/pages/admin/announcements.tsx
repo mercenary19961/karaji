@@ -1,21 +1,37 @@
 import AdminLayout from '@/layouts/admin-layout';
-import { type AnnouncementItem, type ShopOption } from '@/types/admin';
+import { type AnnouncementItem, type AnnouncementTemplate, type ShopOption } from '@/types/admin';
 import { Head, router, useForm } from '@inertiajs/react';
 import { type FormEvent } from 'react';
 
 interface Props {
     announcements: AnnouncementItem[];
     shops: ShopOption[];
+    templates: AnnouncementTemplate[];
 }
 
-export default function Announcements({ announcements, shops }: Props) {
+export default function Announcements({ announcements, shops, templates }: Props) {
     const form = useForm({
         title: '',
+        title_en: '',
         body: '',
+        body_en: '',
         shop_id: '' as string,
         starts_at: '',
         ends_at: '',
     });
+
+    // Pick a seasonal template → fill both languages (still editable before publish).
+    const applyTemplate = (key: string) => {
+        const template = templates.find((t) => t.key === key);
+        if (!template) return;
+        form.setData((data) => ({
+            ...data,
+            title: template.title.ar,
+            title_en: template.title.en,
+            body: template.body.ar,
+            body_en: template.body.en,
+        }));
+    };
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -34,25 +50,69 @@ export default function Announcements({ announcements, shops }: Props) {
                 <form onSubmit={submit} className="border-border bg-card flex h-fit flex-col gap-3 rounded-2xl border p-5">
                     <h1 className="text-lg font-extrabold">New announcement</h1>
 
-                    <div>
-                        <input
-                            value={form.data.title}
-                            onChange={(e) => form.setData('title', e.target.value)}
-                            placeholder="Title"
-                            className="border-input bg-card focus-visible:border-ring h-11 w-full rounded-lg border px-3 text-[15px] outline-none"
-                        />
-                        {form.errors.title && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.title}</div>}
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Start from a seasonal template (optional)
+                        <select
+                            defaultValue=""
+                            onChange={(e) => {
+                                applyTemplate(e.target.value);
+                                e.target.selectedIndex = 0;
+                            }}
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-2.5 text-[15px] outline-none"
+                        >
+                            <option value="">Blank — write my own</option>
+                            {templates.map((template) => (
+                                <option key={template.key} value={template.key}>
+                                    {template.label}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <input
+                                dir="rtl"
+                                value={form.data.title}
+                                onChange={(e) => form.setData('title', e.target.value)}
+                                placeholder="العنوان (عربي)"
+                                className="border-input bg-card focus-visible:border-ring h-11 w-full rounded-lg border px-3 text-[15px] outline-none"
+                            />
+                            {form.errors.title && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.title}</div>}
+                        </div>
+                        <div>
+                            <input
+                                value={form.data.title_en}
+                                onChange={(e) => form.setData('title_en', e.target.value)}
+                                placeholder="Title (English)"
+                                className="border-input bg-card focus-visible:border-ring h-11 w-full rounded-lg border px-3 text-[15px] outline-none"
+                            />
+                            {form.errors.title_en && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.title_en}</div>}
+                        </div>
                     </div>
 
-                    <div>
-                        <textarea
-                            value={form.data.body}
-                            onChange={(e) => form.setData('body', e.target.value)}
-                            placeholder="Message shown on the shop dashboard"
-                            rows={3}
-                            className="border-input bg-card focus-visible:border-ring w-full rounded-lg border px-3 py-2 text-[15px] outline-none"
-                        />
-                        {form.errors.body && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.body}</div>}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <textarea
+                                dir="rtl"
+                                value={form.data.body}
+                                onChange={(e) => form.setData('body', e.target.value)}
+                                placeholder="النص اللي بينعرض ع شاشة الكراج (عربي)"
+                                rows={3}
+                                className="border-input bg-card focus-visible:border-ring w-full rounded-lg border px-3 py-2 text-[15px] outline-none"
+                            />
+                            {form.errors.body && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.body}</div>}
+                        </div>
+                        <div>
+                            <textarea
+                                value={form.data.body_en}
+                                onChange={(e) => form.setData('body_en', e.target.value)}
+                                placeholder="Message shown on the shop dashboard (English)"
+                                rows={3}
+                                className="border-input bg-card focus-visible:border-ring w-full rounded-lg border px-3 py-2 text-[15px] outline-none"
+                            />
+                            {form.errors.body_en && <div className="text-destructive mt-1 text-sm font-bold">{form.errors.body_en}</div>}
+                        </div>
                     </div>
 
                     <label className="text-muted-foreground flex flex-col gap-1 text-sm">

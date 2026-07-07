@@ -75,7 +75,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
             ...savedVisit.services.map((s) => `✅ ${s}${s === 'تغيير زيت' && savedVisit.oilBrand ? ` (${savedVisit.oilBrand})` : ''}`),
             `قراءة العداد: ${savedVisit.km} كم`,
             ...(savedVisit.nextDueKm ? [`🔔 الموعد الجاي: عند ${savedVisit.nextDueKm} كم أو ${savedVisit.nextDueDate}`] : []),
-            `شكراً لثقتك 🙏 ${shop.name}`,
+            `شكراً لثقتك 🙏 ${shop.nameAr}`,
         ].join('\n');
         const waHref = `https://wa.me/${savedVisit.whatsapp}?text=${encodeURIComponent(summary)}`;
 

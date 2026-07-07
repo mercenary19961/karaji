@@ -21,7 +21,9 @@ class Announcement extends Model
     protected $fillable = [
         'shop_id',
         'title',
+        'title_en',
         'body',
+        'body_en',
         'is_active',
         'starts_at',
         'ends_at',
@@ -65,5 +67,17 @@ class Announcement extends Model
     public function isBroadcast(): bool
     {
         return $this->shop_id === null;
+    }
+
+    /** Title in the current UI locale (English falls back to Arabic). */
+    public function displayTitle(): string
+    {
+        return app()->getLocale() === 'en' && $this->title_en ? $this->title_en : $this->title;
+    }
+
+    /** Body in the current UI locale (English falls back to Arabic). */
+    public function displayBody(): string
+    {
+        return app()->getLocale() === 'en' && $this->body_en ? $this->body_en : $this->body;
     }
 }

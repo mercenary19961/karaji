@@ -18,7 +18,14 @@ abstract class ShopController extends Controller
     {
         $shop = $request->user()->shop;
 
-        return ['name' => $shop->name, 'area' => $shop->area];
+        // `name`/`area` follow the UI locale (header chrome); `nameAr` is always
+        // the Arabic name for the customer-facing WhatsApp templates, which stay
+        // Arabic regardless of the shop user's UI language.
+        return [
+            'name' => $shop->displayName(),
+            'area' => $shop->displayArea(),
+            'nameAr' => $shop->name,
+        ];
     }
 
     /**

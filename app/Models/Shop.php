@@ -18,7 +18,9 @@ class Shop extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
         'area',
+        'area_en',
         'phone',
         'default_daily_km',
     ];
@@ -28,6 +30,18 @@ class Shop extends Model
         return [
             'default_daily_km' => 'integer',
         ];
+    }
+
+    /** Shop name in the current UI locale (English falls back to Arabic). */
+    public function displayName(): string
+    {
+        return app()->getLocale() === 'en' && $this->name_en ? $this->name_en : $this->name;
+    }
+
+    /** Shop area in the current UI locale (English falls back to Arabic). */
+    public function displayArea(): ?string
+    {
+        return app()->getLocale() === 'en' && $this->area_en ? $this->area_en : $this->area;
     }
 
     public function users(): HasMany

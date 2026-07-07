@@ -32,6 +32,8 @@ class AnnouncementController extends Controller
             ]),
             // Broadcast is the default (empty value); the rest target one shop.
             'shops' => Shop::query()->orderBy('name')->get(['id', 'name']),
+            // Prewritten seasonal templates (bilingual) to pre-fill the form.
+            'templates' => config('announcement_templates'),
         ]);
     }
 
@@ -39,7 +41,9 @@ class AnnouncementController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:120'],
+            'title_en' => ['nullable', 'string', 'max:120'],
             'body' => ['required', 'string', 'max:2000'],
+            'body_en' => ['nullable', 'string', 'max:2000'],
             'shop_id' => ['nullable', 'integer', 'exists:shops,id'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],

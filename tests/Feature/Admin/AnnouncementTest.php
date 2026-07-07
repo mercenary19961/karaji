@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AnnouncementTest extends TestCase
@@ -71,5 +72,34 @@ class AnnouncementTest extends TestCase
         $this->actingAs(User::factory()->create(['shop_id' => $shop->id]))
             ->get('/admin/announcements')
             ->assertRedirect('/shop');
+    }
+
+    public function test_admin_can_publish_a_bilingual_announcement()
+    {
+        $this->actingAs($this->admin())->post('/admin/announcements', [
+            'title' => 'فحص الشتاء',
+            'title_en' => 'Winter check',
+            'body' => 'افحص البطارية',
+            'body_en' => 'Check the battery',
+        ]);
+
+        $announcement = Announcement::query()->sole();
+        $this->assertSame('Winter check', $announcement->title_en);
+        $this->assertSame('Check the battery', $announcement->body_en);
+    }
+
+    public function test_the_announcements_page_exposes_the_seasonal_templates()
+    {
+        $this->actingAs($this->admin())->get('/admin/announcements')->assertInertia(function (Assert $page) {
+            $templates = $page->toArray()['props']['templates'];
+            $this->assertNotEmpty($templates);
+            // Every template carries both languages for title and body.
+            foreach ($templates as $template) {
+                $this->assertArrayHasKey('ar', $template['title']);
+                $this->assertArrayHasKey('en', $template['title']);
+                $this->assertArrayHasKey('ar', $template['body']);
+                $this->assertArrayHasKey('en', $template['body']);
+            }
+        });
     }
 }

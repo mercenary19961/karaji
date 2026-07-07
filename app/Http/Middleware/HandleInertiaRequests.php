@@ -41,8 +41,12 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             ...parent::share($request),
-            'name' => config('app.name'),
-            'locale' => app()->getLocale(),
+            // Locale-dependent props are closures on purpose: share() runs in the
+            // web group BEFORE the route middleware (SetShopLocale/SetAdminLocale)
+            // sets the per-user locale, so a direct value would capture 'ar' too
+            // early. Closures are resolved at render time, after that middleware.
+            'name' => fn () => config('brand.name.'.(app()->getLocale() === 'en' ? 'en' : 'ar'), config('app.name')),
+            'locale' => fn () => app()->getLocale(),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),

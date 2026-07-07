@@ -2,8 +2,11 @@
 // (real Eloquent queries since schema v1).
 
 export interface Shop {
+    /** Display name in the current UI locale (Arabic or English). */
     name: string;
     area: string | null;
+    /** Always the Arabic name — for the customer-facing WhatsApp templates. */
+    nameAr: string;
 }
 
 export interface ShopStats {

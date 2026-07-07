@@ -32,6 +32,18 @@ export default function ShopDetailPage({ shop }: Props) {
         message.post(route('admin.shops.messages', shop.id), { preserveScroll: true, onSuccess: () => message.reset() });
     };
 
+    const details = useForm({
+        name: shop.name,
+        name_en: shop.nameEn ?? '',
+        area: shop.area ?? '',
+        area_en: shop.areaEn ?? '',
+    });
+
+    const saveDetails = (e: FormEvent) => {
+        e.preventDefault();
+        details.put(route('admin.shops.update', shop.id), { preserveScroll: true });
+    };
+
     return (
         <AdminLayout>
             <Head title={shop.name} />
@@ -64,6 +76,59 @@ export default function ShopDetailPage({ shop }: Props) {
                     </div>
                 ))}
             </div>
+
+            <form onSubmit={saveDetails} className="border-border bg-card flex flex-col gap-3 rounded-2xl border p-5">
+                <h2 className="text-base font-extrabold">Shop details</h2>
+                <p className="text-muted-foreground -mt-1 text-sm">
+                    The shop sees the Arabic name by default and the English name when it switches the app to English.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Name (Arabic)
+                        <input
+                            dir="rtl"
+                            value={details.data.name}
+                            onChange={(e) => details.setData('name', e.target.value)}
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                        {details.errors.name && <span className="text-destructive font-bold">{details.errors.name}</span>}
+                    </label>
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Name (English)
+                        <input
+                            value={details.data.name_en}
+                            onChange={(e) => details.setData('name_en', e.target.value)}
+                            placeholder="e.g. Abu Ramez Garage"
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                    </label>
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Area (Arabic)
+                        <input
+                            dir="rtl"
+                            value={details.data.area}
+                            onChange={(e) => details.setData('area', e.target.value)}
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                    </label>
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Area (English)
+                        <input
+                            value={details.data.area_en}
+                            onChange={(e) => details.setData('area_en', e.target.value)}
+                            placeholder="e.g. Marka"
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                    </label>
+                </div>
+                <button
+                    type="submit"
+                    disabled={details.processing}
+                    className="bg-primary text-primary-foreground mt-1 h-11 w-fit cursor-pointer rounded-lg px-6 text-[15px] font-bold disabled:opacity-60"
+                >
+                    Save details
+                </button>
+            </form>
 
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.4fr]">
                 <div className="border-border bg-card flex flex-col gap-3.5 rounded-2xl border p-5">

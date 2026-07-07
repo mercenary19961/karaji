@@ -40,7 +40,9 @@ class DatabaseSeeder extends Seeder
         // A seasonal broadcast so the shop dashboard shows a live announcement
         Announcement::factory()->create([
             'title' => 'فحص الشتاء 🚗❄️',
+            'title_en' => 'Winter check 🚗❄️',
             'body' => 'ذكّر زبائنك يفحصوا البطارية والإطارات قبل الشتا · عرض خاص هالشهر.',
+            'body_en' => 'Remind your customers to check the battery and tires before winter · special offer this month.',
         ]);
     }
 
@@ -51,14 +53,19 @@ class DatabaseSeeder extends Seeder
     private function seedOtherShops(): void
     {
         $others = [
-            ['name' => 'كراج البيادر', 'area' => 'البيادر', 'email' => 'shop2@example.com', 'status' => 'active', 'plan' => 'basic', 'visits' => 5],
-            ['name' => 'مركز صويلح للسيارات', 'area' => 'صويلح', 'email' => 'shop3@example.com', 'status' => 'trial', 'plan' => 'basic', 'visits' => 2],
-            ['name' => 'كراج طبربور', 'area' => 'طبربور', 'email' => 'shop4@example.com', 'status' => 'active', 'plan' => 'pro', 'visits' => 4],
-            ['name' => 'ورشة وادي صقرة', 'area' => 'وادي صقرة', 'email' => 'shop5@example.com', 'status' => 'suspended', 'plan' => 'basic', 'visits' => 0],
+            ['name' => 'كراج البيادر', 'name_en' => 'Al-Bayader Garage', 'area' => 'البيادر', 'area_en' => 'Al-Bayader', 'email' => 'shop2@example.com', 'status' => 'active', 'plan' => 'basic', 'visits' => 5],
+            ['name' => 'مركز صويلح للسيارات', 'name_en' => 'Sweileh Auto Center', 'area' => 'صويلح', 'area_en' => 'Sweileh', 'email' => 'shop3@example.com', 'status' => 'trial', 'plan' => 'basic', 'visits' => 2],
+            ['name' => 'كراج طبربور', 'name_en' => 'Tabarbour Garage', 'area' => 'طبربور', 'area_en' => 'Tabarbour', 'email' => 'shop4@example.com', 'status' => 'active', 'plan' => 'pro', 'visits' => 4],
+            ['name' => 'ورشة وادي صقرة', 'name_en' => 'Wadi Saqra Workshop', 'area' => 'وادي صقرة', 'area_en' => 'Wadi Saqra', 'email' => 'shop5@example.com', 'status' => 'suspended', 'plan' => 'basic', 'visits' => 0],
         ];
 
         foreach ($others as $data) {
-            $shop = Shop::factory()->create(['name' => $data['name'], 'area' => $data['area']]);
+            $shop = Shop::factory()->create([
+                'name' => $data['name'],
+                'name_en' => $data['name_en'],
+                'area' => $data['area'],
+                'area_en' => $data['area_en'],
+            ]);
 
             User::factory()->create(['name' => $data['name'], 'email' => $data['email'], 'shop_id' => $shop->id]);
 
@@ -93,7 +100,9 @@ class DatabaseSeeder extends Seeder
     {
         $shop = Shop::factory()->create([
             'name' => 'كراج أبو رامز',
+            'name_en' => 'Abu Ramez Garage',
             'area' => 'ماركا',
+            'area_en' => 'Marka',
         ]);
 
         User::factory()->create([

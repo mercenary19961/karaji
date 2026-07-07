@@ -45,7 +45,9 @@ export interface AdminSuggestion {
 export interface ShopDetail {
     id: number;
     name: string;
+    nameEn: string | null;
     area: string | null;
+    areaEn: string | null;
     stats: { label: string; value: number }[];
     subscription: {
         status: SubscriptionStatus;
@@ -72,4 +74,11 @@ export interface AnnouncementItem {
 export interface ShopOption {
     id: number;
     name: string;
+}
+
+export interface AnnouncementTemplate {
+    key: string;
+    label: string;
+    title: { ar: string; en: string };
+    body: { ar: string; en: string };
 }
