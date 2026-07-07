@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/password-input';
 import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
@@ -11,7 +12,10 @@ interface Props {
     account: { name: string; email: string };
 }
 
-const inputClasses = 'border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none';
+// Matches the shop portal's field style; the ring-0 overrides drop PasswordInput's
+// shadcn focus ring so it reads like the other shop inputs (border-colour focus).
+const inputClasses =
+    'border-input bg-card focus-visible:border-ring focus-visible:ring-0 focus-visible:ring-offset-0 h-14 w-full rounded-xl border-2 px-4 text-lg outline-none';
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
@@ -94,8 +98,7 @@ export default function Account({ shop, account }: Props) {
                     <div className="text-[17px] font-extrabold">{t('acct.change_password')}</div>
 
                     <div>
-                        <input
-                            type="password"
+                        <PasswordInput
                             autoComplete="current-password"
                             placeholder={t('acct.current_pw')}
                             value={form.data.current_password}
@@ -106,8 +109,7 @@ export default function Account({ shop, account }: Props) {
                     </div>
 
                     <div>
-                        <input
-                            type="password"
+                        <PasswordInput
                             autoComplete="new-password"
                             placeholder={t('acct.new_pw')}
                             value={form.data.password}
@@ -118,8 +120,7 @@ export default function Account({ shop, account }: Props) {
                     </div>
 
                     <div>
-                        <input
-                            type="password"
+                        <PasswordInput
                             autoComplete="new-password"
                             placeholder={t('acct.confirm_pw')}
                             value={form.data.password_confirmation}
