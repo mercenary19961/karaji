@@ -46,9 +46,11 @@ class CarController extends ShopController
             'shop' => $this->shopProps($request),
             'car' => [
                 'id' => $car->id,
-                'label' => $car->label ?? $car->plate,
+                'label' => $car->displayLabel(),
+                'labelAr' => $car->labelAr(), // for the Arabic WhatsApp greeting
                 'plate' => $car->plate,
-                'owner' => $car->customer->name,
+                'owner' => $car->customer->displayName(),
+                'ownerAr' => $car->customer->name,
                 'phone' => $car->customer->phone,
                 'whatsapp' => $car->customer->whatsappNumber(),
                 'lastService' => $this->lastOilLine($car),
@@ -61,7 +63,7 @@ class CarController extends ShopController
                     'date' => $visit->visited_at->format('d/m/Y'),
                     'km' => Format::km($visit->km),
                     'price' => Format::price($visit->price),
-                    'services' => $visit->services->pluck('name'),
+                    'services' => $visit->services->map(fn ($service) => $service->displayName()),
                 ]),
             ],
         ]);

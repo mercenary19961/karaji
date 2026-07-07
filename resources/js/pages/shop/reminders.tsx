@@ -24,7 +24,7 @@ export default function Reminders({ shop, reminders }: Props) {
 
             <div className="grid gap-3.5 md:grid-cols-2 md:items-start xl:grid-cols-3">
                 {reminders.map((reminder) => {
-                    const waText = `مرحبا ${reminder.owner}، سيارتك ${reminder.car} صار إلها ${reminder.due}. بنستناك في ${shop.name} 🔧`;
+                    const waText = `مرحبا ${reminder.ownerAr}، سيارتك ${reminder.carAr} صار إلها ${reminder.dueAr}. بنستناك في ${shop.nameAr} 🔧`;
 
                     return (
                         <div

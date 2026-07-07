@@ -109,7 +109,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 </h2>
                 <div className="grid gap-2.5 md:grid-cols-2">
                     {lostCustomers.map((customer) => {
-                        const waText = `مرحبا ${customer.owner}، صار وقتها نطمّن على ${customer.car} 🚗 بنستناك في ${shop.nameAr}`;
+                        const waText = `مرحبا ${customer.ownerAr}، صار وقتها نطمّن على ${customer.carAr} 🚗 بنستناك في ${shop.nameAr}`;
 
                         return (
                             <div

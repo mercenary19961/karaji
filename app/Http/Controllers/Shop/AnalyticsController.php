@@ -41,7 +41,7 @@ class AnalyticsController extends ShopController
             ->filter(fn (ServiceType $service) => $service->visits_count > 0)
             ->sortByDesc('visits_count')
             ->take(4)
-            ->map(fn (ServiceType $service) => ['label' => $service->name, 'count' => $service->visits_count])
+            ->map(fn (ServiceType $service) => ['label' => $service->displayName(), 'count' => $service->visits_count])
             ->values();
 
         $lostCustomers = Car::query()
@@ -51,8 +51,10 @@ class AnalyticsController extends ShopController
             ->get()
             ->sortByDesc(fn (Car $car) => $car->latestVisit->visited_at)
             ->map(fn (Car $car) => [
-                'owner' => $car->customer->name,
-                'car' => $car->label ?? $car->plate,
+                'owner' => $car->customer->displayName(),
+                'ownerAr' => $car->customer->name,
+                'car' => $car->displayLabel(),
+                'carAr' => $car->labelAr(),
                 'lastVisit' => Format::monthsAgo((int) $car->latestVisit->visited_at->diffInMonths(now())),
                 'whatsapp' => $car->customer->whatsappNumber(),
             ])

@@ -89,10 +89,20 @@ class DatabaseSeeder extends Seeder
 
     private function seedServiceTypes(): void
     {
-        $chips = ['تغيير زيت', 'فلتر زيت', 'فلتر هواء', 'فلتر مكيف', 'فحص فرامل', 'بطارية', 'دواليب', 'أخرى'];
+        // The global default chips, bilingual (English shows in the English UI).
+        $chips = [
+            ['ar' => 'تغيير زيت', 'en' => 'Oil change'],
+            ['ar' => 'فلتر زيت', 'en' => 'Oil filter'],
+            ['ar' => 'فلتر هواء', 'en' => 'Air filter'],
+            ['ar' => 'فلتر مكيف', 'en' => 'A/C filter'],
+            ['ar' => 'فحص فرامل', 'en' => 'Brake check'],
+            ['ar' => 'بطارية', 'en' => 'Battery'],
+            ['ar' => 'دواليب', 'en' => 'Tires'],
+            ['ar' => 'أخرى', 'en' => 'Other'],
+        ];
 
-        foreach ($chips as $order => $name) {
-            ServiceType::factory()->create(['name' => $name, 'sort_order' => $order]);
+        foreach ($chips as $order => $chip) {
+            ServiceType::factory()->create(['name' => $chip['ar'], 'name_en' => $chip['en'], 'sort_order' => $order]);
         }
     }
 
@@ -122,7 +132,7 @@ class DatabaseSeeder extends Seeder
         $serviceIds = ServiceType::query()->pluck('id', 'name');
 
         // The mockup's hero car: full history + a scheduled oil reminder
-        $sportage = $this->seedCar($shop, 'أبو محمد', '0795123456', 'كيا سبورتاج 2019', '22-14853', 11);
+        $sportage = $this->seedCar($shop, 'أبو محمد', '0795123456', 'كيا سبورتاج 2019', '22-14853', 11, 'Abu Mohammad', 'Kia Sportage 2019');
 
         // Synthetic (Mobil 5W-30) → the engine schedules next oil at 82,500 +
         // 10,000 = 92,500 km, matching the mockup's "الزيت القادم".
@@ -150,20 +160,21 @@ class DatabaseSeeder extends Seeder
 
         // The call list: due/overdue reminders, most overdue first
         $callList = [
-            ['name' => 'معاذ الخطيب', 'phone' => '0796234567', 'label' => 'تويوتا كامري 2017', 'plate' => '13-45210', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت', 'overdueDays' => 12],
-            ['name' => 'أم علي', 'phone' => '0790345678', 'label' => 'هيونداي إلنترا 2020', 'plate' => '40-21873', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت + فلتر هواء', 'overdueDays' => 8],
-            ['name' => 'أبو خالد', 'phone' => '0777456789', 'label' => 'مرسيدس E200 2016', 'plate' => '5-98412', 'licenseMonth' => 7, 'type' => 'license', 'due' => 'تجديد ترخيص · شهر 7/2026', 'overdueDays' => 5],
-            ['name' => 'سامر العمري', 'phone' => '0798567890', 'label' => 'ميتسوبيشي لانسر 2015', 'plate' => '17-30654', 'licenseMonth' => null, 'type' => 'seasonal', 'due' => 'فحص الشتاء (موسمي)', 'overdueDays' => 0],
+            ['name' => 'معاذ الخطيب', 'name_en' => 'Moath Al-Khatib', 'phone' => '0796234567', 'label' => 'تويوتا كامري 2017', 'label_en' => 'Toyota Camry 2017', 'plate' => '13-45210', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت', 'due_en' => 'Oil change', 'overdueDays' => 12],
+            ['name' => 'أم علي', 'name_en' => 'Umm Ali', 'phone' => '0790345678', 'label' => 'هيونداي إلنترا 2020', 'label_en' => 'Hyundai Elantra 2020', 'plate' => '40-21873', 'licenseMonth' => null, 'type' => 'oil', 'due' => 'تغيير زيت + فلتر هواء', 'due_en' => 'Oil change + air filter', 'overdueDays' => 8],
+            ['name' => 'أبو خالد', 'name_en' => 'Abu Khaled', 'phone' => '0777456789', 'label' => 'مرسيدس E200 2016', 'label_en' => 'Mercedes E200 2016', 'plate' => '5-98412', 'licenseMonth' => 7, 'type' => 'license', 'due' => 'تجديد ترخيص · شهر 7/2026', 'due_en' => 'License renewal · 7/2026', 'overdueDays' => 5],
+            ['name' => 'سامر العمري', 'name_en' => 'Samer Al-Amri', 'phone' => '0798567890', 'label' => 'ميتسوبيشي لانسر 2015', 'label_en' => 'Mitsubishi Lancer 2015', 'plate' => '17-30654', 'licenseMonth' => null, 'type' => 'seasonal', 'due' => 'فحص الشتاء (موسمي)', 'due_en' => 'Winter check (seasonal)', 'overdueDays' => 0],
         ];
 
         foreach ($callList as $entry) {
-            $car = $this->seedCar($shop, $entry['name'], $entry['phone'], $entry['label'], $entry['plate'], $entry['licenseMonth']);
+            $car = $this->seedCar($shop, $entry['name'], $entry['phone'], $entry['label'], $entry['plate'], $entry['licenseMonth'], $entry['name_en'], $entry['label_en']);
 
             Reminder::factory()->create([
                 'shop_id' => $shop->id,
                 'car_id' => $car->id,
                 'type' => $entry['type'],
                 'label' => $entry['due'],
+                'label_en' => $entry['due_en'],
                 'due_km' => null,
                 'due_date' => now()->subDays($entry['overdueDays'])->toDateString(),
             ]);
@@ -171,14 +182,14 @@ class DatabaseSeeder extends Seeder
 
         // "Customers you're losing": last visit 6+ months ago, no pending reminder
         $lost = [
-            ['name' => 'أبو ليث', 'phone' => '0795987654', 'label' => 'تويوتا كامري 2014', 'plate' => '22-77140', 'monthsAgo' => 7],
-            ['name' => 'أم يزن', 'phone' => '0796876543', 'label' => 'هيونداي إلنترا 2016', 'plate' => '36-55021', 'monthsAgo' => 8],
-            ['name' => 'سامر العمري', 'phone' => '0798567890', 'label' => null, 'plate' => '17-30654', 'monthsAgo' => 11],
+            ['name' => 'أبو ليث', 'name_en' => 'Abu Laith', 'phone' => '0795987654', 'label' => 'تويوتا كامري 2014', 'label_en' => 'Toyota Camry 2014', 'plate' => '22-77140', 'monthsAgo' => 7],
+            ['name' => 'أم يزن', 'name_en' => 'Umm Yazan', 'phone' => '0796876543', 'label' => 'هيونداي إلنترا 2016', 'label_en' => 'Hyundai Elantra 2016', 'plate' => '36-55021', 'monthsAgo' => 8],
+            ['name' => 'سامر العمري', 'name_en' => 'Samer Al-Amri', 'phone' => '0798567890', 'label' => null, 'label_en' => null, 'plate' => '17-30654', 'monthsAgo' => 11],
         ];
 
         foreach ($lost as $entry) {
             $car = Car::query()->where('shop_id', $shop->id)->where('plate', $entry['plate'])->first()
-                ?? $this->seedCar($shop, $entry['name'], $entry['phone'], $entry['label'], $entry['plate'], null);
+                ?? $this->seedCar($shop, $entry['name'], $entry['phone'], $entry['label'], $entry['plate'], null, $entry['name_en'], $entry['label_en']);
 
             $visit = Visit::factory()->create([
                 'shop_id' => $shop->id,
@@ -213,11 +224,17 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 
-    private function seedCar(Shop $shop, string $customerName, string $phone, ?string $label, string $plate, ?int $licenseMonth): Car
+    /**
+     * English name/label are seed-only polish so the demo reads well in English.
+     * Real shops enter Arabic only, leaving *_en null → the English UI falls back
+     * to the Arabic value (a customer's name isn't translated).
+     */
+    private function seedCar(Shop $shop, string $customerName, string $phone, ?string $label, string $plate, ?int $licenseMonth, ?string $customerNameEn = null, ?string $labelEn = null): Car
     {
         $customer = Customer::factory()->create([
             'shop_id' => $shop->id,
             'name' => $customerName,
+            'name_en' => $customerNameEn,
             'phone' => $phone,
         ]);
 
@@ -226,6 +243,7 @@ class DatabaseSeeder extends Seeder
             'customer_id' => $customer->id,
             'plate' => $plate,
             'label' => $label,
+            'label_en' => $labelEn,
             'license_month' => $licenseMonth,
         ]);
     }

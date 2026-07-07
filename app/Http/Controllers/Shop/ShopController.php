@@ -8,6 +8,7 @@ use App\Models\ServiceType;
 use App\Support\Format;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 abstract class ShopController extends Controller
 {
@@ -29,8 +30,8 @@ abstract class ShopController extends Controller
     }
 
     /**
-     * "آخر تغيير زيت: منذ ٤ أشهر على عداد 82,500 كم" — or null when the car
-     * has no oil-change visit yet.
+     * "آخر تغيير زيت قبل ٤ أشهر على عداد 82,500 كم" (or the English equivalent) —
+     * null when the car has no oil-change visit yet.
      */
     protected function lastOilLine(Car $car): ?string
     {
@@ -43,6 +44,16 @@ abstract class ShopController extends Controller
             return null;
         }
 
-        return 'آخر تغيير زيت قبل '.$visit->visited_at->locale('ar')->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE).' على عداد '.Format::km($visit->km).' كم';
+        $km = Format::km($visit->km);
+
+        if (App::getLocale() === 'en') {
+            $ago = $visit->visited_at->locale('en')->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE);
+
+            return "Last oil change {$ago} ago at {$km} km";
+        }
+
+        $ago = $visit->visited_at->locale('ar')->diffForHumans(syntax: CarbonInterface::DIFF_ABSOLUTE);
+
+        return "آخر تغيير زيت قبل {$ago} على عداد {$km} كم";
     }
 }

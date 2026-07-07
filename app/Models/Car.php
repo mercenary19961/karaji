@@ -22,6 +22,7 @@ class Car extends Model
         'customer_id',
         'plate',
         'label',
+        'label_en',
         'license_month',
     ];
 
@@ -35,6 +36,20 @@ class Car extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /** Car label in the current UI locale, falling back to Arabic then plate. */
+    public function displayLabel(): string
+    {
+        $label = app()->getLocale() === 'en' && $this->label_en ? $this->label_en : $this->label;
+
+        return $label ?? $this->plate;
+    }
+
+    /** Always the Arabic label (or plate) — for the customer-facing WhatsApp text. */
+    public function labelAr(): string
+    {
+        return $this->label ?? $this->plate;
     }
 
     public function visits(): HasMany

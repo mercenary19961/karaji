@@ -3,6 +3,10 @@
 namespace Tests\Feature\Shop;
 
 use App\Models\Announcement;
+use App\Models\Car;
+use App\Models\Customer;
+use App\Models\Reminder;
+use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -99,6 +103,62 @@ class LocaleContentTest extends TestCase
 
         $this->actingAs($this->userWithLocale('en'))->get('/shop')->assertInertia(
             fn (Assert $page) => $page->where('announcements.0.title', 'إعلان بالعربي فقط')
+        );
+    }
+
+    private function seedReminder(?string $nameEn, ?string $labelEn, ?string $dueEn): void
+    {
+        $customer = Customer::factory()->create(['shop_id' => $this->shop->id, 'name' => 'معاذ الخطيب', 'name_en' => $nameEn]);
+        $car = Car::factory()->create(['shop_id' => $this->shop->id, 'customer_id' => $customer->id, 'label' => 'تويوتا كامري', 'label_en' => $labelEn, 'plate' => '13-45210']);
+        Reminder::factory()->create([
+            'shop_id' => $this->shop->id,
+            'car_id' => $car->id,
+            'type' => 'oil',
+            'label' => 'تغيير زيت',
+            'label_en' => $dueEn,
+            'status' => 'pending',
+            'due_date' => today()->subDays(3),
+        ]);
+    }
+
+    public function test_reminder_car_and_owner_follow_locale_and_expose_arabic_whatsapp_fields()
+    {
+        $this->seedReminder('Moath Al-Khatib', 'Toyota Camry', 'Oil change');
+
+        $this->actingAs($this->userWithLocale('en'))->get('/shop/reminders')->assertInertia(
+            fn (Assert $page) => $page
+                ->where('reminders.0.car', 'Toyota Camry')
+                ->where('reminders.0.owner', 'Moath Al-Khatib')
+                ->where('reminders.0.due', 'Oil change')
+                // The WhatsApp message is built from these, so they stay Arabic.
+                ->where('reminders.0.carAr', 'تويوتا كامري')
+                ->where('reminders.0.ownerAr', 'معاذ الخطيب')
+                ->where('reminders.0.dueAr', 'تغيير زيت')
+        );
+    }
+
+    public function test_english_ui_falls_back_to_arabic_data_a_shop_entered_in_arabic_only()
+    {
+        // The core rule: a shop working in Arabic enters only the Arabic name;
+        // switching the UI to English still shows that Arabic name (not blank).
+        $this->seedReminder(null, null, null);
+
+        $this->actingAs($this->userWithLocale('en'))->get('/shop/reminders')->assertInertia(
+            fn (Assert $page) => $page
+                ->where('reminders.0.owner', 'معاذ الخطيب')
+                ->where('reminders.0.car', 'تويوتا كامري')
+                ->where('reminders.0.due', 'تغيير زيت')
+        );
+    }
+
+    public function test_service_chips_show_english_labels_but_keep_the_arabic_key()
+    {
+        ServiceType::factory()->create(['shop_id' => null, 'name' => 'تغيير زيت', 'name_en' => 'Oil change', 'sort_order' => 0]);
+
+        $this->actingAs($this->userWithLocale('en'))->get('/shop/visits/new')->assertInertia(
+            fn (Assert $page) => $page
+                ->where('serviceTypes.0.label', 'Oil change') // localized caption
+                ->where('serviceTypes.0.name', 'تغيير زيت')     // stable key for matching + WhatsApp
         );
     }
 }

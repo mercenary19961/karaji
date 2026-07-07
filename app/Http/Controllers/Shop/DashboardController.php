@@ -44,8 +44,8 @@ class DashboardController extends ShopController
             ->sortByDesc(fn (Car $car) => $car->latestVisit->visited_at)
             ->take(3)
             ->map(fn (Car $car) => [
-                'owner' => $car->customer->name,
-                'car' => $car->label ?? $car->plate,
+                'owner' => $car->customer->displayName(),
+                'car' => $car->displayLabel(),
                 'lastVisit' => Format::monthsAgo((int) $car->latestVisit->visited_at->diffInMonths(now())),
                 'whatsapp' => $car->customer->whatsappNumber(),
             ])
@@ -62,9 +62,9 @@ class DashboardController extends ShopController
                     ->sum('price')),
             ],
             'dueToday' => $dueToday->map(fn (Reminder $reminder) => [
-                'car' => $reminder->car->label ?? $reminder->car->plate,
-                'owner' => $reminder->car->customer->name,
-                'due' => $reminder->label ?? $reminder->type,
+                'car' => $reminder->car->displayLabel(),
+                'owner' => $reminder->car->customer->displayName(),
+                'due' => $reminder->displayLabel(),
                 'overdueLabel' => $reminder->overdueLabel(),
             ]),
             'lostCustomers' => $lostCustomers,

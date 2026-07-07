@@ -30,7 +30,10 @@ export interface DueTodayItem {
 
 export interface ServiceTypeOption {
     id: number;
+    /** Stable Arabic key (used for form matching + the Arabic WhatsApp summary). */
     name: string;
+    /** Localized chip caption. */
+    label: string;
 }
 
 /** Car context shown at the top of the new-visit form. */
@@ -55,8 +58,11 @@ export interface SavedVisit {
     id: number;
     carId: number;
     carLabel: string;
+    /** Arabic label + owner for the customer-facing WhatsApp summary. */
+    carLabelAr: string;
     plate: string;
     owner: string;
+    ownerAr: string;
     whatsapp: string;
     km: string;
     services: string[];
@@ -75,8 +81,11 @@ export interface CarVisit {
 export interface CarProfile {
     id: number;
     label: string;
+    /** Arabic label + owner for the customer-facing WhatsApp greeting. */
+    labelAr: string;
     plate: string;
     owner: string;
+    ownerAr: string;
     phone: string;
     whatsapp: string;
     lastService: string | null;
@@ -88,10 +97,13 @@ export interface CarProfile {
 export interface Reminder {
     id: number;
     car: string;
+    carAr: string;
     owner: string;
+    ownerAr: string;
     phone: string;
     whatsapp: string;
     due: string;
+    dueAr: string;
     overdueLabel: string;
     contacted: boolean;
 }
@@ -99,5 +111,5 @@ export interface Reminder {
 export interface Analytics {
     months: { label: string; year: number; visits: number }[];
     topServices: { label: string; count: number }[];
-    lostCustomers: { owner: string; car: string; lastVisit: string; whatsapp: string }[];
+    lostCustomers: { owner: string; ownerAr: string; car: string; carAr: string; lastVisit: string; whatsapp: string }[];
 }

@@ -70,8 +70,8 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
     // ===== Post-save success state (the digital windshield sticker) =====
     if (savedVisit) {
         const summary = [
-            `مرحبا ${savedVisit.owner}،`,
-            `عملنا اليوم صيانة ${savedVisit.carLabel} (لوحة ${savedVisit.plate}):`,
+            `مرحبا ${savedVisit.ownerAr}،`,
+            `عملنا اليوم صيانة ${savedVisit.carLabelAr} (لوحة ${savedVisit.plate}):`,
             ...savedVisit.services.map((s) => `✅ ${s}${s === 'تغيير زيت' && savedVisit.oilBrand ? ` (${savedVisit.oilBrand})` : ''}`),
             `قراءة العداد: ${savedVisit.km} كم`,
             ...(savedVisit.nextDueKm ? [`🔔 الموعد الجاي: عند ${savedVisit.nextDueKm} كم أو ${savedVisit.nextDueDate}`] : []),
@@ -249,7 +249,7 @@ export default function NewVisit({ shop, car, serviceTypes, oilBrands, oilTypes,
                                                 }`}
                                             >
                                                 {on ? '✓ ' : ''}
-                                                {service.name}
+                                                {service.label}
                                             </button>
                                         );
                                     })}

@@ -64,6 +64,7 @@ class ReminderEngine
         $attributes = [
             'visit_id' => $anchor->id,
             'label' => ServiceType::OIL_CHANGE,
+            'label_en' => ServiceType::OIL_CHANGE_EN,
             'due_km' => $anchor->km + $interval['km'],
             'due_date' => $anchor->visited_at->copy()->addDays(min($etaDays, $capDays))->toDateString(),
         ];
@@ -137,6 +138,7 @@ class ReminderEngine
                     $reminder = $car->reminders()->make([
                         'type' => 'license',
                         'label' => "تجديد ترخيص · شهر {$car->license_month}/{$due->year}",
+                        'label_en' => "License renewal · {$car->license_month}/{$due->year}",
                         'due_date' => $due->toDateString(),
                         'status' => 'pending',
                     ]);

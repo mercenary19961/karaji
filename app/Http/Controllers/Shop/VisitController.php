@@ -41,26 +41,33 @@ class VisitController extends ShopController
             'shop' => $this->shopProps($request),
             'car' => $car === null ? null : [
                 'id' => $car->id,
-                'label' => $car->label ?? $car->plate,
+                'label' => $car->displayLabel(),
                 'plate' => $car->plate,
-                'owner' => $car->customer->name,
+                'owner' => $car->customer->displayName(),
                 'phone' => $car->customer->phone,
                 'lastService' => $this->lastOilLine($car),
                 'lastOilBrand' => $car->latestVisit?->oil_brand,
                 'lastOilType' => $car->latestVisit?->oil_type,
             ],
-            'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name']),
+            // `name` is the stable Arabic key (matched in the form + used in the
+            // Arabic WhatsApp summary); `label` is the localized chip caption.
+            'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name', 'name_en'])
+                ->map(fn (ServiceType $s) => ['id' => $s->id, 'name' => $s->name, 'label' => $s->displayName()]),
             'oilBrands' => self::OIL_BRANDS,
             'oilTypes' => collect(self::OIL_TYPES)->map(fn (string $key) => ['key' => $key, 'label' => __("shop.oil_{$key}")])->values(),
             'savedVisit' => $saved === null ? null : [
                 'id' => $saved->id,
                 'carId' => $saved->car->id,
-                'carLabel' => $saved->car->label ?? $saved->car->plate,
+                // The success card shows the localized label; the WhatsApp summary
+                // (customer-facing) is built from the *Ar fields so it stays Arabic.
+                'carLabel' => $saved->car->displayLabel(),
+                'carLabelAr' => $saved->car->labelAr(),
                 'plate' => $saved->car->plate,
-                'owner' => $saved->car->customer->name,
+                'owner' => $saved->car->customer->displayName(),
+                'ownerAr' => $saved->car->customer->name,
                 'whatsapp' => $saved->car->customer->whatsappNumber(),
                 'km' => Format::km($saved->km),
-                'services' => $saved->services->pluck('name'),
+                'services' => $saved->services->pluck('name'), // Arabic — goes into the WhatsApp summary
                 'oilBrand' => $saved->oil_brand,
                 'nextDueKm' => $saved->car->pendingOilReminder?->due_km === null ? null : Format::km($saved->car->pendingOilReminder->due_km),
                 'nextDueDate' => $saved->car->pendingOilReminder?->due_date?->format('d/m/Y'),
