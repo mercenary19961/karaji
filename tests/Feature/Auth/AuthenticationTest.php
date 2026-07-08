@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -17,9 +19,18 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_public_registration_is_disabled()
+    {
+        // Shops are onboarded by an admin — there is no signup route or page.
+        $this->assertFalse(Route::has('register'));
+        $this->get('/register')->assertNotFound();
+        $this->post('/register', [])->assertNotFound();
+    }
+
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = User::factory()->create();
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create(['shop_id' => $shop->id]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -27,7 +38,8 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // Login now lands users on their portal, not the scaffold dashboard.
+        $response->assertRedirect(route('shop.dashboard', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()

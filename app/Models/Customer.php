@@ -20,6 +20,7 @@ class Customer extends Model
     // it for shop users; admin flows must assign it explicitly.
     protected $fillable = [
         'name',
+        'name_en',
         'phone',
         'notes',
     ];
@@ -27,5 +28,19 @@ class Customer extends Model
     public function cars(): HasMany
     {
         return $this->hasMany(Car::class);
+    }
+
+    /** Customer name in the current UI locale (English falls back to Arabic). */
+    public function displayName(): string
+    {
+        return app()->getLocale() === 'en' && $this->name_en ? $this->name_en : $this->name;
+    }
+
+    /**
+     * Local Jordanian mobile ("0795...") as a wa.me-ready number ("962795...").
+     */
+    public function whatsappNumber(): string
+    {
+        return '962'.ltrim($this->phone, '0');
     }
 }

@@ -101,42 +101,42 @@ html[dir='rtl'] {
 }
 
 :root {
-    /* Light palette lifted from design/mockup-v1.html — steel navy primary,
-       amber CTA, calm blue-greys. The shop portal is light-only by decision;
-       .dark below is the untouched scaffold palette (admin-portal decision
-       pending). */
-    --background: #f5f8fb;
-    --foreground: #142a3b;
+    /* Modern refresh (2026-07-07) — deeper ink navy, punchier amber, fresher
+       emerald, cool-slate neutrals. Evolution of the original mockup palette,
+       approved for BOTH portals. Light-only by decision (garage sunlight);
+       .dark below is the untouched scaffold palette, kept inert. */
+    --background: #edf1f5;
+    --foreground: #0f1f2e;
     --card: #ffffff;
-    --card-foreground: #142a3b;
+    --card-foreground: #0f1f2e;
     --popover: #ffffff;
-    --popover-foreground: #142a3b;
-    --primary: #17456b;
+    --popover-foreground: #0f1f2e;
+    --primary: #13324d;
     --primary-foreground: #ffffff;
-    --secondary: #eaf1f7;
-    --secondary-foreground: #17456b;
-    --muted: #e7edf3;
-    --muted-foreground: #5b7186;
-    --accent: #eaf1f7;
-    --accent-foreground: #17456b;
-    --destructive: #b4232a;
+    --secondary: #e6eef6;
+    --secondary-foreground: #13324d;
+    --muted: #eef2f6;
+    --muted-foreground: #64748b;
+    --accent: #e6eef6;
+    --accent-foreground: #13324d;
+    --destructive: #c0362c;
     --destructive-foreground: #ffffff;
-    --cta: #f5a50a;
-    --cta-foreground: #3a2a05;
-    --success: #1e9e52;
+    --cta: #f59e0b;
+    --cta-foreground: #40260a;
+    --success: #0f9d6e;
     --success-foreground: #ffffff;
-    --success-soft: #e8f7ee;
-    --success-soft-foreground: #14683a;
-    --due: #fdebd2;
-    --due-foreground: #9a4b00;
-    --border: #e1e8ef;
-    --input: #c3cfda;
-    --ring: #f5a50a;
-    --chart-1: #17456b;
-    --chart-2: #1e9e52;
-    --chart-3: #f5a50a;
-    --chart-4: #5b7186;
-    --chart-5: #c3cfda;
+    --success-soft: #d9f2e7;
+    --success-soft-foreground: #0b7a55;
+    --due: #fcebcf;
+    --due-foreground: #8a4b00;
+    --border: #e2e8f0;
+    --input: #cbd5e1;
+    --ring: #f59e0b;
+    --chart-1: #13324d;
+    --chart-2: #0f9d6e;
+    --chart-3: #f59e0b;
+    --chart-4: #64748b;
+    --chart-5: #cbd5e1;
     --radius: 1rem;
     --sidebar-background: hsl(0, 0%, 98%);
     --sidebar-foreground: hsl(240, 5.3%, 30%);

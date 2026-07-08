@@ -8,22 +8,25 @@ use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Pin the locale to Arabic at the start of EVERY web request. The bootstrap
- * default alone is not enough: App::setLocale() mutates process state, so in
- * worker-mode servers (FrankenPHP/Octane) — and across requests inside one
- * test — a locale set for one request leaks into the next. Admin routes
- * override to English afterwards via SetAdminLocale (route middleware runs
- * after this group middleware).
+ * Set the request locale at the start of EVERY web request. Runs explicitly
+ * (not just the bootstrap default) because App::setLocale() mutates process
+ * state, so in worker-mode servers (FrankenPHP/Octane) — and across requests
+ * inside one test — a locale set for one request leaks into the next.
  *
- * 'ar' is deliberate, not config('app.locale'): setLocale() rewrites that
- * config key, so re-reading it would restore the leaked value, not the
- * default. The shop portal is Arabic-only in v1.
+ * Default is Arabic; the guest language toggle (LocaleController) may set a
+ * session choice for the shared auth pages. The portals override this
+ * afterwards via route middleware — SetShopLocale forces 'ar', SetAdminLocale
+ * forces 'en' — so the toggle only ever affects login/register.
+ *
+ * Hardcoded 'ar' fallback, NOT config('app.locale'): setLocale() rewrites that
+ * config key, so re-reading it would restore a leaked value, not the default.
  */
 class SetLocale
 {
     public function handle(Request $request, Closure $next): Response
     {
-        App::setLocale('ar');
+        $locale = $request->session()->get('locale');
+        App::setLocale(in_array($locale, ['ar', 'en'], true) ? $locale : 'ar');
 
         return $next($request);
     }

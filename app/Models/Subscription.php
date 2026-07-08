@@ -15,6 +15,14 @@ class Subscription extends Model
     /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
 
+    // Plan key (stored) => display label + monthly price in JOD
+    public const PLANS = [
+        'basic' => ['label' => 'Basic — 15 JOD/mo', 'price' => 15],
+        'pro' => ['label' => 'Pro — 25 JOD/mo', 'price' => 25],
+    ];
+
+    public const STATUSES = ['active', 'trial', 'suspended'];
+
     // Admin-managed, no tenancy scope: shops never query subscriptions directly.
     protected $fillable = [
         'shop_id',
@@ -37,5 +45,10 @@ class Subscription extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function planLabel(): string
+    {
+        return self::PLANS[$this->plan]['label'] ?? $this->plan;
     }
 }

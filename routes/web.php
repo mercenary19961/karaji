@@ -1,15 +1,22 @@
 <?php
 
+use App\Http\Controllers\LocaleController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
+// No public landing page in v1: guests go to login, users to their portal.
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Auth::check() ? redirect(Auth::user()->homeRoute()) : redirect()->route('login');
 })->name('home');
 
+// Guest-accessible language toggle for the auth pages (persists in session).
+Route::get('locale/{locale}', LocaleController::class)->name('locale');
+
 Route::middleware(['auth'])->group(function () {
+    // Legacy scaffold route — kept only so stray route('dashboard') links land
+    // on the right portal instead of the starter-kit placeholder.
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        return redirect(Auth::user()->homeRoute());
     })->name('dashboard');
 });
 

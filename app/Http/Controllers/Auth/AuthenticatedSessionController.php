@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'contactWhatsapp' => config('contact.whatsapp'),
         ]);
     }
 
@@ -33,7 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended($request->user()->homeRoute());
     }
 
     /**
