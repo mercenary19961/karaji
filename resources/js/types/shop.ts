@@ -122,4 +122,10 @@ export interface Analytics {
     months: { label: string; year: number; visits: number }[];
     topServices: { label: string; count: number }[];
     lostCustomers: { owner: string; ownerAr: string; car: string; carAr: string; lastVisit: string; whatsapp: string }[];
+    /** The month the chart window ends at (and the highlighted bar). */
+    selected: { year: number; month: number };
+    /** Upper bound for the picker — the current month (no future data). */
+    max: { year: number; month: number };
+    /** Localized month names, index 0 = month 1. */
+    monthNames: string[];
 }

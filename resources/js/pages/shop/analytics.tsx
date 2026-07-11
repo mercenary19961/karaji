@@ -1,8 +1,10 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { type Analytics, type Shop } from '@/types/shop';
-import { Head } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
+import { ChevronDown, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -14,13 +16,32 @@ const CHART = { width: 320, height: 150, barWidth: 34, gap: 50, baseline: 140, m
 
 export default function AnalyticsPage({ shop, analytics }: Props) {
     const t = useT();
-    const { months, topServices, lostCustomers } = analytics;
-    const [monthIdx, setMonthIdx] = useState(months.length - 1);
+    const { months, topServices, lostCustomers, selected, max, monthNames } = analytics;
 
-    const step = (dir: number) => setMonthIdx((i) => (i + dir + months.length) % months.length);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [viewYear, setViewYear] = useState(selected.year);
 
     const maxVisits = Math.max(...months.map((m) => m.visits), 1);
-    const current = months[monthIdx];
+    // The window ends at the selected month, so the last bar is the active one
+    const activeIndex = months.length - 1;
+    const atMax = selected.year === max.year && selected.month === max.month;
+    const minYear = max.year - 5;
+
+    const goToMonth = (year: number, month: number) => {
+        setPickerOpen(false);
+        router.get(route('shop.analytics'), { month: `${year}-${month}` }, { preserveScroll: true, preserveState: false, only: ['analytics'] });
+    };
+
+    // Step one calendar month, letting the Date roll the year over at the boundaries
+    const shift = (dir: number) => {
+        const d = new Date(selected.year, selected.month - 1 + dir, 1);
+        goToMonth(d.getFullYear(), d.getMonth() + 1);
+    };
+
+    const openPicker = () => {
+        setViewYear(selected.year);
+        setPickerOpen(true);
+    };
 
     return (
         <ShopLayout shop={shop}>
@@ -29,24 +50,85 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
             <div className="bg-card flex items-center justify-between rounded-2xl p-1.5 shadow-sm">
                 <button
                     type="button"
-                    onClick={() => step(-1)}
+                    onClick={() => shift(-1)}
                     aria-label={t('stats.prev_month')}
                     className="bg-secondary text-primary flex size-13 items-center justify-center rounded-xl"
                 >
                     <ChevronRight className="size-6 ltr:-scale-x-100" aria-hidden />
                 </button>
-                <div className="text-lg font-extrabold">
-                    {current.label} {current.year}
-                </div>
                 <button
                     type="button"
-                    onClick={() => step(1)}
+                    onClick={openPicker}
+                    aria-label={t('stats.pick_month')}
+                    className="hover:bg-secondary flex items-center gap-1.5 rounded-xl px-3 py-2 text-lg font-extrabold transition-colors"
+                >
+                    {monthNames[selected.month - 1]} {selected.year}
+                    <ChevronDown className="text-muted-foreground size-4" aria-hidden />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => shift(1)}
+                    disabled={atMax}
                     aria-label={t('stats.next_month')}
-                    className="bg-secondary text-primary flex size-13 items-center justify-center rounded-xl"
+                    className="bg-secondary text-primary flex size-13 items-center justify-center rounded-xl disabled:opacity-40"
                 >
                     <ChevronLeft className="size-6 ltr:-scale-x-100" aria-hidden />
                 </button>
             </div>
+
+            <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+                <DialogContent className="max-w-xs gap-4 rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-center">{t('stats.pick_month')}</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="flex items-center justify-between">
+                        <button
+                            type="button"
+                            onClick={() => setViewYear((y) => y - 1)}
+                            disabled={viewYear <= minYear}
+                            aria-label={t('stats.prev_year')}
+                            className="bg-secondary text-primary flex size-11 items-center justify-center rounded-xl disabled:opacity-40"
+                        >
+                            <ChevronRight className="size-5 ltr:-scale-x-100" aria-hidden />
+                        </button>
+                        <div className="text-lg font-extrabold">{viewYear}</div>
+                        <button
+                            type="button"
+                            onClick={() => setViewYear((y) => y + 1)}
+                            disabled={viewYear >= max.year}
+                            aria-label={t('stats.next_year')}
+                            className="bg-secondary text-primary flex size-11 items-center justify-center rounded-xl disabled:opacity-40"
+                        >
+                            <ChevronLeft className="size-5 ltr:-scale-x-100" aria-hidden />
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                        {monthNames.map((name, i) => {
+                            const month = i + 1;
+                            const isFuture = viewYear > max.year || (viewYear === max.year && month > max.month);
+                            const isSelected = viewYear === selected.year && month === selected.month;
+
+                            return (
+                                <button
+                                    key={month}
+                                    type="button"
+                                    disabled={isFuture}
+                                    onClick={() => goToMonth(viewYear, month)}
+                                    className={cn(
+                                        'flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-colors',
+                                        isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground hover:bg-secondary/70',
+                                        isFuture && 'cursor-not-allowed opacity-30',
+                                    )}
+                                >
+                                    {name}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             <div className="grid gap-4 md:grid-cols-2 md:items-start">
                 <div className="bg-card rounded-[18px] p-4 shadow-sm">
@@ -56,7 +138,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                             const barHeight = Math.round((month.visits / maxVisits) * CHART.maxBarHeight);
                             const x = 18 + i * CHART.gap;
                             const y = CHART.baseline - barHeight;
-                            const active = i === monthIdx;
+                            const active = i === activeIndex;
 
                             return (
                                 <g key={`${month.label}-${month.year}`}>

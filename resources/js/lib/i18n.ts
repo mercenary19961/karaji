@@ -115,6 +115,9 @@ const dict = {
     'stats.prev_month': { ar: 'الشهر السابق', en: 'Previous month' },
     'stats.next_month': { ar: 'الشهر التالي', en: 'Next month' },
     'stats.chart_aria': { ar: 'عدد الزيارات شهرياً', en: 'Visits per month' },
+    'stats.pick_month': { ar: 'اختر الشهر', en: 'Pick a month' },
+    'stats.prev_year': { ar: 'السنة السابقة', en: 'Previous year' },
+    'stats.next_year': { ar: 'السنة التالية', en: 'Next year' },
 
     // Account
     'acct.title': { ar: 'حسابي', en: 'My account' },
