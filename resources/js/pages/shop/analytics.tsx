@@ -145,8 +145,8 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                         <h2 className="text-[17px] font-extrabold">{t('stats.monthly')}</h2>
                         <div className="text-muted-foreground text-sm font-medium">
                             {monthNames[selected.month - 1]}
-                            <span className="text-primary px-1 font-extrabold">·</span>
-                            <span className="text-primary font-extrabold">{selectedVisits}</span>
+                            <span className="px-1 font-extrabold">·</span>
+                            <span className="text-success-soft-foreground font-extrabold">{selectedVisits}</span>
                         </div>
                     </div>
                     <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="block h-auto w-full" role="img" aria-label={t('stats.chart_aria')}>
@@ -183,9 +183,9 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                                     <text
                                         x={cx}
                                         y={by - 6}
-                                        fontSize={active ? 13 : 11}
-                                        fontWeight={active ? 800 : 600}
-                                        fill={active ? 'var(--primary)' : 'var(--muted-foreground)'}
+                                        fontSize={active ? 14 : 12}
+                                        fontWeight={active ? 800 : 700}
+                                        fill="var(--success-soft-foreground)"
                                         textAnchor="middle"
                                     >
                                         {month.visits}
