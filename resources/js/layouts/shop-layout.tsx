@@ -180,11 +180,24 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                             type="button"
                             onClick={switchLanguage}
                             aria-label={locale === 'en' ? 'التبديل إلى العربية' : 'Switch to English'}
-                            className="flex h-11 items-center justify-center gap-1 rounded-full bg-white/10 px-3 text-[13px] font-extrabold"
+                            className="flex size-11 items-center justify-center rounded-full bg-white/10 text-[14px] font-extrabold"
                         >
-                            <Languages className="size-5" aria-hidden />
                             {locale === 'en' ? 'ع' : 'EN'}
                         </button>
+                        <Link
+                            href={route('shop.registrations')}
+                            aria-label={t('nav.registrations')}
+                            className={`relative flex size-11 shrink-0 items-center justify-center rounded-full ${
+                                registrationsItem.isActive(url) ? 'bg-white/25' : 'bg-white/10'
+                            }`}
+                        >
+                            <QrCode className="size-5" aria-hidden />
+                            {pendingCount > 0 && (
+                                <span className="bg-cta text-cta-foreground absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-extrabold">
+                                    {pendingCount}
+                                </span>
+                            )}
+                        </Link>
                         <Link
                             href={route('shop.account')}
                             aria-label={t('nav.account')}

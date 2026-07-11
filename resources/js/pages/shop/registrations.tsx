@@ -81,24 +81,39 @@ export default function Registrations({ shop, joinUrl, autoAccept, pending }: Pr
                     ) : (
                         <div className="flex flex-col gap-2.5">
                             {pending.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="border-border flex flex-col gap-2.5 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between"
-                                >
-                                    <div className="min-w-0">
-                                        <div className="text-base font-bold">
-                                            {item.name} · {item.label ?? item.plate}
+                                <div key={item.id} className="border-border flex flex-col gap-3 rounded-xl border p-3.5">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="flex flex-col gap-1.5 text-[15px]">
+                                            <div className="flex gap-2">
+                                                <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_name')}</span>
+                                                <span className="font-bold">{item.name}</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_phone')}</span>
+                                                <span className="font-bold" dir="ltr">
+                                                    {item.phone}
+                                                </span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_plate')}</span>
+                                                <span className="font-bold" dir="ltr">
+                                                    {item.plate}
+                                                </span>
+                                            </div>
+                                            {item.label && (
+                                                <div className="flex gap-2">
+                                                    <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_car')}</span>
+                                                    <span className="font-bold">{item.label}</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="text-muted-foreground text-sm" dir="ltr">
-                                            {item.plate} · {item.phone}
-                                        </div>
-                                        <div className="text-muted-foreground text-xs">{item.ago}</div>
+                                        <span className="text-muted-foreground shrink-0 text-xs">{item.ago}</span>
                                     </div>
-                                    <div className="flex shrink-0 gap-2">
+                                    <div className="flex gap-2">
                                         <button
                                             type="button"
                                             onClick={() => accept(item.id)}
-                                            className="bg-success text-success-foreground flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl px-4 text-[15px] font-bold sm:flex-none"
+                                            className="bg-success text-success-foreground flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl text-[15px] font-bold"
                                         >
                                             <Check className="size-4" aria-hidden />
                                             {t('reg.accept')}
@@ -106,7 +121,7 @@ export default function Registrations({ shop, joinUrl, autoAccept, pending }: Pr
                                         <button
                                             type="button"
                                             onClick={() => reject(item.id)}
-                                            className="border-destructive/40 text-destructive bg-card flex h-11 items-center justify-center gap-1.5 rounded-xl border-2 px-4 text-[15px] font-bold"
+                                            className="border-destructive/40 text-destructive bg-card flex h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-5 text-[15px] font-bold"
                                         >
                                             <X className="size-4" aria-hidden />
                                             {t('reg.reject')}

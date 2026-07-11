@@ -133,11 +133,15 @@ const dict = {
     'reg.copy_link': { ar: 'انسخ الرابط', en: 'Copy link' },
     'reg.copied': { ar: 'تم النسخ ✓', en: 'Copied ✓' },
     'reg.auto_on': { ar: 'القبول التلقائي مفعّل · الطلبات بتنضاف على طول', en: 'Auto-accept is on · requests are added directly' },
-    'reg.auto_off': { ar: 'الطلبات بتنطر موافقتك', en: 'Requests wait for your approval' },
+    'reg.auto_off': { ar: 'الطلبات بتستنى موافقتك', en: 'Requests wait for your approval' },
     'reg.pending_title': { ar: 'طلبات جديدة', en: 'New requests' },
     'reg.none': { ar: 'ما في طلبات جديدة', en: 'No new requests' },
     'reg.accept': { ar: 'قبول', en: 'Accept' },
     'reg.reject': { ar: 'رفض', en: 'Reject' },
+    'reg.field_name': { ar: 'الاسم', en: 'Name' },
+    'reg.field_phone': { ar: 'التلفون', en: 'Phone' },
+    'reg.field_plate': { ar: 'اللوحة', en: 'Plate' },
+    'reg.field_car': { ar: 'السيارة', en: 'Car' },
 
     // Service prices (settings)
     'prices.title': { ar: 'أسعار الخدمات', en: 'Service prices' },
