@@ -8,6 +8,7 @@ use App\Http\Controllers\Shop\DashboardController;
 use App\Http\Controllers\Shop\EntryController;
 use App\Http\Controllers\Shop\InboxController;
 use App\Http\Controllers\Shop\ReminderController;
+use App\Http\Controllers\Shop\ServicePriceController;
 use App\Http\Controllers\Shop\VisitController;
 use App\Http\Middleware\EnsureShopUser;
 use App\Http\Middleware\SetShopLocale;
@@ -36,6 +37,9 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
 
     Route::get('messages', [InboxController::class, 'index'])->name('messages');
     Route::post('suggestions', [InboxController::class, 'storeSuggestion'])->middleware('throttle:20,1')->name('suggestions.store');
+
+    Route::get('service-prices', [ServicePriceController::class, 'edit'])->name('service-prices');
+    Route::put('service-prices', [ServicePriceController::class, 'update'])->middleware('throttle:20,1')->name('service-prices.update');
 
     Route::get('account', [AccountController::class, 'edit'])->name('account');
     Route::put('account/password', [AccountController::class, 'updatePassword'])->middleware('throttle:10,1')->name('account.password');

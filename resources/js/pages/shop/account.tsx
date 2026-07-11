@@ -3,8 +3,8 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { Camera, LogOut, UserRound } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Camera, ChevronLeft, Coins, LogOut, UserRound } from 'lucide-react';
 import { type ChangeEvent, type FormEvent } from 'react';
 
 interface Props {
@@ -137,6 +137,17 @@ export default function Account({ shop, account }: Props) {
                         {t('acct.save_password')}
                     </button>
                 </form>
+
+                <Link
+                    href={route('shop.service-prices')}
+                    className="bg-card flex h-14 items-center justify-between rounded-2xl px-4 text-[17px] font-bold shadow-sm"
+                >
+                    <span className="flex items-center gap-2.5">
+                        <Coins className="text-primary size-5" aria-hidden />
+                        {t('nav.prices')}
+                    </span>
+                    <ChevronLeft className="text-muted-foreground size-5 ltr:-scale-x-100" aria-hidden />
+                </Link>
 
                 <button
                     type="button"

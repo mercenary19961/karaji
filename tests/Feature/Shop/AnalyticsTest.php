@@ -2,8 +2,11 @@
 
 namespace Tests\Feature\Shop;
 
+use App\Models\Car;
+use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\User;
+use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -62,5 +65,23 @@ class AnalyticsTest extends TestCase
         $this->get('/shop/analytics?month=not-a-month')->assertInertia(fn (Assert $page) => $page
             ->where('analytics.selected.year', now()->year)
             ->where('analytics.selected.month', now()->month));
+    }
+
+    public function test_top_services_include_the_summed_revenue()
+    {
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create(['shop_id' => $shop->id, 'locale' => 'en']);
+        $oil = ServiceType::factory()->create(['name' => ServiceType::OIL_CHANGE]);
+        $car = Car::factory()->create(['shop_id' => $shop->id]);
+
+        foreach ([20, 22] as $price) {
+            Visit::factory()
+                ->create(['shop_id' => $shop->id, 'car_id' => $car->id, 'visited_at' => now()])
+                ->services()->attach([$oil->id => ['price' => $price]]);
+        }
+
+        $this->actingAs($user)->get('/shop/analytics')->assertInertia(fn (Assert $page) => $page
+            ->where('analytics.topServices.0.count', 2)
+            ->where('analytics.topServices.0.revenue', '42 JOD'));
     }
 }

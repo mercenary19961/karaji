@@ -44,6 +44,16 @@ export interface ServiceTypeOption {
     name: string;
     /** Localized chip caption. */
     label: string;
+    /** The shop's saved default price, pre-filled on the form (null = unpriced). */
+    defaultPrice: string | null;
+}
+
+/** A row on the service-prices settings page. */
+export interface ServicePriceRow {
+    id: number;
+    label: string;
+    /** Current default price as a string ('' when none is set). */
+    price: string;
 }
 
 /** Car context shown at the top of the new-visit form. */
@@ -120,7 +130,7 @@ export interface Reminder {
 
 export interface Analytics {
     months: { label: string; month: number; year: number; visits: number }[];
-    topServices: { label: string; count: number }[];
+    topServices: { label: string; count: number; revenue: string | null }[];
     lostCustomers: { owner: string; ownerAr: string; car: string; carAr: string; lastVisit: string; whatsapp: string }[];
     /** The month the chart window ends at (and the highlighted bar). */
     selected: { year: number; month: number };

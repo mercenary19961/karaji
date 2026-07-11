@@ -2,7 +2,7 @@ import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChartColumn, House, Languages, LogOut, MessageSquare, Plus, UserRound, type LucideIcon } from 'lucide-react';
+import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, UserRound, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
@@ -34,6 +34,14 @@ const newVisitItem: NavItem = {
     isActive: (url) => url.startsWith('/shop/entry') || url.startsWith('/shop/visits'),
 };
 
+// Settings-level items — desktop sidebar only (mobile reaches them via account)
+const servicePricesItem: NavItem = {
+    labelKey: 'nav.prices',
+    href: '/shop/service-prices',
+    icon: Coins,
+    isActive: (url) => url.startsWith('/shop/service-prices'),
+};
+
 const accountItem: NavItem = {
     labelKey: 'nav.account',
     href: '/shop/account',
@@ -46,7 +54,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
     const { url } = usePage();
     const t = useT();
 
-    const sidebarNav = [...primaryNav, accountItem];
+    const sidebarNav = [...primaryNav, servicePricesItem, accountItem];
     const avatarUrl = auth.user.avatar_url;
 
     const otherLocale = locale === 'en' ? 'ar' : 'en';

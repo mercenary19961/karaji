@@ -210,9 +210,12 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                     <h2 className="mb-3 text-[17px] font-extrabold">{t('stats.top_services')}</h2>
                     <div className="flex flex-col gap-2.5">
                         {topServices.map((service) => (
-                            <div key={service.label} className="flex justify-between text-base">
-                                <span>{service.label}</span>
-                                <b className="text-primary">{service.count}</b>
+                            <div key={service.label} className="flex items-center justify-between gap-2 text-base">
+                                <span className="font-medium">{service.label}</span>
+                                <span className="flex items-baseline gap-2.5">
+                                    {service.revenue && <span className="text-success-soft-foreground font-extrabold">{service.revenue}</span>}
+                                    <span className="text-muted-foreground text-sm font-bold">×{service.count}</span>
+                                </span>
                             </div>
                         ))}
                         {topServices.length === 0 && <div className="text-muted-foreground text-base">{t('stats.no_services')}</div>}

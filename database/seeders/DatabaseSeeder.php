@@ -7,6 +7,7 @@ use App\Models\Car;
 use App\Models\Customer;
 use App\Models\Message;
 use App\Models\Reminder;
+use App\Models\ServicePrice;
 use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\Subscription;
@@ -16,6 +17,7 @@ use App\Models\Visit;
 use App\Services\Reminders\ReminderEngine;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * Seeds the SaaS operator account, the global service-type chips, and one
@@ -131,16 +133,35 @@ class DatabaseSeeder extends Seeder
 
         $serviceIds = ServiceType::query()->pluck('id', 'name');
 
+        // The shop's default charge per service (JOD) — pre-fills the visit form.
+        $defaultPrices = [
+            'تغيير زيت' => 20,
+            'فلتر زيت' => 5,
+            'فلتر هواء' => 7,
+            'فلتر مكيف' => 8,
+            'فحص فرامل' => 10,
+            'بطارية' => 45,
+        ];
+        foreach ($defaultPrices as $name => $price) {
+            ServicePrice::factory()->create([
+                'shop_id' => $shop->id,
+                'service_type_id' => $serviceIds[$name],
+                'price' => $price,
+            ]);
+        }
+
         // The mockup's hero car: full history + a scheduled oil reminder
         $sportage = $this->seedCar($shop, 'أبو محمد', '0795123456', 'كيا سبورتاج 2019', '22-14853', 11, 'Abu Mohammad', 'Kia Sportage 2019');
 
         // Synthetic (Mobil 5W-30) → the engine schedules next oil at 82,500 +
-        // 10,000 = 92,500 km, matching the mockup's "الزيت القادم".
+        // 10,000 = 92,500 km, matching the mockup's "الزيت القادم". Each service
+        // carries its charged price (a couple differ from the default, to show
+        // the per-visit override).
         $visits = [
-            ['visited_at' => '2026-03-05', 'km' => 82500, 'price' => 28, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'فلتر زيت']],
-            ['visited_at' => '2025-11-18', 'km' => 77900, 'price' => 46, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'فلتر هواء', 'فحص فرامل']],
-            ['visited_at' => '2025-07-02', 'km' => 72400, 'price' => 25, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت']],
-            ['visited_at' => '2025-02-15', 'km' => 67100, 'price' => 95, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت', 'بطارية']],
+            ['visited_at' => '2026-03-05', 'km' => 82500, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 22, 'فلتر زيت' => 6]],
+            ['visited_at' => '2025-11-18', 'km' => 77900, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'فلتر هواء' => 7, 'فحص فرامل' => 10]],
+            ['visited_at' => '2025-07-02', 'km' => 72400, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20]],
+            ['visited_at' => '2025-02-15', 'km' => 67100, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'بطارية' => 45]],
         ];
 
         foreach ($visits as $data) {
@@ -148,12 +169,11 @@ class DatabaseSeeder extends Seeder
                 'shop_id' => $shop->id,
                 'car_id' => $sportage->id,
                 'km' => $data['km'],
-                'price' => $data['price'],
                 'oil_brand' => $data['oil_brand'],
                 'oil_type' => $data['oil_type'],
                 'visited_at' => Carbon::parse($data['visited_at']),
             ]);
-            $visit->services()->attach($serviceIds->only($data['services'])->values());
+            $visit->services()->attach($this->pricedServices($serviceIds, $data['services']));
         }
 
         app(ReminderEngine::class)->scheduleOilReminder($sportage);
@@ -195,11 +215,10 @@ class DatabaseSeeder extends Seeder
                 'shop_id' => $shop->id,
                 'car_id' => $car->id,
                 'km' => fake()->numberBetween(60000, 180000),
-                'price' => 25,
                 'oil_brand' => 'Total 10W-40',
                 'visited_at' => now()->subMonths($entry['monthsAgo']),
             ]);
-            $visit->services()->attach($serviceIds->only(['تغيير زيت'])->values());
+            $visit->services()->attach($this->pricedServices($serviceIds, ['تغيير زيت' => 20]));
         }
 
         // Admin → shop message (one unread, so the inbox badge shows) + a
@@ -222,6 +241,25 @@ class DatabaseSeeder extends Seeder
             'body' => 'ياريت تضيفوا خدمة تغيير زيت الفرامل، لأنه حالياً في بس تغيير زيت المحرك.',
             'status' => Suggestion::STATUS_OPEN,
         ]);
+    }
+
+    /**
+     * Maps ['خدمة' => price] onto the attach payload [service_id => ['price' => …]]
+     * that the visit_services pivot expects.
+     *
+     * @param  Collection<string, int>  $serviceIds
+     * @param  array<string, int|float>  $services
+     * @return array<int, array{price: int|float}>
+     */
+    private function pricedServices($serviceIds, array $services): array
+    {
+        $payload = [];
+
+        foreach ($services as $name => $price) {
+            $payload[$serviceIds[$name]] = ['price' => $price];
+        }
+
+        return $payload;
     }
 
     /**

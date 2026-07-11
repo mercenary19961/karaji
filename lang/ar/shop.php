@@ -37,6 +37,9 @@ return [
     'suggestion_required' => 'اكتب اقتراحك',
     'suggestion_sent' => 'وصلنا اقتراحك، شكراً',
 
+    // Service prices
+    'prices_saved' => 'انحفظت الأسعار',
+
     // Account: avatar
     'avatar_required' => 'اختر صورة',
     'avatar_image' => 'لازم تكون صورة',

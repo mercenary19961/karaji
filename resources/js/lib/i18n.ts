@@ -16,6 +16,7 @@ const dict = {
     'nav.reports': { ar: 'التقارير', en: 'Reports' },
     'nav.messages': { ar: 'الرسائل', en: 'Messages' },
     'nav.account': { ar: 'حسابي', en: 'My account' },
+    'nav.prices': { ar: 'أسعار الخدمات', en: 'Service prices' },
     'nav.logout': { ar: 'تسجيل الخروج', en: 'Log out' },
 
     // New-visit entry (search + recents + new customer)
@@ -96,6 +97,8 @@ const dict = {
     'visit.oil_brand': { ar: 'ماركة الزيت', en: 'Oil brand' },
     'visit.same_last': { ar: 'زي آخر زيارة · {brand}', en: 'Same as last · {brand}' },
     'visit.price': { ar: 'السعر (اختياري)', en: 'Price (optional)' },
+    'visit.prices': { ar: 'الأسعار', en: 'Prices' },
+    'visit.total': { ar: 'الإجمالي', en: 'Total' },
     'visit.saved_title': { ar: 'انحفظت الزيارة ✓', en: 'Visit saved ✓' },
     'visit.saved_meter': { ar: 'عداد {km} كم', en: 'odometer {km} km' },
     'visit.send_summary': { ar: 'ابعت ملخص الزيارة واتساب', en: 'Send summary on WhatsApp' },
@@ -118,6 +121,14 @@ const dict = {
     'stats.pick_month': { ar: 'اختر الشهر', en: 'Pick a month' },
     'stats.prev_year': { ar: 'السنة السابقة', en: 'Previous year' },
     'stats.next_year': { ar: 'السنة التالية', en: 'Next year' },
+
+    // Service prices (settings)
+    'prices.title': { ar: 'أسعار الخدمات', en: 'Service prices' },
+    'prices.hint': {
+        ar: 'حط سعر افتراضي لكل خدمة · بينزل تلقائي بالزيارة وبتقدر تعدّله وقتها',
+        en: 'Set a default price per service · it auto-fills on each visit and you can still edit it',
+    },
+    'prices.save': { ar: 'حفظ الأسعار', en: 'Save prices' },
 
     // Account
     'acct.title': { ar: 'حسابي', en: 'My account' },

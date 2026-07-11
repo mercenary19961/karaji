@@ -5,6 +5,7 @@ namespace Tests\Feature\Shop;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Models\Reminder;
+use App\Models\ServicePrice;
 use App\Models\ServiceType;
 use App\Models\Shop;
 use App\Models\User;
@@ -52,7 +53,7 @@ class VisitFlowTest extends TestCase
             'km' => 91300,
             'services' => [$this->oilChange->id, $this->battery->id],
             'oil_brand' => 'Mobil 5W-30',
-            'price' => 28,
+            'prices' => [$this->oilChange->id => 20, $this->battery->id => 45],
         ]);
 
         $visit = Visit::query()->sole();
@@ -62,9 +63,28 @@ class VisitFlowTest extends TestCase
         $this->assertSame(91300, $visit->km);
         $this->assertSame(2, $visit->services()->count());
 
+        // Per-service prices land on the pivot; the visit total is their sum
+        $this->assertEquals(20, $visit->services()->where('service_type_id', $this->oilChange->id)->sole()->pivot->price);
+        $this->assertEquals(65, $visit->load('services')->revenue());
+
         $reminder = $car->pendingOilReminder()->sole();
         $this->assertSame(91300 + self::MINERAL_KM, $reminder->due_km);
         $this->assertNotNull($reminder->due_date);
+    }
+
+    public function test_a_service_price_falls_back_to_the_shop_default_when_not_overridden()
+    {
+        ServicePrice::factory()->create(['shop_id' => $this->shop->id, 'service_type_id' => $this->oilChange->id, 'price' => 18]);
+        $car = $this->carInShop();
+
+        // No `prices` sent → the shop's saved default is used
+        $this->actingAs($this->user)->post('/shop/visits', [
+            'car_id' => $car->id,
+            'km' => 40000,
+            'services' => [$this->oilChange->id],
+        ]);
+
+        $this->assertEquals(18, Visit::query()->sole()->load('services')->revenue());
     }
 
     public function test_a_second_oil_visit_updates_the_existing_reminder_instead_of_duplicating()

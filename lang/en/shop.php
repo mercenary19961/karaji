@@ -35,6 +35,9 @@ return [
     'suggestion_required' => 'Write your suggestion',
     'suggestion_sent' => 'Got your suggestion, thanks',
 
+    // Service prices
+    'prices_saved' => 'Prices saved',
+
     // Account: avatar
     'avatar_required' => 'Choose an image',
     'avatar_image' => 'Must be an image',

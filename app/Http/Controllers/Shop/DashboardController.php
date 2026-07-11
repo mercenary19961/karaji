@@ -57,9 +57,13 @@ class DashboardController extends ShopController
             'stats' => [
                 'todayVisits' => Visit::query()->whereDate('visited_at', today())->count(),
                 'dueCount' => $dueQuery->count(),
+                // Revenue = sum of every service's charged price this month;
+                // computed in PHP so it stays portable across SQLite and MariaDB.
                 'monthRevenue' => number_format((float) Visit::query()
                     ->where('visited_at', '>=', now()->startOfMonth())
-                    ->sum('price')),
+                    ->with('services')
+                    ->get()
+                    ->sum(fn (Visit $visit) => $visit->revenue())),
             ],
             'dueToday' => $dueToday->map(fn (Reminder $reminder) => [
                 'car' => $reminder->car->displayLabel(),

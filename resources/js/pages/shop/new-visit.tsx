@@ -35,28 +35,53 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
     const [newCust, setNewCust] = useState(startNew);
     const [q, setQ] = useState('');
 
-    const form = useForm({
+    const defaultPriceFor = (id: number) => serviceTypes.find((s) => s.id === id)?.defaultPrice ?? '';
+
+    const form = useForm<{
+        name: string;
+        phone: string;
+        plate: string;
+        label: string;
+        km: string;
+        services: number[];
+        prices: Record<number, string>;
+        oil_brand: string;
+        oil_type: string;
+    }>({
         name: '',
         phone: '',
         plate: '',
         label: '',
         km: '',
         services: defaultServices,
+        prices: Object.fromEntries(defaultServices.map((id) => [id, defaultPriceFor(id)])),
         oil_brand: car?.lastOilBrand ?? oilBrands[0],
         oil_type: car?.lastOilType ?? oilTypes[0]?.key ?? '',
-        price: '',
     });
 
     // The oil-type control only matters when this visit changes the oil
     const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
+
+    // Per-service price rows + a live total (the visit's revenue)
+    const selectedServices = serviceTypes.filter((s) => form.data.services.includes(s.id));
+    const total = Math.round(selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0) * 100) / 100;
 
     const searchCar = (e: FormEvent) => {
         e.preventDefault();
         router.get(route('shop.cars.search'), { q, to: 'visit' });
     };
 
-    const toggleService = (id: number) =>
-        form.setData('services', form.data.services.includes(id) ? form.data.services.filter((s) => s !== id) : [...form.data.services, id]);
+    const toggleService = (id: number) => {
+        const on = form.data.services.includes(id);
+        const services = on ? form.data.services.filter((s) => s !== id) : [...form.data.services, id];
+        const prices = { ...form.data.prices };
+        if (on) {
+            delete prices[id];
+        } else if (prices[id] === undefined) {
+            prices[id] = defaultPriceFor(id); // pre-fill from the shop's saved default
+        }
+        form.setData({ ...form.data, services, prices });
+    };
 
     const save = (e: FormEvent) => {
         e.preventDefault();
@@ -64,7 +89,12 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
             ...data,
             car_id: newCust ? null : (car?.id ?? null),
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
-            price: data.price === '' ? null : data.price,
+            // Only the selected services' prices; blanks go as null (no price)
+            prices: Object.fromEntries(
+                Object.entries(data.prices)
+                    .filter(([id]) => data.services.includes(Number(id)))
+                    .map(([id, price]) => [id, price === '' ? null : price]),
+            ),
         }));
         form.post(route('shop.visits.store'), { preserveScroll: true });
     };
@@ -303,16 +333,35 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                                 </>
                             )}
 
-                            <div>
-                                <div className="mb-2 text-[17px] font-bold">{t('visit.price')}</div>
-                                <input
-                                    inputMode="decimal"
-                                    placeholder={t('common.currency')}
-                                    value={form.data.price}
-                                    onChange={(e) => form.setData('price', e.target.value)}
-                                    className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
-                                />
-                            </div>
+                            {selectedServices.length > 0 && (
+                                <div>
+                                    <div className="mb-2 text-[17px] font-bold">{t('visit.prices')}</div>
+                                    <div className="divide-border/60 bg-secondary flex flex-col divide-y rounded-2xl p-2">
+                                        {selectedServices.map((s) => (
+                                            <div key={s.id} className="flex items-center justify-between gap-3 px-2 py-2">
+                                                <span className="text-[16px] font-bold">{s.label}</span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <input
+                                                        inputMode="decimal"
+                                                        value={form.data.prices[s.id] ?? ''}
+                                                        onChange={(e) => form.setData('prices', { ...form.data.prices, [s.id]: e.target.value })}
+                                                        placeholder="—"
+                                                        aria-label={s.label}
+                                                        className="border-input bg-card focus-visible:border-ring h-11 w-20 rounded-lg border-2 px-2 text-center text-[17px] font-bold outline-none"
+                                                    />
+                                                    <span className="text-muted-foreground text-sm font-bold">{t('common.currency')}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="flex items-center justify-between px-2 pt-2.5 pb-1">
+                                            <span className="text-[16px] font-extrabold">{t('visit.total')}</span>
+                                            <span className="text-success-soft-foreground text-[18px] font-extrabold">
+                                                {total} {t('common.currency')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <button
                                 type="submit"

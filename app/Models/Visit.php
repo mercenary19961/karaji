@@ -20,7 +20,6 @@ class Visit extends Model
     protected $fillable = [
         'car_id',
         'km',
-        'price',
         'oil_brand',
         'oil_type',
         'notes',
@@ -31,7 +30,6 @@ class Visit extends Model
     {
         return [
             'km' => 'integer',
-            'price' => 'decimal:2',
             'visited_at' => 'datetime',
         ];
     }
@@ -43,6 +41,18 @@ class Visit extends Model
 
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(ServiceType::class, 'visit_services');
+        return $this->belongsToMany(ServiceType::class, 'visit_services')->withPivot('price');
+    }
+
+    /**
+     * The visit total = sum of its per-service prices. Null when none of the
+     * services were priced (so callers can hide the line instead of showing 0).
+     * Assumes `services` is loaded.
+     */
+    public function revenue(): ?float
+    {
+        $priced = $this->services->pluck('pivot.price')->filter(fn ($price) => $price !== null);
+
+        return $priced->isEmpty() ? null : (float) $priced->sum();
     }
 }

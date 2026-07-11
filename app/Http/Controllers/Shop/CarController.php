@@ -62,7 +62,7 @@ class CarController extends ShopController
                 'visits' => $car->visits->map(fn (Visit $visit) => [
                     'date' => $visit->visited_at->format('d/m/Y'),
                     'km' => Format::km($visit->km),
-                    'price' => Format::price($visit->price),
+                    'price' => Format::price($visit->revenue()),
                     'services' => $visit->services->map(fn ($service) => $service->displayName()),
                 ]),
             ],

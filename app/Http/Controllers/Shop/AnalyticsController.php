@@ -44,15 +44,22 @@ class AnalyticsController extends ShopController
             ];
         })->values();
 
+        $windowConstraint = fn ($query) => $query
+            ->where('visits.shop_id', $shopId)
+            ->whereBetween('visits.visited_at', [$windowStart, $windowEnd]);
+
         $topServices = ServiceType::query()
-            ->withCount(['visits' => fn ($query) => $query
-                ->where('visits.shop_id', $shopId)
-                ->whereBetween('visits.visited_at', [$windowStart, $windowEnd])])
+            ->withCount(['visits' => $windowConstraint])
+            ->withSum(['visits as revenue' => $windowConstraint], 'visit_services.price')
             ->get()
             ->filter(fn (ServiceType $service) => $service->visits_count > 0)
             ->sortByDesc('visits_count')
             ->take(4)
-            ->map(fn (ServiceType $service) => ['label' => $service->displayName(), 'count' => $service->visits_count])
+            ->map(fn (ServiceType $service) => [
+                'label' => $service->displayName(),
+                'count' => $service->visits_count,
+                'revenue' => Format::price($service->revenue),
+            ])
             ->values();
 
         // "Who to win back" is a present-tense action list, independent of the browsed month
