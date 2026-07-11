@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Models\Message;
+use App\Models\PendingRegistration;
 use App\Models\Reminder;
 use App\Models\ServicePrice;
 use App\Models\ServiceType;
@@ -240,6 +241,22 @@ class DatabaseSeeder extends Seeder
             'shop_id' => $shop->id,
             'body' => 'ياريت تضيفوا خدمة تغيير زيت الفرامل، لأنه حالياً في بس تغيير زيت المحرك.',
             'status' => Suggestion::STATUS_OPEN,
+        ]);
+
+        // Two customers who scanned the QR and are waiting for the shop to accept
+        PendingRegistration::factory()->create([
+            'shop_id' => $shop->id,
+            'name' => 'وسيم القيسي',
+            'phone' => '0791122334',
+            'plate' => '25-66890',
+            'label' => 'نيسان صني 2021',
+        ]);
+        PendingRegistration::factory()->create([
+            'shop_id' => $shop->id,
+            'name' => 'رهف السعيد',
+            'phone' => '0779988776',
+            'plate' => '44-10275',
+            'label' => 'كيا بيكانتو 2022',
         ]);
     }
 

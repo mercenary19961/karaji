@@ -7,6 +7,7 @@ use App\Http\Controllers\Shop\CarController;
 use App\Http\Controllers\Shop\DashboardController;
 use App\Http\Controllers\Shop\EntryController;
 use App\Http\Controllers\Shop\InboxController;
+use App\Http\Controllers\Shop\RegistrationController;
 use App\Http\Controllers\Shop\ReminderController;
 use App\Http\Controllers\Shop\ServicePriceController;
 use App\Http\Controllers\Shop\VisitController;
@@ -41,8 +42,14 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
     Route::get('service-prices', [ServicePriceController::class, 'edit'])->name('service-prices');
     Route::put('service-prices', [ServicePriceController::class, 'update'])->middleware('throttle:20,1')->name('service-prices.update');
 
+    // QR self-registration: the QR/link to show + the pending queue to accept/reject
+    Route::get('registrations', [RegistrationController::class, 'index'])->name('registrations');
+    Route::post('registrations/{pendingRegistration}/accept', [RegistrationController::class, 'accept'])->middleware('throttle:60,1')->name('registrations.accept');
+    Route::delete('registrations/{pendingRegistration}', [RegistrationController::class, 'reject'])->middleware('throttle:60,1')->name('registrations.reject');
+
     Route::get('account', [AccountController::class, 'edit'])->name('account');
     Route::put('account/password', [AccountController::class, 'updatePassword'])->middleware('throttle:10,1')->name('account.password');
+    Route::put('account/settings', [AccountController::class, 'updateSettings'])->middleware('throttle:20,1')->name('account.settings');
     Route::post('account/avatar', [AccountController::class, 'updateAvatar'])->middleware('throttle:20,1')->name('account.avatar');
     Route::delete('account/avatar', [AccountController::class, 'deleteAvatar'])->middleware('throttle:20,1')->name('account.avatar.delete');
 });

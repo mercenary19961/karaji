@@ -38,6 +38,11 @@ return [
     // Service prices
     'prices_saved' => 'Prices saved',
 
+    // QR customer sign-up
+    'reg_accepted' => 'Customer added',
+    'reg_rejected' => 'Request rejected',
+    'settings_saved' => 'Settings saved',
+
     // Account: avatar
     'avatar_required' => 'Choose an image',
     'avatar_image' => 'Must be an image',

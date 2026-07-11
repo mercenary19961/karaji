@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Message;
+use App\Models\PendingRegistration;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -61,6 +62,13 @@ class HandleInertiaRequests extends Middleware
 
                 return $user && $user->shop_id
                     ? Message::query()->where('shop_id', $user->shop_id)->whereNull('read_at')->count()
+                    : 0;
+            },
+            'pendingCount' => function () use ($request) {
+                $user = $request->user();
+
+                return $user && $user->shop_id
+                    ? PendingRegistration::query()->where('shop_id', $user->shop_id)->count()
                     : 0;
             },
         ]);

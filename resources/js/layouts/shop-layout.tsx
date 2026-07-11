@@ -2,7 +2,7 @@ import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, UserRound, type LucideIcon } from 'lucide-react';
+import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, QrCode, UserRound, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
@@ -42,6 +42,13 @@ const servicePricesItem: NavItem = {
     isActive: (url) => url.startsWith('/shop/service-prices'),
 };
 
+const registrationsItem: NavItem = {
+    labelKey: 'nav.registrations',
+    href: '/shop/registrations',
+    icon: QrCode,
+    isActive: (url) => url.startsWith('/shop/registrations'),
+};
+
 const accountItem: NavItem = {
     labelKey: 'nav.account',
     href: '/shop/account',
@@ -50,11 +57,11 @@ const accountItem: NavItem = {
 };
 
 export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
-    const { name, impersonating, auth, locale, shopUnread } = usePage<SharedData>().props;
+    const { name, impersonating, auth, locale, shopUnread, pendingCount } = usePage<SharedData>().props;
     const { url } = usePage();
     const t = useT();
 
-    const sidebarNav = [...primaryNav, servicePricesItem, accountItem];
+    const sidebarNav = [...primaryNav, servicePricesItem, registrationsItem, accountItem];
     const avatarUrl = auth.user.avatar_url;
 
     const otherLocale = locale === 'en' ? 'ar' : 'en';
@@ -99,6 +106,11 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                                 {item.href === '/shop/messages' && shopUnread > 0 && (
                                     <span className="bg-destructive text-destructive-foreground ms-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-extrabold">
                                         {shopUnread}
+                                    </span>
+                                )}
+                                {item.href === '/shop/registrations' && pendingCount > 0 && (
+                                    <span className="bg-cta text-cta-foreground ms-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-extrabold">
+                                        {pendingCount}
                                     </span>
                                 )}
                             </Link>

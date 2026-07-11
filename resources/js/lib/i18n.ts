@@ -17,6 +17,7 @@ const dict = {
     'nav.messages': { ar: 'الرسائل', en: 'Messages' },
     'nav.account': { ar: 'حسابي', en: 'My account' },
     'nav.prices': { ar: 'أسعار الخدمات', en: 'Service prices' },
+    'nav.registrations': { ar: 'تسجيل بالكود', en: 'QR sign-up' },
     'nav.logout': { ar: 'تسجيل الخروج', en: 'Log out' },
 
     // New-visit entry (search + recents + new customer)
@@ -59,6 +60,8 @@ const dict = {
     'dash.view_all': { ar: 'شوف الكل ←', en: 'View all →' },
     'dash.no_due': { ar: 'ما في حدا لازم تحكي معه اليوم 🎉', en: 'No one to contact today 🎉' },
     'dash.dismiss': { ar: 'إخفاء التنبيه', en: 'Dismiss' },
+    'dash.pending': { ar: 'عندك {count} طلبات تسجيل جديدة من الزبائن', en: 'You have {count} new customer sign-up requests' },
+    'dash.pending_cta': { ar: 'شوف الطلبات', en: 'View requests' },
     'dash.losing': { ar: 'زبائن ما رجعوا', en: 'Slipping away' },
     'dash.losing_window': { ar: '(+6 أشهر)', en: '(6+ months)' },
     'dash.no_losing': { ar: 'ما في زبائن منقطعين 👌', en: 'No lapsed customers 👌' },
@@ -124,6 +127,18 @@ const dict = {
     'stats.prev_year': { ar: 'السنة السابقة', en: 'Previous year' },
     'stats.next_year': { ar: 'السنة التالية', en: 'Next year' },
 
+    // QR customer sign-up
+    'reg.title': { ar: 'تسجيل الزبائن بالكود', en: 'Customer QR sign-up' },
+    'reg.qr_hint': { ar: 'اعرض هالكود للزبون ليسجّل سيارته بنفسه', en: 'Show this code to a customer to register their car themselves' },
+    'reg.copy_link': { ar: 'انسخ الرابط', en: 'Copy link' },
+    'reg.copied': { ar: 'تم النسخ ✓', en: 'Copied ✓' },
+    'reg.auto_on': { ar: 'القبول التلقائي مفعّل · الطلبات بتنضاف على طول', en: 'Auto-accept is on · requests are added directly' },
+    'reg.auto_off': { ar: 'الطلبات بتنطر موافقتك', en: 'Requests wait for your approval' },
+    'reg.pending_title': { ar: 'طلبات جديدة', en: 'New requests' },
+    'reg.none': { ar: 'ما في طلبات جديدة', en: 'No new requests' },
+    'reg.accept': { ar: 'قبول', en: 'Accept' },
+    'reg.reject': { ar: 'رفض', en: 'Reject' },
+
     // Service prices (settings)
     'prices.title': { ar: 'أسعار الخدمات', en: 'Service prices' },
     'prices.hint': {
@@ -142,6 +157,11 @@ const dict = {
     'acct.new_pw': { ar: 'كلمة المرور الجديدة', en: 'New password' },
     'acct.confirm_pw': { ar: 'تأكيد كلمة المرور الجديدة', en: 'Confirm new password' },
     'acct.save_password': { ar: 'حفظ كلمة المرور', en: 'Save password' },
+    'acct.auto_accept': { ar: 'قبول طلبات التسجيل تلقائياً', en: 'Auto-accept sign-up requests' },
+    'acct.auto_accept_hint': {
+        ar: 'لما يكون مفعّل، سيارات الزبائن اللي بيسجّلوا بالكود بتنضاف على طول بدون موافقتك',
+        en: 'When on, cars customers register via the QR code are added directly without your approval',
+    },
 } as const;
 
 export type TKey = keyof typeof dict;

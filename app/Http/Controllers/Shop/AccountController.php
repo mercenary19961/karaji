@@ -17,7 +17,19 @@ class AccountController extends ShopController
         return Inertia::render('shop/account', [
             'shop' => $this->shopProps($request),
             'account' => ['name' => $user->name, 'email' => $user->email],
+            'autoAccept' => $user->shop->auto_accept_registrations,
         ]);
+    }
+
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'auto_accept_registrations' => ['required', 'boolean'],
+        ]);
+
+        $request->user()->shop->update(['auto_accept_registrations' => $validated['auto_accept_registrations']]);
+
+        return back()->with('success', __('shop.settings_saved'));
     }
 
     public function updatePassword(Request $request): RedirectResponse

@@ -40,6 +40,11 @@ return [
     // Service prices
     'prices_saved' => 'انحفظت الأسعار',
 
+    // QR customer sign-up
+    'reg_accepted' => 'انضاف الزبون',
+    'reg_rejected' => 'رفضنا الطلب',
+    'settings_saved' => 'انحفظت الإعدادات',
+
     // Account: avatar
     'avatar_required' => 'اختر صورة',
     'avatar_image' => 'لازم تكون صورة',

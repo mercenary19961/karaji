@@ -3,7 +3,7 @@ import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Megaphone, MessageCircle, Plus, Search, X } from 'lucide-react';
+import { Megaphone, MessageCircle, Plus, QrCode, Search, X } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface LostCustomer {
@@ -22,7 +22,7 @@ interface Props {
 }
 
 export default function Dashboard({ shop, stats, dueToday, announcements, lostCustomers }: Props) {
-    const { flash } = usePage<SharedData>().props;
+    const { flash, pendingCount } = usePage<SharedData>().props;
     const t = useT();
     const [q, setQ] = useState('');
 
@@ -58,6 +58,17 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                     </button>
                 </div>
             ))}
+
+            {pendingCount > 0 && (
+                <Link
+                    href={route('shop.registrations')}
+                    className="border-cta bg-due flex items-center gap-3 rounded-2xl border-2 p-4 transition-transform hover:scale-[1.01]"
+                >
+                    <QrCode className="text-due-foreground size-6 shrink-0" aria-hidden />
+                    <div className="text-due-foreground flex-1 text-[16px] font-extrabold">{t('dash.pending', { count: pendingCount })}</div>
+                    <span className="text-due-foreground text-[15px] font-bold whitespace-nowrap underline">{t('dash.pending_cta')}</span>
+                </Link>
+            )}
 
             <div className="flex flex-col gap-3 md:flex-row">
                 <form onSubmit={search} className="relative flex-1">
