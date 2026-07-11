@@ -33,6 +33,8 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
 
     Route::get('visits/new', [VisitController::class, 'create'])->name('visits.create');
     Route::post('visits', [VisitController::class, 'store'])->middleware('throttle:30,1')->name('visits.store');
+    Route::get('visits/{visit}/edit', [VisitController::class, 'edit'])->name('visits.edit');
+    Route::put('visits/{visit}', [VisitController::class, 'update'])->middleware('throttle:30,1')->name('visits.update');
     Route::delete('visits/{visit}', [VisitController::class, 'destroy'])->middleware('throttle:30,1')->name('visits.destroy');
 
     Route::get('reminders', [ReminderController::class, 'index'])->name('reminders');

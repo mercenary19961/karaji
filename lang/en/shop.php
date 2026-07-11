@@ -18,6 +18,7 @@ return [
     // Visit flash
     'visit_saved' => 'Visit saved',
     'visit_undone' => 'Visit undone',
+    'visit_updated' => 'Changes saved',
 
     // Oil types (chips)
     'oil_mineral' => 'Mineral',

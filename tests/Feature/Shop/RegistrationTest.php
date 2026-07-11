@@ -49,11 +49,15 @@ class RegistrationTest extends TestCase
             'label' => 'مازدا 3',
         ]);
 
-        $this->actingAs($this->user)->post("/shop/registrations/{$pending->id}/accept");
+        $response = $this->actingAs($this->user)->post("/shop/registrations/{$pending->id}/accept");
 
         $this->assertSame(0, PendingRegistration::query()->count());
         $this->assertSame('0791234567', Customer::query()->sole()->phone);
-        $this->assertSame('30-45678', Car::query()->sole()->plate);
+
+        // Accept lands the owner on a new visit for the just-added car
+        $car = Car::query()->sole();
+        $this->assertSame('30-45678', $car->plate);
+        $response->assertRedirect("/shop/visits/new?car={$car->id}");
     }
 
     public function test_rejecting_deletes_the_pending_without_creating_anything()

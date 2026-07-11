@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Visit;
 use App\Services\Reminders\ReminderEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class VisitFlowTest extends TestCase
@@ -146,6 +147,54 @@ class VisitFlowTest extends TestCase
 
         $this->assertSame(1, Customer::query()->count());
         $this->assertSame($customer->id, Car::query()->where('plate', '88-54321')->sole()->customer_id);
+    }
+
+    public function test_the_edit_visit_page_renders_the_current_services()
+    {
+        $car = $this->carInShop();
+        $this->actingAs($this->user)->post('/shop/visits', [
+            'car_id' => $car->id, 'km' => 80000, 'services' => [$this->oilChange->id], 'prices' => [$this->oilChange->id => 20],
+        ]);
+        $visit = Visit::query()->sole();
+
+        $this->actingAs($this->user)
+            ->get("/shop/visits/{$visit->id}/edit")
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('shop/edit-visit')
+                ->where('visit.id', $visit->id)
+                ->has('visit.services', 1));
+    }
+
+    public function test_editing_a_visit_updates_km_services_prices_and_rederives_the_reminder()
+    {
+        $car = $this->carInShop();
+        $this->actingAs($this->user)->post('/shop/visits', [
+            'car_id' => $car->id, 'km' => 80000, 'services' => [$this->oilChange->id], 'prices' => [$this->oilChange->id => 20],
+        ]);
+        $visit = Visit::query()->sole();
+
+        $this->actingAs($this->user)->put("/shop/visits/{$visit->id}", [
+            'km' => 85000,
+            'services' => [$this->oilChange->id, $this->battery->id],
+            'prices' => [$this->oilChange->id => 25, $this->battery->id => 45],
+        ])->assertRedirect("/shop/cars/{$car->id}");
+
+        $visit->refresh();
+        $this->assertSame(85000, $visit->km);
+        $this->assertSame(2, $visit->services()->count());
+        $this->assertEquals(70, $visit->load('services')->revenue());
+        // The oil reminder is re-derived from the new km
+        $this->assertSame(85000 + self::MINERAL_KM, $car->pendingOilReminder()->sole()->due_km);
+    }
+
+    public function test_a_shop_cannot_edit_another_shops_visit()
+    {
+        $foreignVisit = Visit::factory()->create();
+
+        $this->actingAs($this->user)->get("/shop/visits/{$foreignVisit->id}/edit")->assertNotFound();
+        $this->actingAs($this->user)
+            ->put("/shop/visits/{$foreignVisit->id}", ['km' => 1000, 'services' => [$this->oilChange->id]])
+            ->assertNotFound();
     }
 
     public function test_undo_deletes_the_visit_and_rederives_the_reminder()

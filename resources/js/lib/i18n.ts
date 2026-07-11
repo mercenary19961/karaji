@@ -48,6 +48,7 @@ const dict = {
     'common.call': { ar: 'اتصال', en: 'Call' },
     'common.whatsapp': { ar: 'واتساب', en: 'WhatsApp' },
     'common.currency': { ar: 'د.أ', en: 'JOD' },
+    'common.back': { ar: 'رجوع', en: 'Back' },
 
     // Dashboard
     'dash.greeting': { ar: 'أهلين 👋', en: 'Welcome 👋' },
@@ -107,6 +108,9 @@ const dict = {
     'visit.price': { ar: 'السعر (اختياري)', en: 'Price (optional)' },
     'visit.prices': { ar: 'الأسعار', en: 'Prices' },
     'visit.total': { ar: 'الإجمالي', en: 'Total' },
+    'visit.edit': { ar: 'تعديل الزيارة', en: 'Edit visit' },
+    'visit_edit.title': { ar: 'تعديل الزيارة', en: 'Edit visit' },
+    'visit_edit.save': { ar: 'حفظ التعديلات', en: 'Save changes' },
     'visit.saved_title': { ar: 'انحفظت الزيارة ✓', en: 'Visit saved ✓' },
     'visit.saved_meter': { ar: 'عداد {km} كم', en: 'odometer {km} km' },
     'visit.send_summary': { ar: 'ابعت ملخص الزيارة واتساب', en: 'Send summary on WhatsApp' },

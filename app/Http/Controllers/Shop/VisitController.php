@@ -163,6 +163,95 @@ class VisitController extends ShopController
             ->with('success', __('shop.visit_saved'));
     }
 
+    public function edit(Request $request, Visit $visit): Response
+    {
+        $shopId = $request->user()->shop_id;
+        $visit->load(['car.customer', 'services']);
+
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+
+        return Inertia::render('shop/edit-visit', [
+            'shop' => $this->shopProps($request),
+            'visit' => [
+                'id' => $visit->id,
+                'carId' => $visit->car_id,
+                'carLabel' => $visit->car->displayLabel(),
+                'plate' => $visit->car->plate,
+                'owner' => $visit->car->customer->displayName(),
+                'date' => $visit->visited_at->format('d/m/Y'),
+                'km' => (string) $visit->km,
+                'oilBrand' => $visit->oil_brand,
+                'oilType' => $visit->oil_type,
+                // Current services + the price charged for each
+                'services' => $visit->services->map(fn (ServiceType $s) => [
+                    'id' => $s->id,
+                    'price' => $s->pivot->price === null ? '' : (string) (float) $s->pivot->price,
+                ]),
+            ],
+            'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name', 'name_en'])
+                ->map(fn (ServiceType $s) => [
+                    'id' => $s->id,
+                    'name' => $s->name,
+                    'label' => $s->displayName(),
+                    'defaultPrice' => $defaultPrices->get($s->id) === null ? null : (string) (float) $defaultPrices->get($s->id),
+                ]),
+            'oilBrands' => self::OIL_BRANDS,
+            'oilTypes' => collect(self::OIL_TYPES)->map(fn (string $key) => ['key' => $key, 'label' => __("shop.oil_{$key}")])->values(),
+        ]);
+    }
+
+    public function update(Request $request, Visit $visit): RedirectResponse
+    {
+        $shopId = $request->user()->shop_id;
+
+        $validated = $request->validate([
+            'km' => ['required', 'integer', 'min:0', 'max:2000000'],
+            'services' => ['required', 'array', 'min:1'],
+            'services.*' => ['integer'],
+            'oil_brand' => ['nullable', 'string', 'max:60'],
+            'oil_type' => ['nullable', Rule::in(self::OIL_TYPES)],
+            'prices' => ['array'],
+            'prices.*' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+        ], [
+            'km.required' => __('shop.km_required'),
+            'km.integer' => __('shop.km_number'),
+            'services.required' => __('shop.services_required'),
+        ]);
+
+        $serviceIds = ServiceType::availableToShop($shopId)
+            ->whereIn('id', $validated['services'])
+            ->pluck('id');
+
+        if ($serviceIds->count() !== count(array_unique($validated['services']))) {
+            throw ValidationException::withMessages(['services' => __('shop.service_invalid')]);
+        }
+
+        $isOilChange = ServiceType::query()->whereIn('id', $serviceIds)->where('name', ServiceType::OIL_CHANGE)->exists();
+        $oilType = $isOilChange ? ($validated['oil_type'] ?? ReminderEngine::DEFAULT_OIL_TYPE) : null;
+
+        $visit->update([
+            'km' => $validated['km'],
+            'oil_brand' => $validated['oil_brand'] ?? null,
+            'oil_type' => $oilType,
+        ]);
+
+        // `sync` replaces the visit's services with the new set + charged prices
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+        $submitted = $validated['prices'] ?? [];
+
+        $visit->services()->sync($serviceIds->mapWithKeys(function (int $id) use ($submitted, $defaultPrices) {
+            $override = $submitted[$id] ?? null;
+            $price = is_numeric($override) ? $override : $defaultPrices->get($id);
+
+            return [$id => ['price' => $price]];
+        })->all());
+
+        // km / oil-type / services may have changed → re-derive the oil reminder
+        $this->engine->scheduleOilReminder($visit->car);
+
+        return redirect()->route('shop.cars.show', $visit->car_id)->with('success', __('shop.visit_updated'));
+    }
+
     /**
      * Undo a just-saved visit (undo instead of confirm dialogs), then re-derive
      * the oil reminder from whatever history remains.

@@ -41,7 +41,7 @@ class RegistrationController extends ShopController
 
     public function accept(Request $request, PendingRegistration $pendingRegistration): RedirectResponse
     {
-        $request->user()->shop->registerCar(
+        $car = $request->user()->shop->registerCar(
             $pendingRegistration->name,
             $pendingRegistration->phone,
             $pendingRegistration->plate,
@@ -50,7 +50,11 @@ class RegistrationController extends ShopController
 
         $pendingRegistration->delete();
 
-        return back()->with('success', __('shop.reg_accepted'));
+        // Straight into a visit for the just-added car (info pre-filled) — the
+        // owner enters the services done and can edit the details from there.
+        return redirect()
+            ->route('shop.visits.create', ['car' => $car->id])
+            ->with('success', __('shop.reg_accepted'));
     }
 
     public function reject(PendingRegistration $pendingRegistration): RedirectResponse

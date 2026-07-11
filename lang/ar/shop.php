@@ -20,6 +20,7 @@ return [
     // Visit flash
     'visit_saved' => 'انحفظت الزيارة',
     'visit_undone' => 'رجّعنا الزيارة',
+    'visit_updated' => 'انحفظت التعديلات',
 
     // Oil types (chips)
     'oil_mineral' => 'زيت عادي',

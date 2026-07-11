@@ -102,6 +102,7 @@ export interface SavedVisit {
 }
 
 export interface CarVisit {
+    id: number;
     date: string;
     km: string;
     price: string | null;

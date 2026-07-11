@@ -61,6 +61,7 @@ class CarController extends ShopController
                     'date' => $nextDue->due_date?->format('d/m/Y'),
                 ],
                 'visits' => $car->visits->map(fn (Visit $visit) => [
+                    'id' => $visit->id,
                     'date' => $visit->visited_at->format('d/m/Y'),
                     'km' => Format::km($visit->km),
                     'price' => Format::price($visit->revenue()),

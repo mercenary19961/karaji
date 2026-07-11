@@ -4,7 +4,7 @@ import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type FormCar, type OilTypeOption, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Check, MessageCircle, Search } from 'lucide-react';
+import { Check, MessageCircle, Pencil, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface Props {
@@ -180,6 +180,13 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                             {car.owner} · {car.phone}
                         </div>
                         {car.lastService && <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>}
+                        <Link
+                            href={route('shop.cars.edit', car.id)}
+                            className="text-primary mt-2 flex w-fit items-center gap-1 text-[14px] font-bold"
+                        >
+                            <Pencil className="size-3.5" aria-hidden />
+                            {t('car.edit')}
+                        </Link>
                     </div>
                 )}
 

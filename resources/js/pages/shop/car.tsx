@@ -88,8 +88,8 @@ export default function CarProfilePage({ shop, car }: Props) {
                 <div className="flex flex-col gap-3">
                     <h2 className="text-lg font-extrabold">{t('car.visits_log')}</h2>
                     <div className="flex flex-col">
-                        {car.visits.map((visit, i) => (
-                            <div key={`${visit.date}-${i}`} className="flex gap-3.5">
+                        {car.visits.map((visit) => (
+                            <div key={visit.id} className="flex gap-3.5">
                                 <div className="flex flex-col items-center">
                                     <div className="bg-primary mt-1.5 size-3.5 rounded-full" />
                                     <div className="bg-input w-0.5 flex-1" />
@@ -110,6 +110,13 @@ export default function CarProfilePage({ shop, car }: Props) {
                                             </span>
                                         ))}
                                     </div>
+                                    <Link
+                                        href={route('shop.visits.edit', visit.id)}
+                                        className="text-primary mt-2.5 flex w-fit items-center gap-1 text-[14px] font-bold"
+                                    >
+                                        <Pencil className="size-3.5" aria-hidden />
+                                        {t('visit.edit')}
+                                    </Link>
                                 </div>
                             </div>
                         ))}

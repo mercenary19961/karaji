@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/back-button';
 import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
@@ -74,6 +75,10 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
     usePoll(15000, { only: ['shopUnread', 'pendingCount'] });
 
     const sidebarNav = [...primaryNav, clientsItem, servicePricesItem, registrationsItem, accountItem];
+
+    // A back button on every drill-down screen (i.e. anything that isn't a
+    // top-level tab) so the owner never has to restart from the nav.
+    const showBack = !primaryNav.some((item) => item.href === url.split('?')[0]);
     const avatarUrl = auth.user.avatar_url;
 
     const otherLocale = locale === 'en' ? 'ar' : 'en';
@@ -228,6 +233,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
 
                 {/* Capped like the old design on phones; opens up on tablet+ */}
                 <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 pt-5 pb-28 md:max-w-6xl md:gap-5 md:px-8 md:pt-8 md:pb-12">
+                    {showBack && <BackButton />}
                     {children}
                 </main>
 
