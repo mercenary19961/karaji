@@ -15,6 +15,7 @@ interface EditableVisit {
     date: string;
     km: string;
     labor: string;
+    notes: string;
     oilBrand: string | null;
     oilType: string | null;
     services: { id: number; price: string }[];
@@ -51,6 +52,7 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
         labor: string;
         oil_brand: string;
         oil_type: string;
+        notes: string;
     }>({
         km: visit.km,
         services: visit.services.map((s) => s.id),
@@ -58,6 +60,7 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
         labor: visit.labor,
         oil_brand: visit.oilBrand ?? oilBrands[0],
         oil_type: visit.oilType ?? oilTypes[0]?.key ?? '',
+        notes: visit.notes,
     });
 
     const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
@@ -83,6 +86,7 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
             ...data,
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
             labor: data.labor === '' ? null : data.labor,
+            notes: data.notes === '' ? null : data.notes,
             prices: Object.fromEntries(
                 Object.entries(data.prices)
                     .filter(([id]) => data.services.includes(Number(id)))
@@ -228,6 +232,17 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
                             </div>
                         </div>
                     )}
+
+                    <div>
+                        <div className="mb-2 text-[17px] font-bold">{t('visit.notes')}</div>
+                        <textarea
+                            value={form.data.notes}
+                            onChange={(e) => form.setData('notes', e.target.value)}
+                            placeholder={t('visit.notes_placeholder')}
+                            rows={3}
+                            className="border-input bg-card focus-visible:border-ring w-full rounded-xl border-2 px-4 py-3 text-[17px] outline-none"
+                        />
+                    </div>
 
                     <button
                         type="submit"

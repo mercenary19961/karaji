@@ -48,6 +48,8 @@ export interface ShopDetail {
     nameEn: string | null;
     area: string | null;
     areaEn: string | null;
+    phone: string | null;
+    defaultDailyKm: number;
     stats: { label: string; value: number }[];
     subscription: {
         status: SubscriptionStatus;

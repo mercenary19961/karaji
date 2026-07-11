@@ -110,6 +110,9 @@ export default function CarProfilePage({ shop, car }: Props) {
                                             </span>
                                         ))}
                                     </div>
+                                    {visit.notes && (
+                                        <div className="text-muted-foreground mt-2 text-[15px] whitespace-pre-line">📝 {visit.notes}</div>
+                                    )}
                                     <Link
                                         href={route('shop.visits.edit', visit.id)}
                                         className="text-primary mt-2.5 flex w-fit items-center gap-1 text-[14px] font-bold"

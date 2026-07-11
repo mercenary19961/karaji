@@ -109,6 +109,8 @@ const dict = {
     'visit.prices': { ar: 'الأسعار', en: 'Prices' },
     'visit.labor': { ar: 'أجرة اليد', en: 'Labor' },
     'visit.total': { ar: 'الإجمالي', en: 'Total' },
+    'visit.notes': { ar: 'ملاحظات (اختياري)', en: 'Notes (optional)' },
+    'visit.notes_placeholder': { ar: 'أي ملاحظة عن السيارة أو الشغل…', en: 'Any note about the car or the work…' },
     'visit.edit': { ar: 'تعديل الزيارة', en: 'Edit visit' },
     'visit_edit.title': { ar: 'تعديل الزيارة', en: 'Edit visit' },
     'visit_edit.save': { ar: 'حفظ التعديلات', en: 'Save changes' },

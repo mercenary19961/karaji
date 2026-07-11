@@ -165,6 +165,22 @@ class VisitFlowTest extends TestCase
         $this->assertEquals(28, Visit::query()->sole()->load('services')->revenue());
     }
 
+    public function test_a_visit_saves_and_edits_notes()
+    {
+        $car = $this->carInShop();
+
+        $this->actingAs($this->user)->post('/shop/visits', [
+            'car_id' => $car->id, 'km' => 50000, 'services' => [$this->oilChange->id], 'notes' => 'الزبون بدو يرجع الأسبوع الجاي',
+        ]);
+        $visit = Visit::query()->sole();
+        $this->assertSame('الزبون بدو يرجع الأسبوع الجاي', $visit->notes);
+
+        $this->actingAs($this->user)->put("/shop/visits/{$visit->id}", [
+            'km' => 50000, 'services' => [$this->oilChange->id], 'notes' => 'ملاحظة محدّثة',
+        ]);
+        $this->assertSame('ملاحظة محدّثة', $visit->refresh()->notes);
+    }
+
     public function test_the_edit_visit_page_renders_the_current_services()
     {
         $car = $this->carInShop();

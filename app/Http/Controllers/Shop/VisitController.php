@@ -112,6 +112,7 @@ class VisitController extends ShopController
             'prices' => ['array'],
             'prices.*' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'labor' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'notes' => ['nullable', 'string', 'max:2000'],
         ], [
             'km.required' => __('shop.km_required'),
             'km.integer' => __('shop.km_number'),
@@ -140,6 +141,7 @@ class VisitController extends ShopController
         $visit = $car->visits()->make([
             'km' => $validated['km'],
             'labor' => $validated['labor'] ?? null,
+            'notes' => $validated['notes'] ?? null,
             'oil_brand' => $validated['oil_brand'] ?? null,
             'oil_type' => $oilType,
             'visited_at' => now(),
@@ -183,6 +185,7 @@ class VisitController extends ShopController
                 'date' => $visit->visited_at->format('d/m/Y'),
                 'km' => (string) $visit->km,
                 'labor' => $visit->labor === null ? '' : (string) (float) $visit->labor,
+                'notes' => $visit->notes ?? '',
                 'oilBrand' => $visit->oil_brand,
                 'oilType' => $visit->oil_type,
                 // Current services + the price charged for each
@@ -216,6 +219,7 @@ class VisitController extends ShopController
             'prices' => ['array'],
             'prices.*' => ['nullable', 'numeric', 'min:0', 'max:99999'],
             'labor' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'notes' => ['nullable', 'string', 'max:2000'],
         ], [
             'km.required' => __('shop.km_required'),
             'km.integer' => __('shop.km_number'),
@@ -236,6 +240,7 @@ class VisitController extends ShopController
         $visit->update([
             'km' => $validated['km'],
             'labor' => $validated['labor'] ?? null,
+            'notes' => $validated['notes'] ?? null,
             'oil_brand' => $validated['oil_brand'] ?? null,
             'oil_type' => $oilType,
         ]);

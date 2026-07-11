@@ -48,6 +48,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
         labor: string;
         oil_brand: string;
         oil_type: string;
+        notes: string;
     }>({
         name: '',
         phone: '',
@@ -59,6 +60,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
         labor: '',
         oil_brand: car?.lastOilBrand ?? oilBrands[0],
         oil_type: car?.lastOilType ?? oilTypes[0]?.key ?? '',
+        notes: '',
     });
 
     // The oil-type control only matters when this visit changes the oil
@@ -93,6 +95,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
             car_id: newCust ? null : (car?.id ?? null),
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
             labor: data.labor === '' ? null : data.labor,
+            notes: data.notes === '' ? null : data.notes,
             // Only the selected services' prices; blanks go as null (no price)
             prices: Object.fromEntries(
                 Object.entries(data.prices)
@@ -387,6 +390,17 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                                     </div>
                                 </div>
                             )}
+
+                            <div>
+                                <div className="mb-2 text-[17px] font-bold">{t('visit.notes')}</div>
+                                <textarea
+                                    value={form.data.notes}
+                                    onChange={(e) => form.setData('notes', e.target.value)}
+                                    placeholder={t('visit.notes_placeholder')}
+                                    rows={3}
+                                    className="border-input bg-card focus-visible:border-ring w-full rounded-xl border-2 px-4 py-3 text-[17px] outline-none"
+                                />
+                            </div>
 
                             <button
                                 type="submit"

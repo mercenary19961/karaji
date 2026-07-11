@@ -107,6 +107,7 @@ export interface CarVisit {
     km: string;
     price: string | null;
     services: string[];
+    notes: string | null;
 }
 
 export interface CarProfile {
