@@ -89,8 +89,10 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
             {/* ===== Desktop sidebar (tablet & up) ===== */}
             <aside className="bg-primary text-primary-foreground hidden w-64 shrink-0 flex-col p-4 md:flex">
                 <div className="flex items-center gap-2.5 px-2 pt-2 pb-5">
-                    {/* Brand from APP_NAME via shared `name` — never hardcoded */}
-                    <div className="text-[26px] font-extrabold tracking-wide">{name}</div>
+                    {/* Brand from APP_NAME via shared `name` — never hardcoded; links home */}
+                    <Link href={route('shop.dashboard')} className="text-[26px] font-extrabold tracking-wide">
+                        {name}
+                    </Link>
                 </div>
 
                 <nav className="flex flex-col gap-1">
@@ -187,7 +189,9 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                 {/* Mobile header (phones only) */}
                 <header className="bg-primary text-primary-foreground flex items-center justify-between gap-3 px-5 pt-4 pb-3.5 md:hidden">
                     <div className="min-w-0">
-                        <div className="text-2xl font-extrabold tracking-wide">{name}</div>
+                        <Link href={route('shop.dashboard')} className="block text-2xl font-extrabold tracking-wide">
+                            {name}
+                        </Link>
                         <div className="text-primary-foreground/70 truncate text-[13px] font-medium">
                             {shop.name} · {shop.area}
                         </div>
