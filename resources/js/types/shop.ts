@@ -119,7 +119,7 @@ export interface Reminder {
 }
 
 export interface Analytics {
-    months: { label: string; year: number; visits: number }[];
+    months: { label: string; month: number; year: number; visits: number }[];
     topServices: { label: string; count: number }[];
     lostCustomers: { owner: string; ownerAr: string; car: string; carAr: string; lastVisit: string; whatsapp: string }[];
     /** The month the chart window ends at (and the highlighted bar). */

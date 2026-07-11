@@ -40,7 +40,8 @@ class AnalyticsTest extends TestCase
             ->where('analytics.selected.year', $past->year)
             ->where('analytics.selected.month', $past->month)
             ->has('analytics.months', 6)
-            ->where('analytics.months.5.year', $past->year));
+            ->where('analytics.months.5.year', $past->year)
+            ->where('analytics.months.5.month', $past->month));
     }
 
     public function test_a_future_month_is_clamped_to_the_current_month()

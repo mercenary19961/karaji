@@ -12,7 +12,9 @@ interface Props {
     analytics: Analytics;
 }
 
-const CHART = { width: 320, height: 150, barWidth: 34, gap: 50, baseline: 140, maxBarHeight: 115 };
+// SVG chart geometry (viewBox units). `top` leaves headroom for the value
+// labels; `labelGap` is the breathing room between the bars and the axis numbers.
+const CHART = { width: 340, height: 152, top: 26, barArea: 92, barWidth: 30, labelGap: 24 };
 
 export default function AnalyticsPage({ shop, analytics }: Props) {
     const t = useT();
@@ -24,8 +26,14 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
     const maxVisits = Math.max(...months.map((m) => m.visits), 1);
     // The window ends at the selected month, so the last bar is the active one
     const activeIndex = months.length - 1;
+    const selectedVisits = months[activeIndex]?.visits ?? 0;
     const atMax = selected.year === max.year && selected.month === max.month;
     const minYear = max.year - 5;
+
+    // Derived chart layout
+    const slot = CHART.width / months.length;
+    const baseline = CHART.top + CHART.barArea;
+    const labelY = baseline + CHART.labelGap;
 
     const goToMonth = (year: number, month: number) => {
         setPickerOpen(false);
@@ -133,38 +141,64 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
 
             <div className="grid gap-4 md:grid-cols-2 md:items-start">
                 <div className="bg-card rounded-[18px] p-4 shadow-sm">
-                    <h2 className="mb-3 text-[17px] font-extrabold">{t('stats.monthly')}</h2>
+                    <div className="mb-4 flex items-baseline justify-between gap-2">
+                        <h2 className="text-[17px] font-extrabold">{t('stats.monthly')}</h2>
+                        <div className="text-muted-foreground text-sm font-medium">
+                            {monthNames[selected.month - 1]}
+                            <span className="text-primary px-1 font-extrabold">·</span>
+                            <span className="text-primary font-extrabold">{selectedVisits}</span>
+                        </div>
+                    </div>
                     <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="block h-auto w-full" role="img" aria-label={t('stats.chart_aria')}>
                         {months.map((month, i) => {
-                            const barHeight = Math.round((month.visits / maxVisits) * CHART.maxBarHeight);
-                            const x = 18 + i * CHART.gap;
-                            const y = CHART.baseline - barHeight;
                             const active = i === activeIndex;
+                            const barHeight = Math.round((month.visits / maxVisits) * CHART.barArea);
+                            const cx = slot * i + slot / 2;
+                            const bx = cx - CHART.barWidth / 2;
+                            const by = baseline - barHeight;
 
                             return (
-                                <g key={`${month.label}-${month.year}`}>
+                                <g key={`${month.year}-${month.month}`}>
+                                    {/* faint full-height column so an empty month reads as a real "0", not a gap */}
                                     <rect
-                                        x={x}
-                                        y={y}
+                                        x={bx}
+                                        y={CHART.top}
                                         width={CHART.barWidth}
-                                        height={barHeight}
-                                        rx={6}
-                                        fill={active ? 'var(--primary)' : 'var(--input)'}
+                                        height={CHART.barArea}
+                                        rx={8}
+                                        fill="var(--primary)"
+                                        opacity={0.06}
                                     />
-                                    {active && (
-                                        <text
-                                            x={x + CHART.barWidth / 2}
-                                            y={y - 7}
-                                            fontSize={13}
-                                            fontWeight={800}
+                                    {barHeight > 0 && (
+                                        <rect
+                                            x={bx}
+                                            y={by}
+                                            width={CHART.barWidth}
+                                            height={barHeight}
+                                            rx={6}
                                             fill="var(--primary)"
-                                            textAnchor="middle"
-                                        >
-                                            {month.visits}
-                                        </text>
+                                            opacity={active ? 1 : 0.28}
+                                        />
                                     )}
-                                    <text x={x + CHART.barWidth / 2} y={148} fontSize={11} fill="var(--muted-foreground)" textAnchor="middle">
-                                        {month.label}
+                                    <text
+                                        x={cx}
+                                        y={by - 6}
+                                        fontSize={active ? 13 : 11}
+                                        fontWeight={active ? 800 : 600}
+                                        fill={active ? 'var(--primary)' : 'var(--muted-foreground)'}
+                                        textAnchor="middle"
+                                    >
+                                        {month.visits}
+                                    </text>
+                                    <text
+                                        x={cx}
+                                        y={labelY}
+                                        fontSize={active ? 12 : 11}
+                                        fontWeight={active ? 800 : 500}
+                                        fill={active ? 'var(--primary)' : 'var(--muted-foreground)'}
+                                        textAnchor="middle"
+                                    >
+                                        {month.month}
                                     </text>
                                 </g>
                             );

@@ -38,6 +38,7 @@ class AnalyticsController extends ShopController
 
             return [
                 'label' => Format::monthName($month->month),
+                'month' => $month->month,
                 'year' => $month->year,
                 'visits' => $visitsByMonth->get($month->format('Y-n'), collect())->count(),
             ];
