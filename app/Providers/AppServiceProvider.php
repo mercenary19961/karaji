@@ -25,13 +25,5 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        // TEMP (local tunnel testing via cloudflared): the tunnel serves HTTPS but
-        // talks plain HTTP to `php artisan serve`, so generated asset/route URLs
-        // come out http:// and are blocked as mixed content → blank page. Force
-        // https when reached through an https tunnel. REMOVE after tunnel testing.
-        if (! $this->app->environment('production') && request()->header('x-forwarded-proto') === 'https') {
-            URL::forceScheme('https');
-        }
     }
 }
