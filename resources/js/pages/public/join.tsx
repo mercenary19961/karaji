@@ -43,7 +43,7 @@ export default function Join({ shopName, token }: Props) {
                             <CheckCircle2 className="size-9" aria-hidden />
                         </div>
                         <div className="text-success-soft-foreground mt-3 text-[20px] font-extrabold">{flash.success}</div>
-                        <div className="text-muted-foreground mt-1.5 text-[15px]">فيك تسكّر الصفحة · رح نتواصل معك بمواعيد الصيانة</div>
+                        <div className="text-muted-foreground mt-1.5 text-[15px]">بتقدر تسكّر الصفحة · رح نتواصل معك بمواعيد الصيانة</div>
                     </div>
                 ) : (
                     <form onSubmit={submit} className="bg-card flex flex-col gap-3 rounded-2xl p-5 shadow-sm">

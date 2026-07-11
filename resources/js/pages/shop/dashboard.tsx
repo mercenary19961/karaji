@@ -2,7 +2,7 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
 import { Megaphone, MessageCircle, Plus, QrCode, Search, X } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
@@ -25,6 +25,9 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
     const { flash, pendingCount } = usePage<SharedData>().props;
     const t = useT();
     const [q, setQ] = useState('');
+
+    // New announcements (and the pending-request alert) surface without a refresh
+    usePoll(15000, { only: ['announcements'] });
 
     const search = (e: FormEvent) => {
         e.preventDefault();

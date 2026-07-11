@@ -1,7 +1,7 @@
 import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage, usePoll } from '@inertiajs/react';
 import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, QrCode, UserRound, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
@@ -60,6 +60,10 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
     const { name, impersonating, auth, locale, shopUnread, pendingCount } = usePage<SharedData>().props;
     const { url } = usePage();
     const t = useT();
+
+    // Keep the message + pending-request badges live on every screen without a
+    // manual refresh (Inertia pauses polling automatically when the tab is hidden).
+    usePoll(15000, { only: ['shopUnread', 'pendingCount'] });
 
     const sidebarNav = [...primaryNav, servicePricesItem, registrationsItem, accountItem];
     const avatarUrl = auth.user.avatar_url;

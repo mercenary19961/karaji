@@ -2,7 +2,7 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage, usePoll } from '@inertiajs/react';
 import { Check, Copy, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useState } from 'react';
@@ -27,6 +27,9 @@ export default function Registrations({ shop, joinUrl, autoAccept, pending }: Pr
     const { flash } = usePage<SharedData>().props;
     const t = useT();
     const [copied, setCopied] = useState(false);
+
+    // New customer requests appear on their own — no refresh needed
+    usePoll(15000, { only: ['pending'] });
 
     const copyLink = async () => {
         try {
