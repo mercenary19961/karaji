@@ -192,9 +192,9 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                             type="button"
                             onClick={switchLanguage}
                             aria-label={locale === 'en' ? 'التبديل إلى العربية' : 'Switch to English'}
-                            className="flex size-11 items-center justify-center rounded-full bg-white/10 text-[14px] font-extrabold"
+                            className="flex size-11 items-center justify-center rounded-full bg-white/10 text-[14px] leading-none font-extrabold"
                         >
-                            {locale === 'en' ? 'ع' : 'EN'}
+                            <span className="leading-none">{locale === 'en' ? 'ع' : 'EN'}</span>
                         </button>
                         <Link
                             href={route('shop.registrations')}
