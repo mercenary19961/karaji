@@ -2,7 +2,7 @@ import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
 import { Link, router, usePage, usePoll } from '@inertiajs/react';
-import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, QrCode, UserRound, type LucideIcon } from 'lucide-react';
+import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, QrCode, UserRound, Users, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
@@ -32,6 +32,14 @@ const newVisitItem: NavItem = {
     href: '/shop/entry',
     icon: Plus,
     isActive: (url) => url.startsWith('/shop/entry') || url.startsWith('/shop/visits'),
+};
+
+// The clients directory — desktop sidebar; mobile reaches it from the dashboard
+const clientsItem: NavItem = {
+    labelKey: 'nav.clients',
+    href: '/shop/clients',
+    icon: Users,
+    isActive: (url) => url.startsWith('/shop/clients'),
 };
 
 // Settings-level items — desktop sidebar only (mobile reaches them via account)
@@ -65,7 +73,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
     // manual refresh (Inertia pauses polling automatically when the tab is hidden).
     usePoll(15000, { only: ['shopUnread', 'pendingCount'] });
 
-    const sidebarNav = [...primaryNav, servicePricesItem, registrationsItem, accountItem];
+    const sidebarNav = [...primaryNav, clientsItem, servicePricesItem, registrationsItem, accountItem];
     const avatarUrl = auth.user.avatar_url;
 
     const otherLocale = locale === 'en' ? 'ar' : 'en';

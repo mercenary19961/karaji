@@ -11,7 +11,11 @@ return [
     'phone_required' => 'لازم رقم التلفون',
     'plate_required' => 'لازم رقم اللوحة',
     'plate_unique' => 'هاللوحة مسجلة عندك من قبل · دوّرها من البحث',
+    'phone_unique' => 'هالتلفون مسجّل عندك لزبون ثاني',
     'service_invalid' => 'في خدمة مش صالحة',
+
+    // Client edit
+    'client_updated' => 'انحفظت التعديلات',
 
     // Visit flash
     'visit_saved' => 'انحفظت الزيارة',

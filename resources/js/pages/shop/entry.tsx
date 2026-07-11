@@ -1,4 +1,5 @@
 import ShopLayout from '@/layouts/shop-layout';
+import { searchCars } from '@/lib/car-search';
 import { useT } from '@/lib/i18n';
 import { type CarSearchItem, type Shop } from '@/types/shop';
 import { Head, Link, router } from '@inertiajs/react';
@@ -10,48 +11,15 @@ interface Props {
     cars: CarSearchItem[];
 }
 
-/**
- * Ranks a car against the query. Numbers match plate/phone (a leading match
- * beats a contains match); text matches owner/label. Returns 0 for no match.
- */
-function scoreCar(car: CarSearchItem, query: string, digits: string): number {
-    const plate = car.plate.toLowerCase();
-    const plateDigits = plate.replace(/\D/g, '');
-    const phone = car.phone.replace(/\D/g, '');
-    const owner = car.owner.toLowerCase();
-    const label = car.label.toLowerCase();
-
-    let score = 0;
-    if (digits) {
-        if (plateDigits.startsWith(digits)) score = Math.max(score, 100);
-        else if (plateDigits.includes(digits)) score = Math.max(score, 72);
-        if (phone.startsWith(digits)) score = Math.max(score, 92);
-        else if (phone.includes(digits)) score = Math.max(score, 62);
-    }
-    if (owner.includes(query)) score = Math.max(score, owner.startsWith(query) ? 88 : 56);
-    if (label.includes(query)) score = Math.max(score, label.startsWith(query) ? 82 : 52);
-    if (plate.includes(query)) score = Math.max(score, 66); // plate typed with its dash
-    return score;
-}
-
 export default function Entry({ shop, cars }: Props) {
     const t = useT();
     const [q, setQ] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
     const query = q.trim().toLowerCase();
-    const digits = query.replace(/\D/g, '');
 
     // Instant, client-side — no per-keystroke round-trip.
-    const results = useMemo(() => {
-        if (!query) return [];
-        return cars
-            .map((car) => ({ car, score: scoreCar(car, query, digits) }))
-            .filter((r) => r.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 8)
-            .map((r) => r.car);
-    }, [cars, query, digits]);
+    const results = useMemo(() => searchCars(cars, q, 8), [cars, q]);
 
     // `cars` arrives newest-visit first, so the head is the recent list.
     const recent = useMemo(() => cars.slice(0, 6), [cars]);

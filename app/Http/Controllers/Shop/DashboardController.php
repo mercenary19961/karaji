@@ -51,9 +51,25 @@ class DashboardController extends ShopController
             ])
             ->values();
 
+        // The freshest activity — recent visitors/newcomers, not just overdue ones
+        $recentVisits = Visit::query()
+            ->latest('visited_at')
+            ->with(['car.customer', 'services'])
+            ->limit(4)
+            ->get()
+            ->map(fn (Visit $visit) => [
+                'id' => $visit->id,
+                'carId' => $visit->car_id,
+                'car' => $visit->car->displayLabel(),
+                'owner' => $visit->car->customer->displayName(),
+                'date' => $visit->visited_at->format('d/m/Y'),
+                'services' => $visit->services->map(fn ($service) => $service->displayName()),
+            ]);
+
         return Inertia::render('shop/dashboard', [
             'shop' => $this->shopProps($request),
             'announcements' => $announcements,
+            'recentVisits' => $recentVisits,
             'stats' => [
                 'todayVisits' => Visit::query()->whereDate('visited_at', today())->count(),
                 'dueCount' => $dueQuery->count(),

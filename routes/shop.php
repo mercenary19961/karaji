@@ -4,6 +4,7 @@ use App\Http\Controllers\Shop\AccountController;
 use App\Http\Controllers\Shop\AnalyticsController;
 use App\Http\Controllers\Shop\AnnouncementController;
 use App\Http\Controllers\Shop\CarController;
+use App\Http\Controllers\Shop\ClientController;
 use App\Http\Controllers\Shop\DashboardController;
 use App\Http\Controllers\Shop\EntryController;
 use App\Http\Controllers\Shop\InboxController;
@@ -21,8 +22,13 @@ Route::middleware(['auth', SetShopLocale::class, EnsureShopUser::class])->prefix
     // The new-visit landing (instant search + recents + new-customer shortcut)
     Route::get('entry', [EntryController::class, 'index'])->name('entry');
 
+    // The clients directory (all registered customers/cars, recency-sorted)
+    Route::get('clients', [ClientController::class, 'index'])->name('clients');
+
     // Generous limits — a busy counter taps fast; these only stop abuse
     Route::get('cars/search', [CarController::class, 'search'])->middleware('throttle:60,1')->name('cars.search');
+    Route::get('cars/{car}/edit', [CarController::class, 'edit'])->name('cars.edit');
+    Route::put('cars/{car}', [CarController::class, 'update'])->middleware('throttle:30,1')->name('cars.update');
     Route::get('cars/{car}', [CarController::class, 'show'])->name('cars.show');
 
     Route::get('visits/new', [VisitController::class, 'create'])->name('visits.create');

@@ -9,7 +9,11 @@ return [
     'phone_required' => 'Phone number is required',
     'plate_required' => 'Plate number is required',
     'plate_unique' => 'This plate is already registered · find it from search',
+    'phone_unique' => 'This phone is already registered to another customer',
     'service_invalid' => 'Invalid service selected',
+
+    // Client edit
+    'client_updated' => 'Changes saved',
 
     // Visit flash
     'visit_saved' => 'Visit saved',

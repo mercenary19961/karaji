@@ -2,7 +2,7 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type CarProfile, type Shop } from '@/types/shop';
 import { Head, Link } from '@inertiajs/react';
-import { Bell, MessageCircle, Phone, Plus } from 'lucide-react';
+import { Bell, MessageCircle, Pencil, Phone, Plus } from 'lucide-react';
 
 interface Props {
     shop: Shop;
@@ -53,6 +53,13 @@ export default function CarProfilePage({ shop, car }: Props) {
                                 {t('common.whatsapp')}
                             </a>
                         </div>
+                        <Link
+                            href={route('shop.cars.edit', car.id)}
+                            className="border-input text-primary bg-card mt-2.5 flex h-12 items-center justify-center gap-2 rounded-xl border-2 text-[15px] font-bold"
+                        >
+                            <Pencil className="size-4" aria-hidden />
+                            {t('car.edit')}
+                        </Link>
                     </div>
 
                     <Link

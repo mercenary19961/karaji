@@ -28,6 +28,16 @@ export interface DueTodayItem {
     overdueLabel: string;
 }
 
+/** A recent visit shown on the dashboard "latest visits" strip. */
+export interface RecentVisit {
+    id: number;
+    carId: number;
+    car: string;
+    owner: string;
+    date: string;
+    services: string[];
+}
+
 /** A car in the entry-page client-side search index. */
 export interface CarSearchItem {
     id: number;

@@ -8,10 +8,39 @@ use App\Models\ServiceType;
 use App\Support\Format;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 
 abstract class ShopController extends Controller
 {
+    // A local garage's car count is small, so the whole directory is sent to the
+    // client for zero-latency typeahead; capped so a large shop stays bounded.
+    private const CAR_INDEX_CAP = 500;
+
+    /**
+     * The shop's car directory (customer + car + last visit), most-recently-seen
+     * first. Shared by the entry typeahead and the clients page.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    protected function carIndex(): Collection
+    {
+        return Car::query()
+            ->with(['customer', 'latestVisit'])
+            ->get()
+            ->sortByDesc(fn (Car $car) => $car->latestVisit?->visited_at ?? $car->created_at)
+            ->take(self::CAR_INDEX_CAP)
+            ->map(fn (Car $car) => [
+                'id' => $car->id,
+                'plate' => $car->plate,
+                'label' => $car->displayLabel(),
+                'owner' => $car->customer->displayName(),
+                'phone' => $car->customer->phone,
+                'lastVisit' => $car->latestVisit?->visited_at->format('d/m/Y'),
+            ])
+            ->values();
+    }
+
     /**
      * The `shop` prop every shop-portal page receives (header context).
      */

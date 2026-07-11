@@ -1,7 +1,7 @@
 import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
-import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
+import { type DashboardAnnouncement, type DueTodayItem, type RecentVisit, type Shop, type ShopStats } from '@/types/shop';
 import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
 import { Megaphone, MessageCircle, Plus, QrCode, Search, X } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
@@ -19,9 +19,10 @@ interface Props {
     dueToday: DueTodayItem[];
     announcements: DashboardAnnouncement[];
     lostCustomers: LostCustomer[];
+    recentVisits: RecentVisit[];
 }
 
-export default function Dashboard({ shop, stats, dueToday, announcements, lostCustomers }: Props) {
+export default function Dashboard({ shop, stats, dueToday, announcements, lostCustomers, recentVisits }: Props) {
     const { flash, pendingCount } = usePage<SharedData>().props;
     const t = useT();
     const [q, setQ] = useState('');
@@ -181,6 +182,37 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                         {lostCustomers.length === 0 && <div className="text-muted-foreground p-4 text-center text-sm">{t('dash.no_losing')}</div>}
                     </div>
                 </div>
+            </div>
+
+            {/* Latest visits — recent activity, so the dashboard isn't only overdue */}
+            <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-extrabold">{t('dash.recent')}</h2>
+                    <Link href={route('shop.clients')} className="text-primary flex min-h-12 items-center px-2 text-[15px] font-bold">
+                        {t('dash.all_clients')}
+                    </Link>
+                </div>
+                {recentVisits.length === 0 ? (
+                    <div className="bg-card text-muted-foreground rounded-2xl p-5 text-center text-base">{t('dash.no_recent')}</div>
+                ) : (
+                    <div className="grid gap-2.5 md:grid-cols-2">
+                        {recentVisits.map((visit) => (
+                            <Link
+                                key={visit.id}
+                                href={route('shop.cars.show', visit.carId)}
+                                className="bg-card flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm"
+                            >
+                                <div className="min-w-0">
+                                    <div className="truncate text-[17px] font-bold">
+                                        {visit.car} · {visit.owner}
+                                    </div>
+                                    <div className="text-muted-foreground mt-0.5 truncate text-[15px]">{visit.services.join(' · ')}</div>
+                                </div>
+                                <span className="text-muted-foreground shrink-0 text-sm font-medium whitespace-nowrap">{visit.date}</span>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
         </ShopLayout>
     );
