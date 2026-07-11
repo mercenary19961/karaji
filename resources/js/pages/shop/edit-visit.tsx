@@ -14,6 +14,7 @@ interface EditableVisit {
     owner: string;
     date: string;
     km: string;
+    labor: string;
     oilBrand: string | null;
     oilType: string | null;
     services: { id: number; price: string }[];
@@ -47,19 +48,22 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
         km: string;
         services: number[];
         prices: Record<number, string>;
+        labor: string;
         oil_brand: string;
         oil_type: string;
     }>({
         km: visit.km,
         services: visit.services.map((s) => s.id),
         prices: Object.fromEntries(visit.services.map((s) => [s.id, s.price])),
+        labor: visit.labor,
         oil_brand: visit.oilBrand ?? oilBrands[0],
         oil_type: visit.oilType ?? oilTypes[0]?.key ?? '',
     });
 
     const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
     const selectedServices = serviceTypes.filter((s) => form.data.services.includes(s.id));
-    const total = Math.round(selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0) * 100) / 100;
+    const partsSum = selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0);
+    const total = Math.round((partsSum + (parseFloat(form.data.labor || '') || 0)) * 100) / 100;
 
     const toggleService = (id: number) => {
         const on = form.data.services.includes(id);
@@ -78,6 +82,7 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
         form.transform((data) => ({
             ...data,
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
+            labor: data.labor === '' ? null : data.labor,
             prices: Object.fromEntries(
                 Object.entries(data.prices)
                     .filter(([id]) => data.services.includes(Number(id)))
@@ -200,6 +205,20 @@ export default function EditVisit({ shop, visit, serviceTypes, oilBrands, oilTyp
                                         </div>
                                     </div>
                                 ))}
+                                <div className="flex items-center justify-between gap-3 px-2 py-2">
+                                    <span className="text-[16px] font-bold">{t('visit.labor')}</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <input
+                                            inputMode="decimal"
+                                            value={form.data.labor}
+                                            onChange={(e) => form.setData('labor', e.target.value)}
+                                            placeholder="—"
+                                            aria-label={t('visit.labor')}
+                                            className="border-input bg-card focus-visible:border-ring h-11 w-20 rounded-lg border-2 px-2 text-center text-[17px] font-bold outline-none"
+                                        />
+                                        <span className="text-muted-foreground text-sm font-bold">{t('common.currency')}</span>
+                                    </div>
+                                </div>
                                 <div className="flex items-center justify-between px-2 pt-2.5 pb-1">
                                     <span className="text-[16px] font-extrabold">{t('visit.total')}</span>
                                     <span className="text-success-soft-foreground text-[18px] font-extrabold">

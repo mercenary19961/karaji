@@ -45,6 +45,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
         km: string;
         services: number[];
         prices: Record<number, string>;
+        labor: string;
         oil_brand: string;
         oil_type: string;
     }>({
@@ -55,6 +56,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
         km: '',
         services: defaultServices,
         prices: Object.fromEntries(defaultServices.map((id) => [id, defaultPriceFor(id)])),
+        labor: '',
         oil_brand: car?.lastOilBrand ?? oilBrands[0],
         oil_type: car?.lastOilType ?? oilTypes[0]?.key ?? '',
     });
@@ -62,9 +64,10 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
     // The oil-type control only matters when this visit changes the oil
     const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
 
-    // Per-service price rows + a live total (the visit's revenue)
+    // Per-service price rows + labor → a live total (the visit's revenue)
     const selectedServices = serviceTypes.filter((s) => form.data.services.includes(s.id));
-    const total = Math.round(selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0) * 100) / 100;
+    const partsSum = selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0);
+    const total = Math.round((partsSum + (parseFloat(form.data.labor || '') || 0)) * 100) / 100;
 
     const searchCar = (e: FormEvent) => {
         e.preventDefault();
@@ -89,6 +92,7 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
             ...data,
             car_id: newCust ? null : (car?.id ?? null),
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
+            labor: data.labor === '' ? null : data.labor,
             // Only the selected services' prices; blanks go as null (no price)
             prices: Object.fromEntries(
                 Object.entries(data.prices)
@@ -360,6 +364,20 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                                                 </div>
                                             </div>
                                         ))}
+                                        <div className="flex items-center justify-between gap-3 px-2 py-2">
+                                            <span className="text-[16px] font-bold">{t('visit.labor')}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <input
+                                                    inputMode="decimal"
+                                                    value={form.data.labor}
+                                                    onChange={(e) => form.setData('labor', e.target.value)}
+                                                    placeholder="—"
+                                                    aria-label={t('visit.labor')}
+                                                    className="border-input bg-card focus-visible:border-ring h-11 w-20 rounded-lg border-2 px-2 text-center text-[17px] font-bold outline-none"
+                                                />
+                                                <span className="text-muted-foreground text-sm font-bold">{t('common.currency')}</span>
+                                            </div>
+                                        </div>
                                         <div className="flex items-center justify-between px-2 pt-2.5 pb-1">
                                             <span className="text-[16px] font-extrabold">{t('visit.total')}</span>
                                             <span className="text-success-soft-foreground text-[18px] font-extrabold">

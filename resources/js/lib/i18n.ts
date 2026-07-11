@@ -107,6 +107,7 @@ const dict = {
     'visit.same_last': { ar: 'زي آخر زيارة · {brand}', en: 'Same as last · {brand}' },
     'visit.price': { ar: 'السعر (اختياري)', en: 'Price (optional)' },
     'visit.prices': { ar: 'الأسعار', en: 'Prices' },
+    'visit.labor': { ar: 'أجرة اليد', en: 'Labor' },
     'visit.total': { ar: 'الإجمالي', en: 'Total' },
     'visit.edit': { ar: 'تعديل الزيارة', en: 'Edit visit' },
     'visit_edit.title': { ar: 'تعديل الزيارة', en: 'Edit visit' },

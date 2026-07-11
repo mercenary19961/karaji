@@ -149,6 +149,22 @@ class VisitFlowTest extends TestCase
         $this->assertSame($customer->id, Car::query()->where('plate', '88-54321')->sole()->customer_id);
     }
 
+    public function test_labor_is_added_to_the_visit_revenue()
+    {
+        $car = $this->carInShop();
+
+        $this->actingAs($this->user)->post('/shop/visits', [
+            'car_id' => $car->id,
+            'km' => 50000,
+            'services' => [$this->oilChange->id],
+            'prices' => [$this->oilChange->id => 20],
+            'labor' => 8,
+        ]);
+
+        // 20 (oil-change parts) + 8 (labor)
+        $this->assertEquals(28, Visit::query()->sole()->load('services')->revenue());
+    }
+
     public function test_the_edit_visit_page_renders_the_current_services()
     {
         $car = $this->carInShop();

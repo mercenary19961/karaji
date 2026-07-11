@@ -159,10 +159,10 @@ class DatabaseSeeder extends Seeder
         // carries its charged price (a couple differ from the default, to show
         // the per-visit override).
         $visits = [
-            ['visited_at' => '2026-03-05', 'km' => 82500, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 22, 'فلتر زيت' => 6]],
-            ['visited_at' => '2025-11-18', 'km' => 77900, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'فلتر هواء' => 7, 'فحص فرامل' => 10]],
-            ['visited_at' => '2025-07-02', 'km' => 72400, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20]],
-            ['visited_at' => '2025-02-15', 'km' => 67100, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'بطارية' => 45]],
+            ['visited_at' => '2026-03-05', 'km' => 82500, 'labor' => 5, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 22, 'فلتر زيت' => 6]],
+            ['visited_at' => '2025-11-18', 'km' => 77900, 'labor' => 8, 'oil_brand' => 'Mobil 5W-30', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'فلتر هواء' => 7, 'فحص فرامل' => 10]],
+            ['visited_at' => '2025-07-02', 'km' => 72400, 'labor' => 5, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20]],
+            ['visited_at' => '2025-02-15', 'km' => 67100, 'labor' => 10, 'oil_brand' => 'Castrol 5W-40', 'oil_type' => 'synthetic', 'services' => ['تغيير زيت' => 20, 'بطارية' => 45]],
         ];
 
         foreach ($visits as $data) {
@@ -170,6 +170,7 @@ class DatabaseSeeder extends Seeder
                 'shop_id' => $shop->id,
                 'car_id' => $sportage->id,
                 'km' => $data['km'],
+                'labor' => $data['labor'],
                 'oil_brand' => $data['oil_brand'],
                 'oil_type' => $data['oil_type'],
                 'visited_at' => Carbon::parse($data['visited_at']),
