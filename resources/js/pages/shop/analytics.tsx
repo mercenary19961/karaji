@@ -117,12 +117,13 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                                     disabled={isFuture}
                                     onClick={() => goToMonth(viewYear, month)}
                                     className={cn(
-                                        'flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-colors',
+                                        'flex h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-sm font-bold transition-colors',
                                         isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground hover:bg-secondary/70',
                                         isFuture && 'cursor-not-allowed opacity-30',
                                     )}
                                 >
-                                    {name}
+                                    <span>{name}</span>
+                                    <span className="text-xs font-semibold opacity-60">{month}</span>
                                 </button>
                             );
                         })}
