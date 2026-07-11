@@ -154,6 +154,7 @@ const dict = {
     'reg.field_phone': { ar: 'التلفون', en: 'Phone' },
     'reg.field_plate': { ar: 'اللوحة', en: 'Plate' },
     'reg.field_car': { ar: 'السيارة', en: 'Car' },
+    'reg.field_license': { ar: 'الترخيص', en: 'License' },
 
     // Service prices (settings)
     'prices.title': { ar: 'أسعار الخدمات', en: 'Service prices' },

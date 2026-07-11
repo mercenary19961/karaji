@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { CheckCircle2 } from 'lucide-react';
@@ -11,6 +12,11 @@ interface Props {
 // Customer-facing = Arabic (like the WhatsApp templates), independent of any UI locale.
 const inputClasses = 'border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-lg outline-none';
 
+// Levantine month names; the license-renewal month the customer supplies goes
+// straight onto the car so the shop doesn't have to enter it.
+const MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+const NO_MONTH = 'none'; // Radix Select can't use an empty value
+
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
 
@@ -20,10 +26,11 @@ function FieldError({ message }: { message?: string }) {
 export default function Join({ shopName, token }: Props) {
     const { flash, name } = usePage<SharedData>().props;
 
-    const form = useForm({ name: '', phone: '', plate: '', label: '' });
+    const form = useForm({ name: '', phone: '', plate: '', label: '', license_month: NO_MONTH });
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
+        form.transform((data) => ({ ...data, license_month: data.license_month === NO_MONTH ? null : Number(data.license_month) }));
         form.post(route('join.store', token), { preserveScroll: true });
     };
 
@@ -85,6 +92,25 @@ export default function Join({ shopName, token }: Props) {
                             onChange={(e) => form.setData('label', e.target.value)}
                             className={inputClasses}
                         />
+
+                        <div>
+                            <div className="text-muted-foreground mb-1.5 text-[14.5px] font-bold">شهر تجديد الترخيص (إذا بتعرفه)</div>
+                            <Select value={form.data.license_month} onValueChange={(v) => form.setData('license_month', v)}>
+                                <SelectTrigger className="h-14 text-[17px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value={NO_MONTH} className="text-[17px]">
+                                        مش متأكد
+                                    </SelectItem>
+                                    {MONTHS.map((month, i) => (
+                                        <SelectItem key={month} value={String(i + 1)} className="text-[17px]">
+                                            {i + 1} · {month}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
                         <button
                             type="submit"

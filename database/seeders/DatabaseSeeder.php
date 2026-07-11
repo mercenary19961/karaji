@@ -251,6 +251,7 @@ class DatabaseSeeder extends Seeder
             'phone' => '0791122334',
             'plate' => '25-66890',
             'label' => 'نيسان صني 2021',
+            'license_month' => 7, // the customer supplied their license-renewal month
         ]);
         PendingRegistration::factory()->create([
             'shop_id' => $shop->id,
@@ -258,6 +259,7 @@ class DatabaseSeeder extends Seeder
             'phone' => '0779988776',
             'plate' => '44-10275',
             'label' => 'كيا بيكانتو 2022',
+            'license_month' => null,
         ]);
     }
 

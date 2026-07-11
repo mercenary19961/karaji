@@ -25,5 +25,13 @@ class PendingRegistration extends Model
         'phone',
         'plate',
         'label',
+        'license_month',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'license_month' => 'integer',
+        ];
+    }
 }

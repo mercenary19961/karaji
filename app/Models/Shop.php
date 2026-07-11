@@ -51,7 +51,7 @@ class Shop extends Model
      * any context (no auth) — used by both QR auto-accept and the accept flow.
      * Idempotent on the shop's unique (phone) customer and (plate) car.
      */
-    public function registerCar(string $name, string $phone, string $plate, ?string $label = null): Car
+    public function registerCar(string $name, string $phone, string $plate, ?string $label = null, ?int $licenseMonth = null): Car
     {
         $customer = Customer::withoutGlobalScope('shop')
             ->where('shop_id', $this->id)
@@ -70,7 +70,7 @@ class Shop extends Model
             ->first();
 
         if ($car === null) {
-            $car = new Car(['customer_id' => $customer->id, 'plate' => $plate, 'label' => $label]);
+            $car = new Car(['customer_id' => $customer->id, 'plate' => $plate, 'label' => $label, 'license_month' => $licenseMonth]);
             $car->shop_id = $this->id;
             $car->save();
         }

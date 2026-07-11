@@ -34,6 +34,7 @@ class JoinController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'plate' => ['required', 'string', 'max:20'],
             'label' => ['nullable', 'string', 'max:120'],
+            'license_month' => ['nullable', 'integer', 'between:1,12'],
         ], [
             'name.required' => 'لازم تكتب اسمك',
             'phone.required' => 'لازم رقم التلفون',
@@ -41,7 +42,13 @@ class JoinController extends Controller
         ]);
 
         if ($shop->auto_accept_registrations) {
-            $shop->registerCar($validated['name'], $validated['phone'], $validated['plate'], $validated['label'] ?? null);
+            $shop->registerCar(
+                $validated['name'],
+                $validated['phone'],
+                $validated['plate'],
+                $validated['label'] ?? null,
+                $validated['license_month'] ?? null,
+            );
         } else {
             $shop->pendingRegistrations()->create($validated);
         }

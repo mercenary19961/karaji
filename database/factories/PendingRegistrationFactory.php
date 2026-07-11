@@ -19,6 +19,7 @@ class PendingRegistrationFactory extends Factory
             'phone' => '07'.fake()->numerify('########'),
             'plate' => fake()->numerify('##-#####'),
             'label' => fake()->optional()->randomElement(['تويوتا كورولا 2018', 'هيونداي إلنترا 2020', 'كيا سيراتو 2019']),
+            'license_month' => fake()->optional()->numberBetween(1, 12),
         ];
     }
 }

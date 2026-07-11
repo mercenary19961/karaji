@@ -13,6 +13,7 @@ interface PendingItem {
     phone: string;
     plate: string;
     label: string | null;
+    licenseMonth: string | null;
     ago: string;
 }
 
@@ -107,6 +108,12 @@ export default function Registrations({ shop, joinUrl, autoAccept, pending }: Pr
                                                 <div className="flex gap-2">
                                                     <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_car')}</span>
                                                     <span className="font-bold">{item.label}</span>
+                                                </div>
+                                            )}
+                                            {item.licenseMonth && (
+                                                <div className="flex gap-2">
+                                                    <span className="text-muted-foreground w-16 shrink-0 font-medium">{t('reg.field_license')}</span>
+                                                    <span className="font-bold">{item.licenseMonth}</span>
                                                 </div>
                                             )}
                                         </div>

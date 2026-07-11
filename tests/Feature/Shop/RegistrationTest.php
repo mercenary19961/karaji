@@ -47,6 +47,7 @@ class RegistrationTest extends TestCase
             'phone' => '0791234567',
             'plate' => '30-45678',
             'label' => 'مازدا 3',
+            'license_month' => 9,
         ]);
 
         $response = $this->actingAs($this->user)->post("/shop/registrations/{$pending->id}/accept");
@@ -54,9 +55,11 @@ class RegistrationTest extends TestCase
         $this->assertSame(0, PendingRegistration::query()->count());
         $this->assertSame('0791234567', Customer::query()->sole()->phone);
 
-        // Accept lands the owner on a new visit for the just-added car
+        // Accept lands the owner on a new visit for the just-added car, carrying
+        // the customer-supplied license month onto it
         $car = Car::query()->sole();
         $this->assertSame('30-45678', $car->plate);
+        $this->assertSame(9, $car->license_month);
         $response->assertRedirect("/shop/visits/new?car={$car->id}");
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Models\PendingRegistration;
+use App\Support\Format;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,6 +29,7 @@ class RegistrationController extends ShopController
                 'phone' => $reg->phone,
                 'plate' => $reg->plate,
                 'label' => $reg->label,
+                'licenseMonth' => $reg->license_month === null ? null : Format::monthName($reg->license_month),
                 'ago' => $reg->created_at->locale(app()->getLocale())->diffForHumans(),
             ]);
 
@@ -46,6 +48,7 @@ class RegistrationController extends ShopController
             $pendingRegistration->phone,
             $pendingRegistration->plate,
             $pendingRegistration->label,
+            $pendingRegistration->license_month,
         );
 
         $pendingRegistration->delete();
