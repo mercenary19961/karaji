@@ -55,7 +55,7 @@ const dict = {
     'dash.search': { ar: 'رقم اللوحة أو التلفون', en: 'Plate or phone number' },
     'dash.new_visit': { ar: 'زيارة جديدة', en: 'New visit' },
     'dash.today_cars': { ar: 'سيارات اليوم', en: "Today's cars" },
-    'dash.due_count': { ar: 'مستحق التذكير', en: 'Due for reminder' },
+    'dash.due_count': { ar: 'بحتاج التذكير', en: 'Due for reminder' },
     'dash.month_income': { ar: 'دخل الشهر', en: "Month's income" },
     'dash.due_today': { ar: 'مستحق التواصل اليوم', en: 'To contact today' },
     'dash.view_all': { ar: 'شوف الكل ←', en: 'View all →' },
