@@ -2,7 +2,7 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, usePoll } from '@inertiajs/react';
 import { Mail, Send } from 'lucide-react';
 import { type FormEvent } from 'react';
 
@@ -30,6 +30,10 @@ interface Props {
 export default function Messages({ shop, messages, suggestions }: Props) {
     const { flash } = usePage<SharedData>().props;
     const t = useT();
+
+    // New messages from the admin arrive without a refresh (the composer's typed
+    // text is preserved — polling merges props without remounting the component).
+    usePoll(15000, { only: ['messages', 'suggestions'] });
 
     const form = useForm({ body: '' });
 

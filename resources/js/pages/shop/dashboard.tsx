@@ -1,9 +1,9 @@
 import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
-import { type DashboardAnnouncement, type DueTodayItem, type Shop, type ShopStats } from '@/types/shop';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Megaphone, MessageCircle, Plus, Search, X } from 'lucide-react';
+import { type DashboardAnnouncement, type DueTodayItem, type RecentVisit, type Shop, type ShopStats } from '@/types/shop';
+import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
+import { Megaphone, MessageCircle, Plus, QrCode, Search, X } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface LostCustomer {
@@ -19,12 +19,16 @@ interface Props {
     dueToday: DueTodayItem[];
     announcements: DashboardAnnouncement[];
     lostCustomers: LostCustomer[];
+    recentVisits: RecentVisit[];
 }
 
-export default function Dashboard({ shop, stats, dueToday, announcements, lostCustomers }: Props) {
-    const { flash } = usePage<SharedData>().props;
+export default function Dashboard({ shop, stats, dueToday, announcements, lostCustomers, recentVisits }: Props) {
+    const { flash, pendingCount } = usePage<SharedData>().props;
     const t = useT();
     const [q, setQ] = useState('');
+
+    // New announcements (and the pending-request alert) surface without a refresh
+    usePoll(15000, { only: ['announcements'] });
 
     const search = (e: FormEvent) => {
         e.preventDefault();
@@ -58,6 +62,17 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                     </button>
                 </div>
             ))}
+
+            {pendingCount > 0 && (
+                <Link
+                    href={route('shop.registrations')}
+                    className="border-cta bg-due flex items-center gap-3 rounded-2xl border-2 p-4 transition-transform hover:scale-[1.01]"
+                >
+                    <QrCode className="text-due-foreground size-6 shrink-0" aria-hidden />
+                    <div className="text-due-foreground flex-1 text-[16px] font-extrabold">{t('dash.pending', { count: pendingCount })}</div>
+                    <span className="text-due-foreground text-[15px] font-bold whitespace-nowrap underline">{t('dash.pending_cta')}</span>
+                </Link>
+            )}
 
             <div className="flex flex-col gap-3 md:flex-row">
                 <form onSubmit={search} className="relative flex-1">
@@ -167,6 +182,37 @@ export default function Dashboard({ shop, stats, dueToday, announcements, lostCu
                         {lostCustomers.length === 0 && <div className="text-muted-foreground p-4 text-center text-sm">{t('dash.no_losing')}</div>}
                     </div>
                 </div>
+            </div>
+
+            {/* Latest visits — recent activity, so the dashboard isn't only overdue */}
+            <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-extrabold">{t('dash.recent')}</h2>
+                    <Link href={route('shop.clients')} className="text-primary flex min-h-12 items-center px-2 text-[15px] font-bold">
+                        {t('dash.all_clients')}
+                    </Link>
+                </div>
+                {recentVisits.length === 0 ? (
+                    <div className="bg-card text-muted-foreground rounded-2xl p-5 text-center text-base">{t('dash.no_recent')}</div>
+                ) : (
+                    <div className="grid gap-2.5 md:grid-cols-2">
+                        {recentVisits.map((visit) => (
+                            <Link
+                                key={visit.id}
+                                href={route('shop.cars.show', visit.carId)}
+                                className="bg-card flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm"
+                            >
+                                <div className="min-w-0">
+                                    <div className="truncate text-[17px] font-bold">
+                                        {visit.car} · {visit.owner}
+                                    </div>
+                                    <div className="text-muted-foreground mt-0.5 truncate text-[15px]">{visit.services.join(' · ')}</div>
+                                </div>
+                                <span className="text-muted-foreground shrink-0 text-sm font-medium whitespace-nowrap">{visit.date}</span>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
         </ShopLayout>
     );

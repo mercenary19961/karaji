@@ -59,6 +59,8 @@ class ShopsController extends Controller
                 'nameEn' => $shop->name_en,
                 'area' => $shop->area,
                 'areaEn' => $shop->area_en,
+                'phone' => $shop->phone,
+                'defaultDailyKm' => $shop->default_daily_km,
                 'stats' => [
                     ['label' => 'Visits this month', 'value' => $shop->visits()->where('visited_at', '>=', now()->startOfMonth())->count()],
                     ['label' => 'Cars on file', 'value' => $shop->cars()->count()],
@@ -91,7 +93,11 @@ class ShopsController extends Controller
         ]);
     }
 
-    /** Edit a shop's Arabic + English name/area (the identity shown per locale). */
+    /**
+     * Edit a shop's identity (Arabic + English name/area shown per locale), its
+     * contact phone, and the default daily-km used to estimate reminder due-dates
+     * for brand-new cars (the engine learns each car's real pace from its visits).
+     */
     public function update(Request $request, Shop $shop): RedirectResponse
     {
         $validated = $request->validate([
@@ -99,6 +105,8 @@ class ShopsController extends Controller
             'name_en' => ['nullable', 'string', 'max:120'],
             'area' => ['nullable', 'string', 'max:120'],
             'area_en' => ['nullable', 'string', 'max:120'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'default_daily_km' => ['required', 'integer', 'min:5', 'max:500'],
         ]);
 
         $shop->update($validated);

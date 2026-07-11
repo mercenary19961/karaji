@@ -16,7 +16,7 @@ class ShopUpdateTest extends TestCase
         return User::factory()->admin()->create();
     }
 
-    public function test_admin_can_edit_a_shops_arabic_and_english_name_and_area()
+    public function test_admin_can_edit_a_shops_identity_phone_and_reminder_pace()
     {
         $shop = Shop::factory()->create(['name' => 'كراج قديم', 'name_en' => null, 'area' => 'ماركا', 'area_en' => null]);
 
@@ -26,6 +26,8 @@ class ShopUpdateTest extends TestCase
                 'name_en' => 'Abu Ramez Garage',
                 'area' => 'ماركا',
                 'area_en' => 'Marka',
+                'phone' => '065551234',
+                'default_daily_km' => 60,
             ])
             ->assertRedirect();
 
@@ -33,6 +35,17 @@ class ShopUpdateTest extends TestCase
         $this->assertSame('كراج أبو رامز', $shop->name);
         $this->assertSame('Abu Ramez Garage', $shop->name_en);
         $this->assertSame('Marka', $shop->area_en);
+        $this->assertSame('065551234', $shop->phone);
+        $this->assertSame(60, $shop->default_daily_km);
+    }
+
+    public function test_the_daily_km_is_required_and_bounded()
+    {
+        $shop = Shop::factory()->create();
+
+        $this->actingAs($this->admin())
+            ->put("/admin/shops/{$shop->id}", ['name' => 'كراج', 'default_daily_km' => 0])
+            ->assertSessionHasErrors('default_daily_km');
     }
 
     public function test_the_arabic_name_is_required()

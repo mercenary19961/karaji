@@ -3,13 +3,14 @@ import ShopLayout from '@/layouts/shop-layout';
 import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { Camera, LogOut, UserRound } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Camera, ChevronLeft, Coins, LogOut, QrCode, UserRound } from 'lucide-react';
 import { type ChangeEvent, type FormEvent } from 'react';
 
 interface Props {
     shop: Shop;
     account: { name: string; email: string };
+    autoAccept: boolean;
 }
 
 // Matches the shop portal's field style; the ring-0 overrides drop PasswordInput's
@@ -23,11 +24,13 @@ function FieldError({ message }: { message?: string }) {
     return <div className="text-destructive mt-1.5 text-[15px] font-bold">{message}</div>;
 }
 
-export default function Account({ shop, account }: Props) {
+export default function Account({ shop, account, autoAccept }: Props) {
     const { flash, auth, errors } = usePage<SharedData>().props;
     const t = useT();
     const avatarUrl = auth.user.avatar_url;
     const avatarError = (errors as Record<string, string>)?.avatar;
+
+    const toggleAutoAccept = () => router.put(route('shop.account.settings'), { auto_accept_registrations: !autoAccept }, { preserveScroll: true });
 
     const form = useForm({
         current_password: '',
@@ -137,6 +140,46 @@ export default function Account({ shop, account }: Props) {
                         {t('acct.save_password')}
                     </button>
                 </form>
+
+                <Link
+                    href={route('shop.service-prices')}
+                    className="bg-card flex h-14 items-center justify-between rounded-2xl px-4 text-[17px] font-bold shadow-sm"
+                >
+                    <span className="flex items-center gap-2.5">
+                        <Coins className="text-primary size-5" aria-hidden />
+                        {t('nav.prices')}
+                    </span>
+                    <ChevronLeft className="text-muted-foreground size-5 ltr:-scale-x-100" aria-hidden />
+                </Link>
+
+                <Link
+                    href={route('shop.registrations')}
+                    className="bg-card flex h-14 items-center justify-between rounded-2xl px-4 text-[17px] font-bold shadow-sm"
+                >
+                    <span className="flex items-center gap-2.5">
+                        <QrCode className="text-primary size-5" aria-hidden />
+                        {t('nav.registrations')}
+                    </span>
+                    <ChevronLeft className="text-muted-foreground size-5 ltr:-scale-x-100" aria-hidden />
+                </Link>
+
+                {/* Auto-accept toggle for QR sign-up requests */}
+                <div className="bg-card flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm">
+                    <div className="min-w-0">
+                        <div className="text-[16px] font-bold">{t('acct.auto_accept')}</div>
+                        <div className="text-muted-foreground mt-0.5 text-[13.5px] leading-snug">{t('acct.auto_accept_hint')}</div>
+                    </div>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={autoAccept}
+                        aria-label={t('acct.auto_accept')}
+                        onClick={toggleAutoAccept}
+                        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${autoAccept ? 'bg-success' : 'bg-input'}`}
+                    >
+                        <span className={`absolute top-1 size-5 rounded-full bg-white shadow transition-all ${autoAccept ? 'start-6' : 'start-1'}`} />
+                    </button>
+                </div>
 
                 <button
                     type="button"

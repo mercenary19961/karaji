@@ -28,6 +28,16 @@ export interface DueTodayItem {
     overdueLabel: string;
 }
 
+/** A recent visit shown on the dashboard "latest visits" strip. */
+export interface RecentVisit {
+    id: number;
+    carId: number;
+    car: string;
+    owner: string;
+    date: string;
+    services: string[];
+}
+
 /** A car in the entry-page client-side search index. */
 export interface CarSearchItem {
     id: number;
@@ -44,6 +54,16 @@ export interface ServiceTypeOption {
     name: string;
     /** Localized chip caption. */
     label: string;
+    /** The shop's saved default price, pre-filled on the form (null = unpriced). */
+    defaultPrice: string | null;
+}
+
+/** A row on the service-prices settings page. */
+export interface ServicePriceRow {
+    id: number;
+    label: string;
+    /** Current default price as a string ('' when none is set). */
+    price: string;
 }
 
 /** Car context shown at the top of the new-visit form. */
@@ -82,10 +102,12 @@ export interface SavedVisit {
 }
 
 export interface CarVisit {
+    id: number;
     date: string;
     km: string;
     price: string | null;
     services: string[];
+    notes: string | null;
 }
 
 export interface CarProfile {
@@ -119,7 +141,13 @@ export interface Reminder {
 }
 
 export interface Analytics {
-    months: { label: string; year: number; visits: number }[];
-    topServices: { label: string; count: number }[];
+    months: { label: string; month: number; year: number; visits: number }[];
+    topServices: { label: string; count: number; revenue: string | null }[];
     lostCustomers: { owner: string; ownerAr: string; car: string; carAr: string; lastVisit: string; whatsapp: string }[];
+    /** The month the chart window ends at (and the highlighted bar). */
+    selected: { year: number; month: number };
+    /** Upper bound for the picker — the current month (no future data). */
+    max: { year: number; month: number };
+    /** Localized month names, index 0 = month 1. */
+    monthNames: string[];
 }

@@ -29,6 +29,7 @@ export interface SharedData {
     flash: { success: string | null; error: string | null };
     impersonating: boolean;
     shopUnread: number;
+    pendingCount: number;
     [key: string]: unknown;
 }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shop;
 
 use App\Models\Car;
 use App\Models\Customer;
+use App\Models\ServicePrice;
 use App\Models\ServiceType;
 use App\Models\Visit;
 use App\Services\Reminders\ReminderEngine;
@@ -29,6 +30,8 @@ class VisitController extends ShopController
     {
         $shopId = $request->user()->shop_id;
 
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+
         $car = $request->query('car') === null
             ? null
             : Car::query()->with('customer', 'latestVisit')->findOrFail((int) $request->query('car'));
@@ -53,9 +56,15 @@ class VisitController extends ShopController
                 'lastOilType' => $car->latestVisit?->oil_type,
             ],
             // `name` is the stable Arabic key (matched in the form + used in the
-            // Arabic WhatsApp summary); `label` is the localized chip caption.
+            // Arabic WhatsApp summary); `label` is the localized chip caption;
+            // `defaultPrice` pre-fills the per-service price box (null = unpriced).
             'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name', 'name_en'])
-                ->map(fn (ServiceType $s) => ['id' => $s->id, 'name' => $s->name, 'label' => $s->displayName()]),
+                ->map(fn (ServiceType $s) => [
+                    'id' => $s->id,
+                    'name' => $s->name,
+                    'label' => $s->displayName(),
+                    'defaultPrice' => $defaultPrices->get($s->id) === null ? null : (string) (float) $defaultPrices->get($s->id),
+                ]),
             'oilBrands' => self::OIL_BRANDS,
             'oilTypes' => collect(self::OIL_TYPES)->map(fn (string $key) => ['key' => $key, 'label' => __("shop.oil_{$key}")])->values(),
             'savedVisit' => $saved === null ? null : [
@@ -99,7 +108,11 @@ class VisitController extends ShopController
             'services.*' => ['integer'],
             'oil_brand' => ['nullable', 'string', 'max:60'],
             'oil_type' => ['nullable', Rule::in(self::OIL_TYPES)],
-            'price' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            // Per-service prices, keyed by service id (empty ones sent as null)
+            'prices' => ['array'],
+            'prices.*' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'labor' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'notes' => ['nullable', 'string', 'max:2000'],
         ], [
             'km.required' => __('shop.km_required'),
             'km.integer' => __('shop.km_number'),
@@ -127,19 +140,126 @@ class VisitController extends ShopController
 
         $visit = $car->visits()->make([
             'km' => $validated['km'],
-            'price' => $validated['price'] ?? null,
+            'labor' => $validated['labor'] ?? null,
+            'notes' => $validated['notes'] ?? null,
             'oil_brand' => $validated['oil_brand'] ?? null,
             'oil_type' => $oilType,
             'visited_at' => now(),
         ]);
         $visit->save();
-        $visit->services()->attach($serviceIds);
+
+        // Each service's charged price = the per-visit override if given, else
+        // the shop's saved default (may be null → recorded without a price).
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+        $submitted = $validated['prices'] ?? [];
+
+        $visit->services()->attach($serviceIds->mapWithKeys(function (int $id) use ($submitted, $defaultPrices) {
+            $override = $submitted[$id] ?? null;
+            $price = is_numeric($override) ? $override : $defaultPrices->get($id);
+
+            return [$id => ['price' => $price]];
+        })->all());
 
         $this->engine->scheduleOilReminder($car);
 
         return redirect()
             ->route('shop.visits.create', ['car' => $car->id, 'saved' => $visit->id])
             ->with('success', __('shop.visit_saved'));
+    }
+
+    public function edit(Request $request, Visit $visit): Response
+    {
+        $shopId = $request->user()->shop_id;
+        $visit->load(['car.customer', 'services']);
+
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+
+        return Inertia::render('shop/edit-visit', [
+            'shop' => $this->shopProps($request),
+            'visit' => [
+                'id' => $visit->id,
+                'carId' => $visit->car_id,
+                'carLabel' => $visit->car->displayLabel(),
+                'plate' => $visit->car->plate,
+                'owner' => $visit->car->customer->displayName(),
+                'date' => $visit->visited_at->format('d/m/Y'),
+                'km' => (string) $visit->km,
+                'labor' => $visit->labor === null ? '' : (string) (float) $visit->labor,
+                'notes' => $visit->notes ?? '',
+                'oilBrand' => $visit->oil_brand,
+                'oilType' => $visit->oil_type,
+                // Current services + the price charged for each
+                'services' => $visit->services->map(fn (ServiceType $s) => [
+                    'id' => $s->id,
+                    'price' => $s->pivot->price === null ? '' : (string) (float) $s->pivot->price,
+                ]),
+            ],
+            'serviceTypes' => ServiceType::availableToShop($shopId)->get(['id', 'name', 'name_en'])
+                ->map(fn (ServiceType $s) => [
+                    'id' => $s->id,
+                    'name' => $s->name,
+                    'label' => $s->displayName(),
+                    'defaultPrice' => $defaultPrices->get($s->id) === null ? null : (string) (float) $defaultPrices->get($s->id),
+                ]),
+            'oilBrands' => self::OIL_BRANDS,
+            'oilTypes' => collect(self::OIL_TYPES)->map(fn (string $key) => ['key' => $key, 'label' => __("shop.oil_{$key}")])->values(),
+        ]);
+    }
+
+    public function update(Request $request, Visit $visit): RedirectResponse
+    {
+        $shopId = $request->user()->shop_id;
+
+        $validated = $request->validate([
+            'km' => ['required', 'integer', 'min:0', 'max:2000000'],
+            'services' => ['required', 'array', 'min:1'],
+            'services.*' => ['integer'],
+            'oil_brand' => ['nullable', 'string', 'max:60'],
+            'oil_type' => ['nullable', Rule::in(self::OIL_TYPES)],
+            'prices' => ['array'],
+            'prices.*' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'labor' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ], [
+            'km.required' => __('shop.km_required'),
+            'km.integer' => __('shop.km_number'),
+            'services.required' => __('shop.services_required'),
+        ]);
+
+        $serviceIds = ServiceType::availableToShop($shopId)
+            ->whereIn('id', $validated['services'])
+            ->pluck('id');
+
+        if ($serviceIds->count() !== count(array_unique($validated['services']))) {
+            throw ValidationException::withMessages(['services' => __('shop.service_invalid')]);
+        }
+
+        $isOilChange = ServiceType::query()->whereIn('id', $serviceIds)->where('name', ServiceType::OIL_CHANGE)->exists();
+        $oilType = $isOilChange ? ($validated['oil_type'] ?? ReminderEngine::DEFAULT_OIL_TYPE) : null;
+
+        $visit->update([
+            'km' => $validated['km'],
+            'labor' => $validated['labor'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'oil_brand' => $validated['oil_brand'] ?? null,
+            'oil_type' => $oilType,
+        ]);
+
+        // `sync` replaces the visit's services with the new set + charged prices
+        $defaultPrices = ServicePrice::query()->pluck('price', 'service_type_id');
+        $submitted = $validated['prices'] ?? [];
+
+        $visit->services()->sync($serviceIds->mapWithKeys(function (int $id) use ($submitted, $defaultPrices) {
+            $override = $submitted[$id] ?? null;
+            $price = is_numeric($override) ? $override : $defaultPrices->get($id);
+
+            return [$id => ['price' => $price]];
+        })->all());
+
+        // km / oil-type / services may have changed → re-derive the oil reminder
+        $this->engine->scheduleOilReminder($visit->car);
+
+        return redirect()->route('shop.cars.show', $visit->car_id)->with('success', __('shop.visit_updated'));
     }
 
     /**

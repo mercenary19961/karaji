@@ -38,6 +38,8 @@ export default function ShopDetailPage({ shop }: Props) {
         name_en: shop.nameEn ?? '',
         area: shop.area ?? '',
         area_en: shop.areaEn ?? '',
+        phone: shop.phone ?? '',
+        default_daily_km: String(shop.defaultDailyKm),
     });
 
     const saveDetails = (e: FormEvent) => {
@@ -120,6 +122,28 @@ export default function ShopDetailPage({ shop }: Props) {
                             placeholder="e.g. Marka"
                             className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
                         />
+                    </label>
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Phone
+                        <input
+                            dir="ltr"
+                            inputMode="tel"
+                            value={details.data.phone}
+                            onChange={(e) => details.setData('phone', e.target.value)}
+                            placeholder="e.g. 065551234"
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                    </label>
+                    <label className="text-muted-foreground flex flex-col gap-1 text-sm">
+                        Avg. daily km (reminder pace for new cars)
+                        <input
+                            dir="ltr"
+                            inputMode="numeric"
+                            value={details.data.default_daily_km}
+                            onChange={(e) => details.setData('default_daily_km', e.target.value)}
+                            className="border-input bg-card text-foreground focus-visible:border-ring h-11 rounded-lg border px-3 text-[15px] outline-none"
+                        />
+                        {details.errors.default_daily_km && <span className="text-destructive font-bold">{details.errors.default_daily_km}</span>}
                     </label>
                 </div>
                 <button

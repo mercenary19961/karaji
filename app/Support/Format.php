@@ -16,7 +16,7 @@ class Format
         return number_format($km);
     }
 
-    public static function price(?string $price): ?string
+    public static function price(float|string|null $price): ?string
     {
         if ($price === null) {
             return null;

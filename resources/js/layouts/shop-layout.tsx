@@ -1,8 +1,9 @@
+import { BackButton } from '@/components/back-button';
 import { useT, type TKey } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type Shop } from '@/types/shop';
-import { Link, router, usePage } from '@inertiajs/react';
-import { Bell, ChartColumn, House, Languages, LogOut, MessageSquare, Plus, UserRound, type LucideIcon } from 'lucide-react';
+import { Link, router, usePage, usePoll } from '@inertiajs/react';
+import { Bell, ChartColumn, Coins, House, Languages, LogOut, MessageSquare, Plus, QrCode, UserRound, Users, type LucideIcon } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
 
 interface NavItem {
@@ -34,6 +35,29 @@ const newVisitItem: NavItem = {
     isActive: (url) => url.startsWith('/shop/entry') || url.startsWith('/shop/visits'),
 };
 
+// The clients directory — desktop sidebar; mobile reaches it from the dashboard
+const clientsItem: NavItem = {
+    labelKey: 'nav.clients',
+    href: '/shop/clients',
+    icon: Users,
+    isActive: (url) => url.startsWith('/shop/clients'),
+};
+
+// Settings-level items — desktop sidebar only (mobile reaches them via account)
+const servicePricesItem: NavItem = {
+    labelKey: 'nav.prices',
+    href: '/shop/service-prices',
+    icon: Coins,
+    isActive: (url) => url.startsWith('/shop/service-prices'),
+};
+
+const registrationsItem: NavItem = {
+    labelKey: 'nav.registrations',
+    href: '/shop/registrations',
+    icon: QrCode,
+    isActive: (url) => url.startsWith('/shop/registrations'),
+};
+
 const accountItem: NavItem = {
     labelKey: 'nav.account',
     href: '/shop/account',
@@ -42,11 +66,19 @@ const accountItem: NavItem = {
 };
 
 export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop: Shop }>) {
-    const { name, impersonating, auth, locale, shopUnread } = usePage<SharedData>().props;
+    const { name, impersonating, auth, locale, shopUnread, pendingCount } = usePage<SharedData>().props;
     const { url } = usePage();
     const t = useT();
 
-    const sidebarNav = [...primaryNav, accountItem];
+    // Keep the message + pending-request badges live on every screen without a
+    // manual refresh (Inertia pauses polling automatically when the tab is hidden).
+    usePoll(15000, { only: ['shopUnread', 'pendingCount'] });
+
+    const sidebarNav = [...primaryNav, clientsItem, servicePricesItem, registrationsItem, accountItem];
+
+    // A back button on every drill-down screen (i.e. anything that isn't a
+    // top-level tab) so the owner never has to restart from the nav.
+    const showBack = !primaryNav.some((item) => item.href === url.split('?')[0]);
     const avatarUrl = auth.user.avatar_url;
 
     const otherLocale = locale === 'en' ? 'ar' : 'en';
@@ -57,8 +89,10 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
             {/* ===== Desktop sidebar (tablet & up) ===== */}
             <aside className="bg-primary text-primary-foreground hidden w-64 shrink-0 flex-col p-4 md:flex">
                 <div className="flex items-center gap-2.5 px-2 pt-2 pb-5">
-                    {/* Brand from APP_NAME via shared `name` — never hardcoded */}
-                    <div className="text-[26px] font-extrabold tracking-wide">{name}</div>
+                    {/* Brand from APP_NAME via shared `name` — never hardcoded; links home */}
+                    <Link href={route('shop.dashboard')} className="text-[26px] font-extrabold tracking-wide">
+                        {name}
+                    </Link>
                 </div>
 
                 <nav className="flex flex-col gap-1">
@@ -91,6 +125,11 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                                 {item.href === '/shop/messages' && shopUnread > 0 && (
                                     <span className="bg-destructive text-destructive-foreground ms-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-extrabold">
                                         {shopUnread}
+                                    </span>
+                                )}
+                                {item.href === '/shop/registrations' && pendingCount > 0 && (
+                                    <span className="bg-cta text-cta-foreground ms-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-extrabold">
+                                        {pendingCount}
                                     </span>
                                 )}
                             </Link>
@@ -150,7 +189,9 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                 {/* Mobile header (phones only) */}
                 <header className="bg-primary text-primary-foreground flex items-center justify-between gap-3 px-5 pt-4 pb-3.5 md:hidden">
                     <div className="min-w-0">
-                        <div className="text-2xl font-extrabold tracking-wide">{name}</div>
+                        <Link href={route('shop.dashboard')} className="block text-2xl font-extrabold tracking-wide">
+                            {name}
+                        </Link>
                         <div className="text-primary-foreground/70 truncate text-[13px] font-medium">
                             {shop.name} · {shop.area}
                         </div>
@@ -160,11 +201,24 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
                             type="button"
                             onClick={switchLanguage}
                             aria-label={locale === 'en' ? 'التبديل إلى العربية' : 'Switch to English'}
-                            className="flex h-11 items-center justify-center gap-1 rounded-full bg-white/10 px-3 text-[13px] font-extrabold"
+                            className="flex size-11 items-center justify-center rounded-full bg-white/10 text-[14px] leading-none font-extrabold"
                         >
-                            <Languages className="size-5" aria-hidden />
-                            {locale === 'en' ? 'ع' : 'EN'}
+                            <span className="leading-none">{locale === 'en' ? 'ع' : 'EN'}</span>
                         </button>
+                        <Link
+                            href={route('shop.registrations')}
+                            aria-label={t('nav.registrations')}
+                            className={`relative flex size-11 shrink-0 items-center justify-center rounded-full ${
+                                registrationsItem.isActive(url) ? 'bg-white/25' : 'bg-white/10'
+                            }`}
+                        >
+                            <QrCode className="size-5" aria-hidden />
+                            {pendingCount > 0 && (
+                                <span className="bg-cta text-cta-foreground absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-extrabold">
+                                    {pendingCount}
+                                </span>
+                            )}
+                        </Link>
                         <Link
                             href={route('shop.account')}
                             aria-label={t('nav.account')}
@@ -183,6 +237,7 @@ export default function ShopLayout({ shop, children }: PropsWithChildren<{ shop:
 
                 {/* Capped like the old design on phones; opens up on tablet+ */}
                 <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 px-4 pt-5 pb-28 md:max-w-6xl md:gap-5 md:px-8 md:pt-8 md:pb-12">
+                    {showBack && <BackButton />}
                     {children}
                 </main>
 

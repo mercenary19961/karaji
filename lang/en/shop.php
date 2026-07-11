@@ -9,11 +9,16 @@ return [
     'phone_required' => 'Phone number is required',
     'plate_required' => 'Plate number is required',
     'plate_unique' => 'This plate is already registered · find it from search',
+    'phone_unique' => 'This phone is already registered to another customer',
     'service_invalid' => 'Invalid service selected',
+
+    // Client edit
+    'client_updated' => 'Changes saved',
 
     // Visit flash
     'visit_saved' => 'Visit saved',
     'visit_undone' => 'Visit undone',
+    'visit_updated' => 'Changes saved',
 
     // Oil types (chips)
     'oil_mineral' => 'Mineral',
@@ -34,6 +39,14 @@ return [
     // Suggestions
     'suggestion_required' => 'Write your suggestion',
     'suggestion_sent' => 'Got your suggestion, thanks',
+
+    // Service prices
+    'prices_saved' => 'Prices saved',
+
+    // QR customer sign-up
+    'reg_accepted' => 'Customer added',
+    'reg_rejected' => 'Request rejected',
+    'settings_saved' => 'Settings saved',
 
     // Account: avatar
     'avatar_required' => 'Choose an image',

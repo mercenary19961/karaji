@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\JoinController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,10 @@ Route::get('/', function () {
 
 // Guest-accessible language toggle for the auth pages (persists in session).
 Route::get('locale/{locale}', LocaleController::class)->name('locale');
+
+// Public QR self-registration (a shop's customers scan → register their car).
+Route::get('join/{token}', [JoinController::class, 'show'])->name('join.show');
+Route::post('join/{token}', [JoinController::class, 'store'])->middleware('throttle:10,1')->name('join.store');
 
 Route::middleware(['auth'])->group(function () {
     // Legacy scaffold route — kept only so stray route('dashboard') links land

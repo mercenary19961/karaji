@@ -11,11 +11,16 @@ return [
     'phone_required' => 'لازم رقم التلفون',
     'plate_required' => 'لازم رقم اللوحة',
     'plate_unique' => 'هاللوحة مسجلة عندك من قبل · دوّرها من البحث',
+    'phone_unique' => 'هالتلفون مسجّل عندك لزبون ثاني',
     'service_invalid' => 'في خدمة مش صالحة',
+
+    // Client edit
+    'client_updated' => 'انحفظت التعديلات',
 
     // Visit flash
     'visit_saved' => 'انحفظت الزيارة',
     'visit_undone' => 'رجّعنا الزيارة',
+    'visit_updated' => 'انحفظت التعديلات',
 
     // Oil types (chips)
     'oil_mineral' => 'زيت عادي',
@@ -36,6 +41,14 @@ return [
     // Suggestions
     'suggestion_required' => 'اكتب اقتراحك',
     'suggestion_sent' => 'وصلنا اقتراحك، شكراً',
+
+    // Service prices
+    'prices_saved' => 'انحفظت الأسعار',
+
+    // QR customer sign-up
+    'reg_accepted' => 'انضاف الزبون',
+    'reg_rejected' => 'رفضنا الطلب',
+    'settings_saved' => 'انحفظت الإعدادات',
 
     // Account: avatar
     'avatar_required' => 'اختر صورة',

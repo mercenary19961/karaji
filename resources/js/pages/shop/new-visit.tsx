@@ -4,7 +4,7 @@ import { useT } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { type FormCar, type OilTypeOption, type SavedVisit, type ServiceTypeOption, type Shop } from '@/types/shop';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Check, MessageCircle, Search } from 'lucide-react';
+import { Check, MessageCircle, Pencil, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface Props {
@@ -35,28 +35,58 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
     const [newCust, setNewCust] = useState(startNew);
     const [q, setQ] = useState('');
 
-    const form = useForm({
+    const defaultPriceFor = (id: number) => serviceTypes.find((s) => s.id === id)?.defaultPrice ?? '';
+
+    const form = useForm<{
+        name: string;
+        phone: string;
+        plate: string;
+        label: string;
+        km: string;
+        services: number[];
+        prices: Record<number, string>;
+        labor: string;
+        oil_brand: string;
+        oil_type: string;
+        notes: string;
+    }>({
         name: '',
         phone: '',
         plate: '',
         label: '',
         km: '',
         services: defaultServices,
+        prices: Object.fromEntries(defaultServices.map((id) => [id, defaultPriceFor(id)])),
+        labor: '',
         oil_brand: car?.lastOilBrand ?? oilBrands[0],
         oil_type: car?.lastOilType ?? oilTypes[0]?.key ?? '',
-        price: '',
+        notes: '',
     });
 
     // The oil-type control only matters when this visit changes the oil
     const oilChangeSelected = oilChangeId !== undefined && form.data.services.includes(oilChangeId);
+
+    // Per-service price rows + labor → a live total (the visit's revenue)
+    const selectedServices = serviceTypes.filter((s) => form.data.services.includes(s.id));
+    const partsSum = selectedServices.reduce((sum, s) => sum + (parseFloat(form.data.prices[s.id] ?? '') || 0), 0);
+    const total = Math.round((partsSum + (parseFloat(form.data.labor || '') || 0)) * 100) / 100;
 
     const searchCar = (e: FormEvent) => {
         e.preventDefault();
         router.get(route('shop.cars.search'), { q, to: 'visit' });
     };
 
-    const toggleService = (id: number) =>
-        form.setData('services', form.data.services.includes(id) ? form.data.services.filter((s) => s !== id) : [...form.data.services, id]);
+    const toggleService = (id: number) => {
+        const on = form.data.services.includes(id);
+        const services = on ? form.data.services.filter((s) => s !== id) : [...form.data.services, id];
+        const prices = { ...form.data.prices };
+        if (on) {
+            delete prices[id];
+        } else if (prices[id] === undefined) {
+            prices[id] = defaultPriceFor(id); // pre-fill from the shop's saved default
+        }
+        form.setData({ ...form.data, services, prices });
+    };
 
     const save = (e: FormEvent) => {
         e.preventDefault();
@@ -64,7 +94,14 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
             ...data,
             car_id: newCust ? null : (car?.id ?? null),
             km: data.km === '' ? null : Number(data.km.replace(/\D/g, '')),
-            price: data.price === '' ? null : data.price,
+            labor: data.labor === '' ? null : data.labor,
+            notes: data.notes === '' ? null : data.notes,
+            // Only the selected services' prices; blanks go as null (no price)
+            prices: Object.fromEntries(
+                Object.entries(data.prices)
+                    .filter(([id]) => data.services.includes(Number(id)))
+                    .map(([id, price]) => [id, price === '' ? null : price]),
+            ),
         }));
         form.post(route('shop.visits.store'), { preserveScroll: true });
     };
@@ -150,6 +187,13 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                             {car.owner} · {car.phone}
                         </div>
                         {car.lastService && <div className="text-muted-foreground mt-1 text-[15px]">{car.lastService}</div>}
+                        <Link
+                            href={route('shop.cars.edit', car.id)}
+                            className="text-primary mt-2 flex w-fit items-center gap-1 text-[14px] font-bold"
+                        >
+                            <Pencil className="size-3.5" aria-hidden />
+                            {t('car.edit')}
+                        </Link>
                     </div>
                 )}
 
@@ -303,14 +347,58 @@ export default function NewVisit({ shop, car, startNew, serviceTypes, oilBrands,
                                 </>
                             )}
 
+                            {selectedServices.length > 0 && (
+                                <div>
+                                    <div className="mb-2 text-[17px] font-bold">{t('visit.prices')}</div>
+                                    <div className="divide-border/60 bg-secondary flex flex-col divide-y rounded-2xl p-2">
+                                        {selectedServices.map((s) => (
+                                            <div key={s.id} className="flex items-center justify-between gap-3 px-2 py-2">
+                                                <span className="text-[16px] font-bold">{s.label}</span>
+                                                <div className="flex items-center gap-1.5">
+                                                    <input
+                                                        inputMode="decimal"
+                                                        value={form.data.prices[s.id] ?? ''}
+                                                        onChange={(e) => form.setData('prices', { ...form.data.prices, [s.id]: e.target.value })}
+                                                        placeholder="—"
+                                                        aria-label={s.label}
+                                                        className="border-input bg-card focus-visible:border-ring h-11 w-20 rounded-lg border-2 px-2 text-center text-[17px] font-bold outline-none"
+                                                    />
+                                                    <span className="text-muted-foreground text-sm font-bold">{t('common.currency')}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div className="flex items-center justify-between gap-3 px-2 py-2">
+                                            <span className="text-[16px] font-bold">{t('visit.labor')}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <input
+                                                    inputMode="decimal"
+                                                    value={form.data.labor}
+                                                    onChange={(e) => form.setData('labor', e.target.value)}
+                                                    placeholder="—"
+                                                    aria-label={t('visit.labor')}
+                                                    className="border-input bg-card focus-visible:border-ring h-11 w-20 rounded-lg border-2 px-2 text-center text-[17px] font-bold outline-none"
+                                                />
+                                                <span className="text-muted-foreground text-sm font-bold">{t('common.currency')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between px-2 pt-2.5 pb-1">
+                                            <span className="text-[16px] font-extrabold">{t('visit.total')}</span>
+                                            <span className="text-success-soft-foreground text-[18px] font-extrabold">
+                                                {total} {t('common.currency')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div>
-                                <div className="mb-2 text-[17px] font-bold">{t('visit.price')}</div>
-                                <input
-                                    inputMode="decimal"
-                                    placeholder={t('common.currency')}
-                                    value={form.data.price}
-                                    onChange={(e) => form.setData('price', e.target.value)}
-                                    className="border-input bg-card focus-visible:border-ring h-14 w-full rounded-xl border-2 px-4 text-center text-xl font-bold outline-none"
+                                <div className="mb-2 text-[17px] font-bold">{t('visit.notes')}</div>
+                                <textarea
+                                    value={form.data.notes}
+                                    onChange={(e) => form.setData('notes', e.target.value)}
+                                    placeholder={t('visit.notes_placeholder')}
+                                    rows={3}
+                                    className="border-input bg-card focus-visible:border-ring w-full rounded-xl border-2 px-4 py-3 text-[17px] outline-none"
                                 />
                             </div>
 
