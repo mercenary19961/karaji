@@ -54,7 +54,7 @@ class AnalyticsController extends ShopController
             ->get()
             ->filter(fn (ServiceType $service) => $service->visits_count > 0)
             ->sortByDesc('visits_count')
-            ->take(4)
+            // All active services (the page shows the top few + a "show all" toggle)
             ->map(fn (ServiceType $service) => [
                 'label' => $service->displayName(),
                 'count' => $service->visits_count,

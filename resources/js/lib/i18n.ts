@@ -112,6 +112,8 @@ const dict = {
     'stats.monthly': { ar: 'الزيارات شهرياً', en: 'Visits per month' },
     'stats.top_services': { ar: 'أكثر الخدمات', en: 'Top services' },
     'stats.no_services': { ar: 'لسا ما في خدمات مسجلة', en: 'No services recorded yet' },
+    'stats.show_all': { ar: 'شوف كل الخدمات ({count})', en: 'Show all ({count})' },
+    'stats.show_less': { ar: 'شوف أقل', en: 'Show less' },
     'stats.losing': { ar: 'زبائن ما رجعوا', en: 'Customers slipping away' },
     'stats.losing_window': { ar: '(أكثر من 6 أشهر)', en: '(more than 6 months)' },
     'stats.no_losing': { ar: 'ما في زبائن منقطعين · ممتاز 👌', en: 'No lapsed customers · great 👌' },

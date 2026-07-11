@@ -22,6 +22,11 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
 
     const [pickerOpen, setPickerOpen] = useState(false);
     const [viewYear, setViewYear] = useState(selected.year);
+    const [showAllServices, setShowAllServices] = useState(false);
+
+    // Top-services card shows the leading few, with a toggle to reveal the rest
+    const TOP_SERVICES_SHOWN = 4;
+    const visibleServices = showAllServices ? topServices : topServices.slice(0, TOP_SERVICES_SHOWN);
 
     const maxVisits = Math.max(...months.map((m) => m.visits), 1);
     // The window ends at the selected month, so the last bar is the active one
@@ -209,7 +214,7 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                 <div className="bg-card rounded-[18px] p-4 shadow-sm">
                     <h2 className="mb-3 text-[17px] font-extrabold">{t('stats.top_services')}</h2>
                     <div className="flex flex-col gap-2.5">
-                        {topServices.map((service) => (
+                        {visibleServices.map((service) => (
                             <div key={service.label} className="flex items-center justify-between gap-2 text-base">
                                 <span className="font-medium">{service.label}</span>
                                 <span className="flex items-baseline gap-2.5">
@@ -220,6 +225,15 @@ export default function AnalyticsPage({ shop, analytics }: Props) {
                         ))}
                         {topServices.length === 0 && <div className="text-muted-foreground text-base">{t('stats.no_services')}</div>}
                     </div>
+                    {topServices.length > TOP_SERVICES_SHOWN && (
+                        <button
+                            type="button"
+                            onClick={() => setShowAllServices((v) => !v)}
+                            className="text-primary mt-3 min-h-11 text-[15px] font-bold underline"
+                        >
+                            {showAllServices ? t('stats.show_less') : t('stats.show_all', { count: topServices.length })}
+                        </button>
+                    )}
                 </div>
             </div>
 
